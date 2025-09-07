@@ -1,0 +1,5 @@
+LIBRARY ffmpeg-loader
+EXPORTS
+  CreateAvcPixelFormatConverter
+  CreateAvcModuleProvider
+  CreateAvcModuleProvider2
