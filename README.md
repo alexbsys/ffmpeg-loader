@@ -18,17 +18,17 @@ Windows, Linux, macOS, Android, iOS, OpenWRT.
 
 Native FFmpeg integration faces fundamental compatibility issues:
 
-1. *Binary Data Structure Incompatibility*
+1. **Binary Data Structure Incompatibility**
 
 FFmpeg data structures (AVCodecContext, AVFrame, etc.) are unstable between versions — field layout, sizes, and composition change constantly. Even with dynamic function loading, direct structure access causes crashes due to memory layout mismatches.
 
-2. *Pixel Format Incompatibility*
+2. **Pixel Format Incompatibility**
 
 The pixel format system (AVPixelFormat) varies even within the same version:
 
 Different format codes for hardware accelerators (VDPAU, CUDA, VAAPI): dynamic numbering changes when built with specific hardware support
 
-3. *Versioning Complexity*
+3. **Versioning Complexity**
 Each FFmpeg component has its own versioning system:
 
 Major and minor versions for each libav* component, fields in the data structures appearing and disappearing within the same major version
@@ -36,15 +36,15 @@ Major and minor versions for each libav* component, fields in the data structure
 
 ## Static Linking Limitations
 
-The traditional static linking approach creates new problems:
+Static linking of FFmpeg libraries approach creates new problems:
 
-Binary Distribution Complexity — particularly in Linux/macOS ecosystems where libavdevice tightly integrates with system libraries
+* Binary Distribution Complexity — particularly in Linux/macOS ecosystems where `libavdevice` tightly integrates with system libraries, and user cannot change installed version of libraries
 
-Version Conflicts — applications with embedded FFmpeg conflict with system versions
+* Version Conflicts — applications with embedded FFmpeg specific version cannot run everywhere
 
-Hardware Accelerator Issues — statically built FFmpeg with specific SDK support (NVIDIA, Intel Media SDK) often fails on other systems
+* Hardware Accelerator Issues — statically built FFmpeg with specific SDK support (NVIDIA, Intel Media SDK) often fails on other systems
 
-No Fallback Mechanisms — inability to switch to alternative codecs or hardware accelerators
+* No Fallback Mechanisms — inability to handle errors when FFmpeg cannot be loaded
 
 
 ## Solution Architecture
@@ -73,6 +73,7 @@ The library implements a multi-layer abstraction system:
 
 * Extensible — easy addition of new FFmpeg version support
 
+
 ## Benefits
 
 * Guaranteed Compatibility — applications work with any FFmpeg version ≥ 3.2
@@ -83,14 +84,12 @@ The library implements a multi-layer abstraction system:
 
 * Future-Proof — new FFmpeg version support added without client code changes
 
-* Performance — minimal overhead compared to JNI or other solutions
-
 
 
 ## How to build
 
 `ffmpeg-loader` can be compiled as shared or as static library (default), which can be used inside your application.
-Also it can load FFmpeg libraries dynamically, or statically (useful for *ios*).
+Also it can load FFmpeg libraries dynamically, or statically (useful for **ios**).
 
 
 Simple build (loader builds as static library, FFmpeg libraries are loaded in runtime)
