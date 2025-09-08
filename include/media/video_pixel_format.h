@@ -1,3 +1,24 @@
+//
+// Copyright (c) 2025, Alex Bobryshev <alexbobryshev555@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
 
 #ifndef VIDEO_PIXEL_FORMAT_HEADER
 #define VIDEO_PIXEL_FORMAT_HEADER
@@ -205,13 +226,12 @@ enum VideoPixelFormat {
                                  ///< per 1x1 Y samples), big-endian
   VideoPixelFormat_MJPEG,
   VideoPixelFormat_YVYU422,
-  VideoPixelFormat_YUVJ411P,
-  
+  VideoPixelFormat_YUVJ411P,  
   
   VideoPixelFormat_USER = 1024   ///< User pixel formats can be started from this value
 };
 
-// Conversion JPEG pixel formats to base
+/// \brief  Conversion JPEG pixel formats to base
 static VideoPixelFormat VideoPixelFormat_ToBase(const VideoPixelFormat& fmt) {
   switch(fmt) {
     case VideoPixelFormat_YUVJ420P:
@@ -230,7 +250,7 @@ static VideoPixelFormat VideoPixelFormat_ToBase(const VideoPixelFormat& fmt) {
   return fmt;
 }
 
-/// Conversion base pixel formats to JPEG
+/// \brief  Conversion base pixel formats to JPEG
 static VideoPixelFormat VideoPixelFormat_ToJpeg(const VideoPixelFormat& fmt) {
   switch(fmt) {
     case VideoPixelFormat_YUV420P:
@@ -249,7 +269,7 @@ static VideoPixelFormat VideoPixelFormat_ToJpeg(const VideoPixelFormat& fmt) {
   return fmt;
 }
 
-/// Check is JPEG pixel format provided
+/// \brief  Check is JPEG pixel format provided
 static bool VIdeoPixelFormat_IsJpeg(const VideoPixelFormat& fmt) {
   switch(fmt) {
     case VideoPixelFormat_YUVJ420P:
@@ -263,7 +283,7 @@ static bool VIdeoPixelFormat_IsJpeg(const VideoPixelFormat& fmt) {
   }
 }
 
-/// Compare pixel formats, ignore JPEG/base same pixel formats
+/// \brief  Compare pixel formats, ignore JPEG/base same pixel formats
 static bool VideoPixelFormat_IsSame(VideoPixelFormat fmt1, VideoPixelFormat fmt2) {
   if (fmt1 == fmt2)
     return true;

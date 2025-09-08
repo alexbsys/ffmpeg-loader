@@ -1,3 +1,24 @@
+//
+// Copyright (c) 2025, Alex Bobryshev <alexbobryshev555@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
 
 #include "avc_module_provider.h"
 
@@ -13,7 +34,6 @@ extern "C" {
 #include <libswresample/swresample.h>
 }//extern "C"
 #endif //AVC_LIBRARIES_STATIC_LINK
-
 
 #ifdef AVC_LIBRARIES_STATIC_LINK
 
@@ -41,15 +61,14 @@ void Assign(T1& variable, T2* value) {
   variable = reinterpret_cast<T1>(value);
 }
 
-#define AVC_STATIC_HAS_AVFRAME_GETSET_FNS   0
-#define AVC_STATIC_HAS_AV_GET_CHANNEL_FNS   1
-#define AVC_STATIC_HAS_AVCODEC_REGISTER_ALL 0
-
-#define AVC_STATIC_HAS_AVCODEC_ENCODE_VIDEO2  0
-#define AVC_STATIC_HAS_AV_GET_CODEC_TAG_STRING  0
-#define AVC_STATIC_HAS_HWACCEL_FNS          0
-#define AVC_STATIC_HAS_LOCKMGR_REGISTER_FN  0
-#define AVC_STATIC_HAS_AV_HWDEVICE_CTX  0
+#define AVC_STATIC_HAS_AVFRAME_GETSET_FNS      0
+#define AVC_STATIC_HAS_AV_GET_CHANNEL_FNS      1
+#define AVC_STATIC_HAS_AVCODEC_REGISTER_ALL    0
+#define AVC_STATIC_HAS_AVCODEC_ENCODE_VIDEO2   0
+#define AVC_STATIC_HAS_AV_GET_CODEC_TAG_STRING 0
+#define AVC_STATIC_HAS_HWACCEL_FNS             0
+#define AVC_STATIC_HAS_LOCKMGR_REGISTER_FN     0
+#define AVC_STATIC_HAS_AV_HWDEVICE_CTX         0
 
 void AvcModuleProvider::LoadStatically() {
   AvcDataProvidersGlobalInit();
@@ -59,13 +78,13 @@ void AvcModuleProvider::LoadStatically() {
 #if AVC_STATIC_HAS_AVCODEC_ENCODE_VIDEO2
   Assign(avcodec_encode_video2_, &::avcodec_encode_video2);
 #else 
-  avcodec_encode_video2_ = nullptr;    // &::avcodec_encode_video2;
+  avcodec_encode_video2_ = nullptr;
 #endif
 
 #if AVC_STATIC_HAS_AV_GET_CODEC_TAG_STRING
   Assign(av_get_codec_tag_string_, &::av_get_codec_tag_string);
 #else
-  av_get_codec_tag_string_ = nullptr;  // &::av_get_codec_tag_string;
+  av_get_codec_tag_string_ = nullptr;
 #endif
 
   Assign(avcodec_parameters_copy_, &::avcodec_parameters_copy);
@@ -87,14 +106,14 @@ void AvcModuleProvider::LoadStatically() {
   Assign(av_register_hwaccel_, &::av_register_hwaccel);
   Assign(av_hwaccel_next_, &::av_hwaccel_next);
 #else //AVC_STATIC_HAS_HWACCEL_FNS
-  av_register_hwaccel_ = nullptr;  // &::av_register_hwaccel;
-  av_hwaccel_next_ = nullptr;      // &::av_hwaccel_next;
+  av_register_hwaccel_ = nullptr;
+  av_hwaccel_next_ = nullptr;
 #endif //AVC_STATIC_HAS_HWACCEL_FNS
 
 #if AVC_STATIC_HAS_LOCKMGR_REGISTER_FN
   Assign(av_lockmgr_register_, &::av_lockmgr_register);
 #else //AVC_STATIC_HAS_LOCKMGR_REGISTER_FN
-  av_lockmgr_register_ = nullptr;  // &::av_lockmgr_register;
+  av_lockmgr_register_ = nullptr;
 #endif //AVC_STATIC_HAS_LOCKMGR_REGISTER_FN
 
   avcodec_find_decoder_ =
@@ -132,8 +151,8 @@ void AvcModuleProvider::LoadStatically() {
   Assign(av_register_all_, &::av_register_all);
   Assign(avcodec_register_all_, &::avcodec_register_all);
 #else //AVC_STATIC_HAS_AVCODEC_REGISTER_ALL
-  av_register_all_ = nullptr;  // &::av_register_all;
-  avcodec_register_all_ = nullptr;  //&::avcodec_register_all;
+  av_register_all_ = nullptr;
+  avcodec_register_all_ = nullptr;
 #endif //AVC_STATIC_HAS_AVCODEC_REGISTER_ALL
 
   Assign(avformat_flush_, &::avformat_flush);
@@ -217,14 +236,14 @@ void AvcModuleProvider::LoadStatically() {
   Assign(av_frame_set_sample_rate_, &::av_frame_set_sample_rate);
 
 #else //AVC_STATIC_HAS_AVFRAME_GETSET_FNS
-  av_frame_get_channels_ = nullptr;      //&::av_frame_get_channels;
-  av_frame_set_channels_ = nullptr;      //&::av_frame_set_channels;
-  av_frame_get_pkt_duration_ = nullptr;  //&::av_frame_get_pkt_duration;
-  av_frame_set_pkt_duration_ = nullptr;  // &::av_frame_set_pkt_duration;
-  av_frame_get_pkt_pos_ = nullptr;       // &::av_frame_get_pkt_pos;
-  av_frame_set_pkt_pos_ = nullptr;       // &::av_frame_set_pkt_pos;
-  av_frame_get_sample_rate_ = nullptr;   // &::av_frame_get_sample_rate;
-  av_frame_set_sample_rate_ = nullptr;   // &::av_frame_set_sample_rate;
+  av_frame_get_channels_ = nullptr;     
+  av_frame_set_channels_ = nullptr;     
+  av_frame_get_pkt_duration_ = nullptr; 
+  av_frame_set_pkt_duration_ = nullptr; 
+  av_frame_get_pkt_pos_ = nullptr;      
+  av_frame_set_pkt_pos_ = nullptr;      
+  av_frame_get_sample_rate_ = nullptr;  
+  av_frame_set_sample_rate_ = nullptr;  
 #endif //AVC_STATIC_HAS_AVFRAME_GETSET_FNS
   av_free_ = &::av_free;
   av_freep_ = &::av_freep;
@@ -273,15 +292,14 @@ void AvcModuleProvider::LoadStatically() {
   Assign(av_get_channel_description_, &::av_get_channel_description);
   Assign(av_get_standard_channel_layout_, &::av_get_standard_channel_layout);
 #else //AVC_STATIC_HAS_AV_GET_CHANNEL_FNS
-  av_get_channel_layout_ = nullptr;              // &::av_get_channel_layout;
-  av_get_channel_layout_nb_channels_ = nullptr;  // &::av_get_channel_layout_nb_channels;
+  av_get_channel_layout_ = nullptr;             
+  av_get_channel_layout_nb_channels_ = nullptr; 
   av_get_default_channel_layout_ = &::av_get_default_channel_layout;
-  av_get_channel_layout_channel_index_ =
-    nullptr;  // &::av_get_channel_layout_channel_index;
-  av_channel_layout_extract_channel_ = nullptr;  // &::av_channel_layout_extract_channel;
-  av_get_channel_name_ = nullptr;                // &::av_get_channel_name;
-  av_get_channel_description_ = nullptr;         // &::av_get_channel_description;
-  av_get_standard_channel_layout_ = nullptr;     // &::av_get_standard_channel_layout;
+  av_get_channel_layout_channel_index_ = nullptr; 
+  av_channel_layout_extract_channel_ = nullptr; 
+  av_get_channel_name_ = nullptr;               
+  av_get_channel_description_ = nullptr;        
+  av_get_standard_channel_layout_ = nullptr;    
 #endif //AVC_STATIC_HAS_AV_GET_CHANNEL_FNS
 
   swscale_version_ = &::swscale_version;
@@ -319,7 +337,6 @@ void AvcModuleProvider::LoadStatically() {
   Assign(av_stream_add_side_data_, &::av_stream_add_side_data);
   Assign(av_stream_new_side_data_, &::av_stream_new_side_data);
   Assign(av_stream_get_side_data_, &::av_stream_get_side_data);
-
 
   void *vtrue = (void *)1;
   avcodec_handle_ = vtrue;
