@@ -88,12 +88,12 @@ Also it can load FFmpeg libraries dynamically, or statically (useful for **ios**
 
 
 Simple build (loader builds as static library, FFmpeg libraries are loaded in runtime)
-```
+```bash
 cmake -B build
 ```
 
 Set up loader for loader dynamic build. FFmpeg libraries used statically, user directories with FFmpeg are provided in command line:
-```
+```bash
 cmake -DFFMPEGLOADER_LOAD_AVC_STATICALLY=ON -DFFMPEGLOADER_FFMPEG_INCLUDE_DIR="n:\ffmpeg\include\other" -DFFMPEGLOADER_FFMPEG_LIB_DIR="n:\ffmpeg\lib\win_x86_64" -B build
 ```
 
@@ -105,13 +105,13 @@ For best understanding you cal look into `examples` directory: provided example 
 Common rules:
 
 1. Remove all includes libav* headers. Instead of them please add:
-```
+```cpp
 #include <avc/ffmpeg-loader.h>
 #include <avc/libav_detached_common.h>  // some useful constants from ffmpeg
 ```
 
 2. Create loader instance and check AVC libraries loaded before usage
-```
+```cpp
 std::shared_ptr<avc::IAvcModuleProvider> avc_loader = avc::CreateAvcModuleProvider3();
 if (!avc_loader->IsAvCodecLoaded() || !avc_loader->IsAvFormatLoaded()) {
   // Dynamic libraries were not loaded - handle error
@@ -119,7 +119,7 @@ if (!avc_loader->IsAvCodecLoaded() || !avc_loader->IsAvFormatLoaded()) {
 ```
 
 3. All direct calls to AVC libraries replace to calls through loader. And prefix FFmpeg data types with `avc::` namespace
-```
+```cpp
 avc_loader->avformat_network_init();  // replacement for avformat_network_init()
 
 avc::AVFormatContext* fmt_ctx = nullptr;  // replacement for AVFormatContext* fmt_ctx = nullptr
@@ -132,7 +132,7 @@ So, calls and pointers definition is simple. Just perform same call through obje
 4. Data structures access adaptation. This is most complicated thing
 
 Before:
-```
+```cpp
 AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
 codec_ctx->width = width;
 codec_ctx->height = height;
@@ -144,7 +144,7 @@ frame->format = codec_ctx->pix_fmt; // frame is AVFrame*, codec_ctx is AVCodecCo
 ```
 
 After:
-```
+```cpp
 avc::AVCodecContext* codec_ctx = avc_loader->avcodec_alloc_context3(codec);
 avc_loader->d()->AVCodecContextSetWidth(codec_ctx, width);
 avc_loader->d()->AVCodecContextSetHeight(codec_ctx, height);
@@ -155,13 +155,13 @@ avc_loader->d()->AVFrameSetFormat(frame, avc_loader->d()->AVCodecContextGetPixFm
 ```
 
 In some cases call produces input data structure modification:
-```
+```cpp
 // this call modifies fmt_ctx->pb pointer
 avio_open2(&fmt_ctx->pb, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
 ```
 
 Solution: call getter, save pointer to local variable, provide pointer to variable into call, set modified value back:
-```
+```cpp
 avc::AVIOContext* ioctx = avc_loader->d()->AVFormatContextGetPb(fmt_ctx);
 avc_loader->avio_open2(&ioctx, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
 avc_loader->d()->AVFormatContextSetPb(fmt_ctx, ioctx);  // set modified AVIOContext to pb
