@@ -13,7 +13,6 @@
 #    4.4 : release/4.4
 #    5.1 : release/5.1
 
-
 function(process_ffmpeg_versions)
     # Define parameters
     set(oneValueArgs VERSIONS_FILE)
@@ -138,7 +137,6 @@ function(process_ffmpeg_version version tag)
           "libavutil"
           "libswresample"
           "libswscale"
-		  "libpostproc"
   
         DEST_DIR "${EXTERNAL_BASE_DIR}/ffmpeg-${version}"
         TEMP_DIR "${PROJECT_ROOT_DIR}/tmp"

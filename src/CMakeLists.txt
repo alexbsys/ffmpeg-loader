@@ -10,7 +10,8 @@ else() #FFMPEGLOADER_LOAD_AVC_STATICALLY
   set(STATIC_SOURCES "")    
 endif() #FFMPEGLOADER_LOAD_AVC_STATICALLY
 
-if (FFMPEGLOADER_BUILD_SHARED)
+if(FFMPEGLOADER_BUILD_SHARED)
+  # Building DLL
   add_library(ffmpeg-loader SHARED
     ${PUBLIC_HEADERS}
     ${PRIVATE_SOURCES}
@@ -25,6 +26,7 @@ if (FFMPEGLOADER_BUILD_SHARED)
     LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-loader.def"
   )
 else() # FFMPEGLOADER_BUILD_SHARED
+  # Building static library
   add_library(ffmpeg-loader STATIC
     ${PUBLIC_HEADERS}
     ${PRIVATE_SOURCES}
@@ -36,12 +38,11 @@ else() # FFMPEGLOADER_BUILD_SHARED
 endif() # FFMPEGLOADER_BUILD_SHARED
 
 target_include_directories(ffmpeg-loader PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${PROJECT_ROOT_DIR}/include
 )
 
 target_include_directories(ffmpeg-loader PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${PROJECT_ROOT_DIR}/include
 )
 
 # When FFmpeg libraries are planned to load statically, package includes and libs are necessary
