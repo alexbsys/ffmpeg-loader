@@ -3,6 +3,7 @@
 build/**
 external/**
 tmp/**
+.cache/**
 !external/cmake/**
 !external/cmake
 !src/.clang-format

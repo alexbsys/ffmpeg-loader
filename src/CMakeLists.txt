@@ -20,8 +20,8 @@ if(FFMPEGLOADER_BUILD_SHARED)
   add_library(ffmpeg-loader SHARED
     ${PUBLIC_HEADERS}
     ${PRIVATE_SOURCES}
-	${EXTERNAL_SOURCES}
-	${STATIC_SOURCES}
+    ${EXTERNAL_SOURCES}
+    ${STATIC_SOURCES}
   )
 
   target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1)
@@ -37,11 +37,12 @@ else() # FFMPEGLOADER_BUILD_SHARED
   add_library(ffmpeg-loader STATIC
     ${PUBLIC_HEADERS}
     ${PRIVATE_SOURCES}
-	${EXTERNAL_SOURCES}
-	${STATIC_SOURCES}
+    ${EXTERNAL_SOURCES}
+    ${STATIC_SOURCES}
+  )
 
   target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=0)
-  )
+  set_target_properties(ffmpeg-loader PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif() # FFMPEGLOADER_BUILD_SHARED
 
 target_include_directories(ffmpeg-loader PUBLIC
@@ -74,8 +75,8 @@ if(FFMPEGLOADER_LOAD_AVC_STATICALLY)
       )
     endif()
   else()  # User manually provided FFMPEGLOADER_FFMPEG_INCLUDE_DIR / FFMPEGLOADER_FFMPEG_LIB_DIR
-	target_include_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_INCLUDE_DIR})
-	target_link_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_LIB_DIR})
-	target_link_libraries(ffmpeg-loader PRIVATE avcodec avdevice avutil avfilter avformat swresample swscale)
+    target_include_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_INCLUDE_DIR})
+    target_link_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_LIB_DIR})
+    target_link_libraries(ffmpeg-loader PRIVATE avcodec avdevice avutil avfilter avformat swresample swscale)
   endif()   
 endif() # FFMPEGLOADER_LOAD_AVC_STATICALLY
