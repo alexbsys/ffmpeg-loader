@@ -173,4 +173,11 @@ enum AVPictureType {
     AV_PICTURE_TYPE_BI,    ///< BI type
 };
 
+enum AVLockOp {
+  AV_LOCK_CREATE,  ///< Create a mutex
+  AV_LOCK_OBTAIN,  ///< Lock the mutex
+  AV_LOCK_RELEASE, ///< Unlock the mutex
+  AV_LOCK_DESTROY, ///< Free mutex resources
+};
+
 #endif //LIBAV_DETACHED_COMMON_HEADER

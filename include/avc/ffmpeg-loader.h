@@ -13,6 +13,8 @@ struct IDynamicModulesLoader;
 
 namespace avc {
 
+std::shared_ptr<cmf::IDynamicModulesLoader> CreateAvcDynamicModulesLoader();
+
 std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider(
     std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
     std::shared_ptr<avc::IAvcModuleLoadHandler> load_handler = nullptr,

@@ -1,4 +1,9 @@
-project(ffmpeg-loader)
+project(ffmpeg-loader LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "v")
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #Optional
 
 file(GLOB_RECURSE PUBLIC_HEADERS "${PROJECT_ROOT_DIR}/include/*.h" "${PROJECT_ROOT_DIR}/include/*.hpp")
 file(GLOB_RECURSE EXTERNAL_SOURCES "${PROJECT_ROOT_DIR}/external/*.cc")

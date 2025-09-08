@@ -16,6 +16,7 @@
 #include "avc_module_provider.h"
 #include "avc_pixel_format_converter.h"
 #include "avc_default_libraries_names.hpp"
+#include "avc_dynamic_library_finder.hpp"
 #include "avc_dynamic_modules_loader.h"
 #include "i_avc_module_data_wrapper_factory.h"
 
@@ -24,6 +25,7 @@
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
 #include "dynamic_loader.hpp"
 #endif //AVC_LIBRARIES_STATIC_LINK
+
 
 std::vector<std::shared_ptr<avc::IAvcModuleDataWrapperFactory> > g_ffmpeg_data_wrappers;
 
@@ -118,6 +120,14 @@ std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider4(
 
 namespace detail {
 
+static const char* kAvCodecModuleName = "avcodec";
+static const char* kAvFormatModuleName = "avformat";
+static const char* kAvUtilModuleName = "avutil";
+static const char* kAvDeviceModuleName = "avdevice";
+static const char* kSwScaleModuleName = "swscale";
+static const char* kSwResampleModuleName = "swresample";
+
+
 AvcModuleProvider::AvcModuleProvider(
   std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader, 
   std::shared_ptr<IAvcModuleLoadHandler> load_handler, 
@@ -205,6 +215,34 @@ bool AvcModuleProvider::IsSwResampleLoaded() const {
   return swresample_handle_ != nullptr;
 }
 
+const std::string& AvcModuleProvider::GetAvCodecModulePath() const {
+  return loaded_avcodec_module_name_;
+}
+
+const std::string& AvcModuleProvider::GetAvFormatModulePath() const {
+  return loaded_avformat_module_name_;
+}
+
+const std::string& AvcModuleProvider::GetAvUtilModulePath() const {
+  return loaded_avutil_module_name_;
+}
+
+const std::string& AvcModuleProvider::GetAvDeviceModulePath() const {
+  return loaded_avdevice_module_name_;
+}
+
+const std::string& AvcModuleProvider::GetSwScaleModulePath() const {
+  return loaded_swscale_module_name_;
+}
+
+const std::string& AvcModuleProvider::GetSwResampleModulePath() const {
+  return loaded_swresample_module_name_;
+}
+
+int AvcModuleProvider::GetLibrariesCompatibilityScore() const {
+  return data_wrapper_compatibility_score_;
+}
+
 int AvcModuleProvider::CalculateVersionsScore(const AvcModuleVersion& required, const AvcModuleVersion& checked) {
   if (required.avcodec_version_ > 0 && checked.avcodec_version_ == 0)
     return -1;
@@ -274,6 +312,7 @@ bool AvcModuleProvider::SetupDataWrapper() {
     version.swscale_version_ = swscale_version();
 
   std::shared_ptr<IAvcModuleDataWrapperFactory> selected_factory = nullptr;
+  int selected_factory_score = 0;
 
   // check full version equals
   for (const auto& factory : g_ffmpeg_data_wrappers) {
@@ -305,6 +344,7 @@ bool AvcModuleProvider::SetupDataWrapper() {
     }
 
     selected_factory = g_ffmpeg_data_wrappers[min_score_idx];
+    selected_factory_score = min_score;
   }
 
   if (!selected_factory) {
@@ -320,28 +360,55 @@ bool AvcModuleProvider::SetupDataWrapper() {
   AvcModuleVersion wrapver = selected_factory->GetVersion();
   std::shared_ptr<IAvcModuleDataWrapper> data_wrapper = selected_factory->Create(shared_from_this());
   data_wrapper_ = data_wrapper;
+  data_wrapper_compatibility_score_ = selected_factory_score;
   return true;
 }
 
-bool AvcModuleProvider::LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name) {
+bool AvcModuleProvider::LoadAvModule(
+  const char* name, 
+  void** handle, 
+  const std::string& module_name, 
+  const std::string& noversion_module_name,
+  bool enable_search_any_version,
+  std::string& actual_loaded_module) {
   if (*handle != nullptr)
     return true;
 
   if (modules_path_.size()) {
     std::string path = modules_path_ + module_name;
+    actual_loaded_module = path;
     *handle = modules_loader_->LoadModule(path);
 
     if (*handle == nullptr && noversion_module_name.size()) {
       std::string path = modules_path_ + noversion_module_name;
+      actual_loaded_module = path;
       *handle = modules_loader_->LoadModule(path);
+    }
+
+    if (*handle == nullptr && enable_search_any_version) {
+      auto lib_files = AvcDynamicLibraryFinder::FindLibraryFiles(modules_path_, name);
+      if (lib_files.size()) {
+        actual_loaded_module = modules_path_ + lib_files[0];
+        *handle = modules_loader_->LoadModule(lib_files[0]);
+      }
     }
   } 
 
   if (*handle == nullptr) {
+    actual_loaded_module = module_name;
     *handle = modules_loader_->LoadModule(module_name);
 
     if (*handle == nullptr && noversion_module_name.size()) {
+      actual_loaded_module = noversion_module_name;
       *handle = modules_loader_->LoadModule(noversion_module_name);
+    }
+
+    if (*handle == nullptr && enable_search_any_version) {
+      auto lib_files = AvcDynamicLibraryFinder::FindLibraryFiles(modules_loader_->GetCurrentExecutableDir(), name);
+      if (lib_files.size()) {
+        actual_loaded_module = modules_loader_->GetCurrentExecutableDir() + std::string("/") + lib_files[0];
+        *handle = modules_loader_->LoadModule(lib_files[0]);
+      }
     }
   }
 
@@ -360,20 +427,18 @@ void AvcModuleProvider::SetLoadHandler(std::shared_ptr<IAvcModuleLoadHandler> lo
 }
 
 void AvcModuleProvider::Load() {
-  static const char* kAvCodecModuleName = "AVCODEC";
-  static const char* kAvFormatModuleName = "AVFORMAT";
-  static const char* kAvUtilModuleName = "AVUTIL";
-  static const char* kAvDeviceModuleName = "AVDEVICE";
-  static const char* kSwScaleModuleName = "SWSCALE";
-  static const char* kSwResampleModuleName = "SWRESAMPLE";
-
 #ifdef AVC_LIBRARIES_STATIC_LINK
   LoadStatically();
 #endif /*AVC_LIBRARIES_STATIC_LINK*/
 
+  std::string actual_module_path;
+
   if (!avcodec_handle_) {
-    if (LoadAvModule(kAvCodecModuleName, &avcodec_handle_, avcodec_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvCodecModuleName)) {
+    if (LoadAvModule(kAvCodecModuleName, &avcodec_handle_, avcodec_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvCodecModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadAvCodecFunctions();
+      loaded_avcodec_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kAvCodecModuleName, avcodec_module_name_.c_str(), modules_path_.c_str());
@@ -385,8 +450,11 @@ void AvcModuleProvider::Load() {
   }
 
   if (!avformat_handle_) {
-    if (LoadAvModule(kAvFormatModuleName, &avformat_handle_, avformat_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvFormatModuleName)) {
+    if (LoadAvModule(kAvFormatModuleName, &avformat_handle_, avformat_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvFormatModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadAvFormatFunctions();
+      loaded_avformat_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kAvFormatModuleName, avformat_module_name_.c_str(), modules_path_.c_str());
@@ -398,22 +466,28 @@ void AvcModuleProvider::Load() {
   }
 
   if (!avutil_handle_) {
-    if (LoadAvModule(kAvUtilModuleName, &avutil_handle_, avutil_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvUtilModuleName)) {
+    if (LoadAvModule(kAvUtilModuleName, &avutil_handle_, avutil_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvUtilModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadAvUtilFunctions();
+      loaded_avutil_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kAvUtilModuleName, avutil_module_name_.c_str(), modules_path_.c_str());
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "AVUTIL");
+        load_handler_->OnModuleLoadError(shared_from_this(), kAvUtilModuleName);
       }
     }
   }
 
   if (!avdevice_handle_) {
-    if (LoadAvModule(kAvDeviceModuleName, &avdevice_handle_, avdevice_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvDeviceModuleName)) {
+    if (LoadAvModule(kAvDeviceModuleName, &avdevice_handle_, avdevice_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvDeviceModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadAvDeviceFunctions();
+      loaded_avdevice_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kAvDeviceModuleName, avdevice_module_name_.c_str(), modules_path_.c_str());
@@ -426,8 +500,11 @@ void AvcModuleProvider::Load() {
   }
 
   if (!swscale_handle_) {
-    if (LoadAvModule(kSwScaleModuleName, &swscale_handle_, swscale_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwScaleModuleName)) {
+    if (LoadAvModule(kSwScaleModuleName, &swscale_handle_, swscale_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwScaleModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadSwScaleFunctions();
+      loaded_swscale_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kSwScaleModuleName, swscale_module_name_.c_str(), modules_path_.c_str());
@@ -440,8 +517,11 @@ void AvcModuleProvider::Load() {
   }
 
   if (!swresample_handle_) {
-    if (LoadAvModule(kSwResampleModuleName, &swresample_handle_, swresample_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwResampleModuleName)) {
+    if (LoadAvModule(kSwResampleModuleName, &swresample_handle_, swresample_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwResampleModuleName, 
+      !strict_modules_names_, actual_module_path)) {
+
       LoadSwResampleFuctions();
+      loaded_swresample_module_name_ = actual_module_path;
     } else {
 #if DEBUG_PRINT
       printf("cannot load module %s: %s, path %s", kSwResampleModuleName, swresample_module_name_.c_str(), modules_path_.c_str());
@@ -544,7 +624,13 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
     ;
 
   if (avcodec_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("avcodec functions were not loaded: %s", avcodec_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvCodecModuleName, avcodec_loader.ProblemFunctions().str().c_str());
+    }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }
@@ -589,7 +675,13 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     ;
 
   if (avformat_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("avformat functions were not loaded: %s", avformat_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvFormatModuleName, avformat_loader.ProblemFunctions().str().c_str());
+    }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }
@@ -672,7 +764,13 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     ;
 
   if (avutil_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("avutil functions were not loaded: %s", avutil_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvUtilModuleName, avutil_loader.ProblemFunctions().str().c_str());
+    }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }
@@ -689,7 +787,13 @@ void AvcModuleProvider::LoadSwScaleFunctions() {
     ;
 
   if (swscale_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("swscale functions were not loaded: %s", swscale_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwScaleModuleName, swscale_loader.ProblemFunctions().str().c_str());
+    }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }
@@ -710,7 +814,13 @@ void AvcModuleProvider::LoadSwResampleFuctions() {
     ;
 
   if (swresample_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("swresample functions were not loaded: %s", swresample_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwResampleModuleName, swresample_loader.ProblemFunctions().str().c_str());
+    }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }
@@ -725,7 +835,14 @@ void AvcModuleProvider::LoadAvDeviceFunctions() {
     ;
 
   if (avdevice_loader.HasErrors()) {
+#if DEBUG_PRINT
     printf("avdevice functions were not loaded: %s", avdevice_loader.ProblemFunctions().str().c_str());
+#endif //DEBUG_PRINT
+
+    if (load_handler_) {
+      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvDeviceModuleName, avdevice_loader.ProblemFunctions().str().c_str());
+    }
+
   }
 #endif //AV_LIBRARIES_STATIC_LINK
 }

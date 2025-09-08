@@ -10,8 +10,9 @@
 namespace avc {
 namespace detail {
 
-class AvcModuleProvider : public virtual IAvcModuleProvider,
-                          public std::enable_shared_from_this<AvcModuleProvider> {
+class AvcModuleProvider 
+  : public virtual IAvcModuleProvider
+  , public std::enable_shared_from_this<AvcModuleProvider> {
  public:
   AvcModuleProvider(
     std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
@@ -41,6 +42,15 @@ class AvcModuleProvider : public virtual IAvcModuleProvider,
   bool IsAvDeviceLoaded() const override;
   bool IsSwScaleLoaded() const override;
   bool IsSwResampleLoaded() const override;
+
+  const std::string& GetAvCodecModulePath() const override;
+  const std::string& GetAvFormatModulePath() const override;
+  const std::string& GetAvUtilModulePath() const override;
+  const std::string& GetAvDeviceModulePath() const override;
+  const std::string& GetSwScaleModulePath() const override;
+  const std::string& GetSwResampleModulePath() const override;
+
+  int GetLibrariesCompatibilityScore() const override;
 
   std::shared_ptr<IAvcModuleLoadHandler> GetLoadHandler() const;
   void SetLoadHandler(std::shared_ptr<IAvcModuleLoadHandler> load_handler);
@@ -628,7 +638,14 @@ public:
   void (*avdevice_register_all_)(void) = nullptr;
 
  private:
-  bool LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name);
+  bool LoadAvModule(
+    const char* name, 
+    void** handle, 
+    const std::string& module_name, 
+    const std::string& noversion_module_name, 
+    bool enable_search_any_version,
+    std::string& actual_loaded_module);
+
   bool strict_modules_names_ = false;
 
   std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader_;
@@ -649,8 +666,17 @@ public:
   std::string swscale_module_name_;
   std::string swresample_module_name_;
 
+  std::string loaded_avcodec_module_name_;
+  std::string loaded_avformat_module_name_;
+  std::string loaded_avutil_module_name_;
+  std::string loaded_avdevice_module_name_;
+  std::string loaded_swscale_module_name_;
+  std::string loaded_swresample_module_name_;
+
+
   std::shared_ptr<IAvcModuleDataWrapper> data_wrapper_;
   std::shared_ptr<IAvcVideoPixelFormatConverter> video_pixel_format_converter_;
+  int data_wrapper_compatibility_score_ = 0;
 };
 
 }  // namespace detail

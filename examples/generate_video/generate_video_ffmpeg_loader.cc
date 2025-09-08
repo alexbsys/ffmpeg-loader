@@ -3,12 +3,23 @@
 #include <avc/libav_detached_common.h>  // some useful constants from ffmpeg
 #include <iostream>
 
+void print_avc_info(std::shared_ptr<avc::IAvcModuleProvider> avc_loader) {
+  std::cerr << "Libraries load:"
+    << std::endl << avc_loader->GetAvCodecModulePath() << " version " << (avc_loader->IsAvCodecLoaded() ? avc_loader->avcodec_version() : 0)
+    << std::endl << avc_loader->GetAvFormatModulePath() << " version " << (avc_loader->IsAvFormatLoaded() ? avc_loader->avformat_version() : 0)
+    << std::endl << avc_loader->GetAvUtilModulePath() << " version " << (avc_loader->IsAvUtilLoaded() ? avc_loader->avutil_version() : 0)
+    << std::endl << avc_loader->GetAvDeviceModulePath() << " version " << (avc_loader->IsAvDeviceLoaded() ? avc_loader->avdevice_version() : 0)
+    << std::endl << avc_loader->GetSwScaleModulePath() << " version " << (avc_loader->IsSwScaleLoaded() ? avc_loader->swscale_version() : 0)
+    << std::endl << "Compatibility score: " << avc_loader->GetLibrariesCompatibilityScore() << std::endl;
+}
+
 int main() {
   auto avc_loader = avc::CreateAvcModuleProvider3();
   if (!avc_loader->IsAvCodecLoaded() || !avc_loader->IsAvFormatLoaded()) {
     std::cerr << "AVC dynamic libraries were not found. Please place AVC libraries in the same directory of this executable and run again" << std::endl;
     return 254;
   }
+  print_avc_info(avc_loader); // just information about actual loaded modules
 
   avc_loader->avformat_network_init();
 

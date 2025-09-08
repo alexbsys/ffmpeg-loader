@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include <avc/i_avc_module_data_wrapper.h>
 #include <avc/i_avc_video_pixel_format_converter.h>
@@ -12,13 +13,6 @@
 #include <media/video_pixel_format.h>
 
 namespace avc {
-
-enum AvcLogLevel {
-  kAvcLogLevel_Error = 0,
-  kAvcLogLevel_Warning = 1,
-  kAvcLogLevel_Info = 2,
-  kAvcLogLevel_Debug = 3
-};
 
 enum AvcCompliance {
   kAvcCompliance_VeryStrict = 2,
@@ -28,29 +22,13 @@ enum AvcCompliance {
   kAvcCompliance_Experimental = -2
 };
 
-enum AVLockOp {
-  AV_LOCK_CREATE,  ///< Create a mutex
-  AV_LOCK_OBTAIN,  ///< Lock the mutex
-  AV_LOCK_RELEASE, ///< Unlock the mutex
-  AV_LOCK_DESTROY, ///< Free mutex resources
-};
-
 struct AvcModuleVersion {
-  unsigned int avcodec_version_;
-  unsigned int avutil_version_;
-  unsigned int avformat_version_;
-  unsigned int avdevice_version_;
-  unsigned int swscale_version_;
-  unsigned int swresample_version_;
-
-  AvcModuleVersion()
-    : avcodec_version_(0)
-    , avutil_version_(0)
-    , avformat_version_(0)
-    , avdevice_version_(0)
-    , swscale_version_(0)
-    , swresample_version_(0) {
-  }
+  unsigned int avcodec_version_ = 0;
+  unsigned int avutil_version_ = 0;
+  unsigned int avformat_version_ = 0;
+  unsigned int avdevice_version_ = 0;
+  unsigned int swscale_version_ = 0;
+  unsigned int swresample_version_ = 0;
 
   bool operator ==(const AvcModuleVersion& other) const {
     return
@@ -73,6 +51,15 @@ struct IAvcModuleProvider {
   virtual bool IsAvDeviceLoaded() const = 0;
   virtual bool IsSwScaleLoaded() const = 0;
   virtual bool IsSwResampleLoaded() const = 0;
+
+  virtual const std::string& GetAvCodecModulePath() const = 0;
+  virtual const std::string& GetAvFormatModulePath() const = 0;
+  virtual const std::string& GetAvUtilModulePath() const = 0;
+  virtual const std::string& GetAvDeviceModulePath() const = 0;
+  virtual const std::string& GetSwScaleModulePath() const = 0;
+  virtual const std::string& GetSwResampleModulePath() const = 0;
+
+  virtual int GetLibrariesCompatibilityScore() const = 0;
 
   // avcodec
   virtual unsigned avcodec_version() = 0;
