@@ -1,39 +1,23 @@
 
+#ifndef DEBUG_PRINT
+#define DEBUG_PRINT 1
+#endif //DEBUG_PRINT
+
 #include "avc_pixel_format_converter.h"
+#include <tools/dynamic_export.h>
 #include <string>
 
-namespace cmf {
+#if DEBUG_PRINT
+#include <cstdio>
+#endif //DEBUG_PRINT
 
-std::shared_ptr<IAvcVideoPixelFormatConverter> CreateAvcPixelFormatConverter(cmf::IAvcModuleProvider *avc_module_provider) {
-  return std::make_shared<mproc::avc::AvcVideoPixelFormatConverter>(avc_module_provider);
-}
+using namespace cmf;
 
-namespace mproc {
 namespace avc {
-
-AvcVideoPixelFormatConverter::AvcVideoPixelFormatConverter(IAvcModuleProvider* avc_module_provider) {
-  InitTables(avc_module_provider);
-}
-
-int AvcVideoPixelFormatConverter::VideoPixelFormatToAVPixelFormat(enum VideoPixelFormat video_pixel_format) const {
-  auto it = cmf_to_avc_.find(static_cast<int>(video_pixel_format));
-  if (it == cmf_to_avc_.end())
-    return -1 /*AV_PIX_FMT_NONE*/;
-
-  return it->second;
-}
-
-enum VideoPixelFormat AvcVideoPixelFormatConverter::AVPixelFormatToVideoPixelFormat(int av_pixel_format) const {
-  auto it = avc_to_cmf_.find(av_pixel_format);
-  if (it == avc_to_cmf_.end())
-    return VideoPixelFormat_NONE;
-
-  return static_cast<enum VideoPixelFormat>(it->second);
-}
 
 struct TranslatePixelTableElement {
   const char* name_;
-  VideoPixelFormat pix_fmt_;
+  cmf::VideoPixelFormat pix_fmt_;
 };
 
 static const TranslatePixelTableElement g_pixfmt_translation_table[] = {
@@ -102,11 +86,40 @@ static const TranslatePixelTableElement g_pixfmt_translation_table[] = {
   { nullptr, VideoPixelFormat_NONE }
 };
 
+std::shared_ptr<IAvcVideoPixelFormatConverter> API_EXPORT CreateAvcPixelFormatConverter(IAvcModuleProvider *avc_module_provider) {
+  return std::make_shared<avc::detail::AvcVideoPixelFormatConverter>(avc_module_provider);
+}
+
+namespace detail {
+
+AvcVideoPixelFormatConverter::AvcVideoPixelFormatConverter(IAvcModuleProvider* avc_module_provider) {
+  InitTables(avc_module_provider);
+}
+
+int AvcVideoPixelFormatConverter::VideoPixelFormatToAVPixelFormat(enum cmf::VideoPixelFormat video_pixel_format) const {
+  auto it = cmf_to_avc_.find(static_cast<int>(video_pixel_format));
+  if (it == cmf_to_avc_.end())
+    return -1 /*AV_PIX_FMT_NONE*/;
+
+  return it->second;
+}
+
+enum cmf::VideoPixelFormat AvcVideoPixelFormatConverter::AVPixelFormatToVideoPixelFormat(int av_pixel_format) const {
+  auto it = avc_to_cmf_.find(av_pixel_format);
+  if (it == avc_to_cmf_.end())
+    return VideoPixelFormat_NONE;
+
+  return static_cast<enum cmf::VideoPixelFormat>(it->second);
+}
+
+
 void AvcVideoPixelFormatConverter::InitTables(IAvcModuleProvider *avc_module_provider) {
+  static const int kAvcMaxPixelFormat = 128;
+
   if (!avc_module_provider)
     return;
 
-  for (int i=0; i<128; i++) {
+  for (int i=0; i<kAvcMaxPixelFormat; i++) {
     const AVPixFmtDescriptor* fmt = avc_module_provider->av_pix_fmt_desc_get(i);
     if (!fmt)
       continue;
@@ -124,12 +137,13 @@ void AvcVideoPixelFormatConverter::InitTables(IAvcModuleProvider *avc_module_pro
       if (cmf_to_avc_.find(tr.pix_fmt_) == cmf_to_avc_.end()) {
         cmf_to_avc_.insert(std::make_pair(static_cast<int>(tr.pix_fmt_), i));
       } else {
+#if DEBUG_PRINT
         printf("WARNING: cmf pixel format %d already added\n", tr.pix_fmt_);
+#endif //DEBUG_PRINT
       }
     }
   }
 }
 
+}//namespace detail
 }//namespace avc
-}//namespace mproc
-}//namespace cmf

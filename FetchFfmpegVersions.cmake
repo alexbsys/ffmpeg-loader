@@ -1,4 +1,19 @@
-# Function to parse ffmpeg-versions.txt and process each version
+
+
+# This file provides function that parses ffmpeg-versions.txt and process FFmpeg versions.
+# For each FFmpeg version:
+#   1. All headers libraries are downloaded to (ROOT)/external/ffmpeg-(version)
+#   2. Automatically created loader file in (ROOT)/external/ffmpeg-(version)/ffmpeg-(version)-loader.cc
+#   3. Fill (ROOT)/external/ffmpeg-versions.h and (ROOT)/external/ffmpeg-versions-register.cc
+#
+# Example content of ffmpeg-versions.txt
+#    3.2 : release/3.2
+#    3.4 : release/3.4  
+#    8.1 : master
+#    4.4 : release/4.4
+#    5.1 : release/5.1
+
+
 function(process_ffmpeg_versions)
     # Define parameters
     set(oneValueArgs VERSIONS_FILE)
@@ -13,7 +28,7 @@ function(process_ffmpeg_versions)
         message(FATAL_ERROR "Versions file not found: ${ARG_VERSIONS_FILE}")
     endif()
     
-	# Recreate previous ffmpeg-versions.h and ffmpeg-versions-register.cc
+	# Recreate ffmpeg-versions.h 
     file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" 
 	"// THIS FILE IS CREATED AUTOMATICALLY BY CMAKE SCRIPTS. DO NOT EDIT
 #ifndef FFMPEG_VERSIONS_HEADER
@@ -21,16 +36,18 @@ function(process_ffmpeg_versions)
 
 #include <memory>
 #include <vector>
-#include <mproc/i_avc_module_provider.h>
+#include <avc/i_avc_module_provider.h>
+#include <i_avc_module_data_wrapper_factory.h>
 
-extern std::vector<std::shared_ptr<cmf::IAvcModuleDataWrapperFactory> > g_ffmpeg_data_wrappers;
+extern std::vector<std::shared_ptr<avc::IAvcModuleDataWrapperFactory> > g_ffmpeg_data_wrappers;
 ")
- 
+
+    # Recreate ffmpeg-versions-register.cc
     file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
 "// THIS FILE IS CREATED AUTOMATICALLY BY CMAKE SCRIPTS. DO NOT EDIT
 #include \"ffmpeg-versions.h\"
 
-std::shared_ptr<cmf::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_Static_Create();
+std::shared_ptr<avc::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_Static_Create();
 
 void AvcDataProvidersGlobalInit() {
   if (g_ffmpeg_data_wrappers.size() != 0)
@@ -39,6 +56,8 @@ void AvcDataProvidersGlobalInit() {
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0		
 "	)
 
+
+    # Start version file processing
     # Read the entire file
     file(READ "${ARG_VERSIONS_FILE}" file_content)
     
@@ -84,12 +103,14 @@ void AvcDataProvidersGlobalInit() {
         process_ffmpeg_version("${FFMPEG_VERSION}" "${FFMPEG_TAG}")
         
     endforeach()
-	
+
+    # Finalize ffmpeg-versions.h	
     file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" 
 	"
 #endif //FFMPEG_VERSIONS_HEADER
 ")
  
+    # Finalize ffmpeg-versions-register.cc
     file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
 "#else // !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0		
   g_ffmpeg_data_wrappers.push_back(AvcModuleProviderDataWrapFactory_Static_Create());
@@ -98,13 +119,14 @@ void AvcDataProvidersGlobalInit() {
 "	)	
 endfunction()
 
-# Function to process each FFmpeg version (example implementation)
+
+# Function to process each FFmpeg version
+# This function downloads headers files from specified FFmpeg version
 function(process_ffmpeg_version version tag)
-  message(STATUS "=== Processing FFmpeg ${version} ===")
-  string(REPLACE "." "_" FFMPEG_CUR_VERSION_UNDERSCORE ${version})
+  message(STATUS "=== Download headers from FFmpeg ${version} ===")
+  string(REPLACE "." "_" FFMPEG_CUR_VERSION_UNDERSCORE ${version})   # 3.2 -> 3_2
     
   if(NOT EXISTS "${EXTERNAL_BASE_DIR}/ffmpeg-${version}")
-
     fetch_git_partial(
         GIT_URL "https://github.com/FFmpeg/FFmpeg.git"
         TAG "${tag}"
@@ -123,7 +145,7 @@ function(process_ffmpeg_version version tag)
         FILE_PATTERNS "*.h"
       )
 
-	# Create libavutil/avconfig.h
+	# Create libavutil/avconfig.h for each FFmpeg version
 	file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-${version}/libavutil/avconfig.h" "
 #ifndef AVUTIL_AVCONFIG_H
 #define AVUTIL_AVCONFIG_H
@@ -159,81 +181,14 @@ struct SwrContext;
 #include \"avc_module_data_wrapper.hpp\"
 ")
 
-  endif()	
-  file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" "std::shared_ptr<cmf::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create();
+  endif()  # EXISTS "${EXTERNAL_BASE_DIR}/ffmpeg-${version}"
+
+  # Declare this version factory create function in  ffmpeg-versions.h
+  file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" "std::shared_ptr<avc::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create();
 ")
+  # Add version registration procedure to ffmpeg-versions-register.cc
   file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" "  g_ffmpeg_data_wrappers.push_back(AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create());
 ")
 
   message(STATUS "Finished processing FFmpeg ${version}")
 endfunction()
-
-# Alternative implementation with more robust parsing
-function(process_ffmpeg_versions_advanced)
-    set(oneValueArgs VERSIONS_FILE)
-    cmake_parse_arguments(ARG "" "${oneValueArgs}" "" ${ARGN})
-    
-    if(NOT EXISTS "${ARG_VERSIONS_FILE}")
-        return()
-    endif()
-    
-    # Read file line by line for better memory handling
-    file(STRINGS "${ARG_VERSIONS_FILE}" lines)
-    
-    foreach(line IN LISTS lines)
-        # Skip comments and empty lines
-        if(line MATCHES "^[ \t]*#")
-            continue()
-        endif()
-        
-        string(STRIP "${line}" stripped_line)
-        if("${stripped_line}" STREQUAL "")
-            continue()
-        endif()
-        
-        # Use regex for more robust parsing
-        if(line MATCHES "^[ \t]*([^:#]+)[ \t]*:[ \t]*([^#]+)")
-            set(FFMPEG_VERSION ${CMAKE_MATCH_1})
-            set(FFMPEG_TAG ${CMAKE_MATCH_2})
-            
-            # Remove any trailing comments
-            string(REGEX REPLACE "[ \t]+#.*$" "" FFMPEG_VERSION "${FFMPEG_VERSION}")
-            string(REGEX REPLACE "[ \t]+#.*$" "" FFMPEG_TAG "${FFMPEG_TAG}")
-            
-            # Final cleanup
-            string(STRIP "${FFMPEG_VERSION}" FFMPEG_VERSION)
-            string(STRIP "${FFMPEG_TAG}" FFMPEG_TAG)
-            
-            if(NOT "${FFMPEG_VERSION}" STREQUAL "" AND NOT "${FFMPEG_TAG}" STREQUAL "")
-                message(STATUS "Found version: '${FFMPEG_VERSION}' with tag: '${FFMPEG_TAG}'")
-                
-                # Process this version
-                process_ffmpeg_version("${FFMPEG_VERSION}" "${FFMPEG_TAG}")
-            endif()
-        else()
-            message(WARNING "Skipping malformed line: ${line}")
-        endif()
-    endforeach()
-endfunction()
-
-# Utility function to create versions file if it doesn't exist
-function(create_default_ffmpeg_versions)
-    set(VERSIONS_FILE "${CMAKE_SOURCE_DIR}/ffmpeg-versions.txt")
-    
-    if(NOT EXISTS "${VERSIONS_FILE}")
-        message(STATUS "Creating default ffmpeg-versions.txt")
-        
-        set(DEFAULT_CONTENT "# Format: VERSION : TAG_NAME
-# Supported FFmpeg versions
-3.2 : release/3.2
-3.4 : release/3.4  
-6.0 : master
-4.4 : release/4.4
-5.1 : release/5.1
-")
-        file(WRITE "${VERSIONS_FILE}" "${DEFAULT_CONTENT}")
-    endif()
-	
-endfunction()
-
-# Example usage in your CMakeLists.txt

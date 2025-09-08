@@ -1,5 +1,6 @@
 
 #include "avc_module_data_wrapper.h"
+#include "i_avc_module_data_wrapper_factory.h"
 
 #ifndef AVC_MODULE_LOADER_DEBUG_PRINT
 #define AVC_MODULE_LOADER_DEBUG_PRINT 0
@@ -45,7 +46,7 @@
 #define RESTORE_DEPRECATION_WARNING
 #endif
 
-extern std::vector<std::shared_ptr<cmf::IAvcModuleDataWrapperFactory> > g_ffmpeg_data_wrappers;
+extern std::vector<std::shared_ptr<avc::IAvcModuleDataWrapperFactory> > g_ffmpeg_data_wrappers;
 
 #if !defined(AVC_PREINCLUDED_HEADERS)
 extern "C" {
@@ -66,7 +67,7 @@ struct SwrContext;
 }// extern "C"
 #endif //AVC_PREINCLUDED_HEADERS
 
-namespace cmf {
+namespace avc {
 namespace detail {
 
 AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVC_MODULE_DATA_WRAPPER_CLASSNAME(std::shared_ptr<IAvcModuleProvider> module_provider)
@@ -85,19 +86,19 @@ AVCodecParameters* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetCodecPar(const 
   return reinterpret_cast<AVCodecParameters*>(stream_d->codecpar);
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetTimeBase(AVStream* stream, MediaTimeBase tb) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const {
   auto stream_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   stream_d->time_base.num = tb.num_;
   stream_d->time_base.den = tb.den_;
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetFrameRate(AVStream* stream, MediaTimeBase framerate) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const {
   auto stream_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   stream_d->r_frame_rate.num = framerate.num_;
   stream_d->r_frame_rate.den = framerate.den_;
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetAvgFrameRate(AVStream* stream, MediaTimeBase framerate) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const {
   auto stream_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   stream_d->avg_frame_rate.num = framerate.num_;
   stream_d->avg_frame_rate.den = framerate.den_;
@@ -128,28 +129,19 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetId(AVStream* stream, int id) 
   stream_d->id = id;
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetTimeBase(const AVStream* stream) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetTimeBase(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
-  MediaTimeBase tb;
-  tb.num_ = stream_d->time_base.num;
-  tb.den_ = stream_d->time_base.den;
-  return tb;
+  return cmf::MediaTimeBase(stream_d->time_base.num, stream_d->time_base.den);
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetFrameRate(const AVStream* stream) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetFrameRate(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
-  MediaTimeBase fr;
-  fr.num_ = stream_d->r_frame_rate.num;
-  fr.den_ = stream_d->r_frame_rate.den;
-  return fr;
+  return cmf::MediaTimeBase(stream_d->r_frame_rate.num, stream_d->r_frame_rate.den);
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetAvgFrameRage(const AVStream* stream) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetAvgFrameRage(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
-  MediaTimeBase fr;
-  fr.num_ = stream_d->avg_frame_rate.num;
-  fr.den_ = stream_d->avg_frame_rate.den;
-  return fr;
+  return cmf::MediaTimeBase(stream_d->avg_frame_rate.num, stream_d->avg_frame_rate.den);
 }
 
 ////
@@ -412,17 +404,17 @@ const AVCodec* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetCodec(const A
   return reinterpret_cast<const AVCodec*>(codec_context_d->codec);
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetFramerate(const AVCodecContext* codec_context) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetFramerate(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
-  return MediaTimeBase(codec_context_d->framerate.num, codec_context_d->framerate.den);
+  return cmf::MediaTimeBase(codec_context_d->framerate.num, codec_context_d->framerate.den);
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
-  return MediaTimeBase(codec_context_d->time_base.num, codec_context_d->time_base.den);
+  return cmf::MediaTimeBase(codec_context_d->time_base.num, codec_context_d->time_base.den);
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetTimeBase(AVCodecContext* codec_context, MediaTimeBase timebase) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetTimeBase(AVCodecContext* codec_context, cmf::MediaTimeBase timebase) const {
   auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   codec_context_d->time_base.num = timebase.num_;
   codec_context_d->time_base.den = timebase.den_;
@@ -448,18 +440,18 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetRcMaxRate(AVCodecContex
   codec_context_d->rc_max_rate = rc_max_rate;
 }
 
-MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const {
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
-  return MediaTimeBase(codec_context_d->pkt_timebase.num, codec_context_d->pkt_timebase.den);
+  return cmf::MediaTimeBase(codec_context_d->pkt_timebase.num, codec_context_d->pkt_timebase.den);
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetPktTimeBase(AVCodecContext* codec_context, MediaTimeBase pkt_time_base) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetPktTimeBase(AVCodecContext* codec_context, cmf::MediaTimeBase pkt_time_base) const {
   auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   codec_context_d->pkt_timebase.num = pkt_time_base.num_;
   codec_context_d->pkt_timebase.den = pkt_time_base.den_;
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetFrameRate(AVCodecContext* codec_context, MediaTimeBase frame_rate) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetFrameRate(AVCodecContext* codec_context, cmf::MediaTimeBase frame_rate) const {
   auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   codec_context_d->framerate.num = frame_rate.num_;
   codec_context_d->framerate.den = frame_rate.den_;
@@ -875,7 +867,7 @@ const int* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecGetSampleFmts(const AVCodec
   RESTORE_DEPRECATION_WARNING
 }
 
-void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecGetSupportedFrameRates(const AVCodec* codec, std::vector<MediaTimeBase>& out_framerates) const {
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecGetSupportedFrameRates(const AVCodec* codec, std::vector<cmf::MediaTimeBase>& out_framerates) const {
   auto codec_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodec*>(codec);
 
   DISABLE_DEPRECATION_WARNING
@@ -886,7 +878,7 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecGetSupportedFrameRates(const AVCo
 
   while (frame_rate) {
     if (frame_rate->num == 0 && frame_rate->den == 0) break;
-    out_framerates.push_back(MediaTimeBase(frame_rate->num, frame_rate->den));
+    out_framerates.push_back(cmf::MediaTimeBase(frame_rate->num, frame_rate->den));
     frame_rate++;
   }
 }
@@ -1670,6 +1662,6 @@ volatile static STATIC_CLASS_NAME STATIC_CLASS_VAR_NAME;
 }//namespace detail
 }//namespace cmf
 
-std::shared_ptr<cmf::IAvcModuleDataWrapperFactory> CREATE_FACTORY_FN_NAME() {
-  return std::shared_ptr<cmf::IAvcModuleDataWrapperFactory>(new cmf::detail::AVC_MODULE_DATA_WRAPPER_FACTORYNAME());
+std::shared_ptr<avc::IAvcModuleDataWrapperFactory> CREATE_FACTORY_FN_NAME() {
+  return std::shared_ptr<avc::IAvcModuleDataWrapperFactory>(new avc::detail::AVC_MODULE_DATA_WRAPPER_FACTORYNAME());
 }

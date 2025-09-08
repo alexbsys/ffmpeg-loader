@@ -2,16 +2,16 @@
 #ifndef AVC_PIXEL_FORMAT_CONVERTER_HEADER
 #define AVC_PIXEL_FORMAT_CONVERTER_HEADER
 
-#include <mproc/video_pixel_format.h>
-#include <mproc/i_avc_module_provider.h>
+#include <media/video_pixel_format.h>
+#include <avc/i_avc_module_provider.h>
+#include <avc/i_avc_video_pixel_format_converter.h>
 #include <map>
 
-namespace cmf {
+namespace avc {
 
 std::shared_ptr<IAvcVideoPixelFormatConverter> CreateAvcPixelFormatConverter(IAvcModuleProvider* avc_module_provider);
 
-namespace mproc {
-namespace avc {
+namespace detail {
 
 class AvcVideoPixelFormatConverter
   : public virtual IAvcVideoPixelFormatConverter {
@@ -19,8 +19,8 @@ class AvcVideoPixelFormatConverter
   AvcVideoPixelFormatConverter(IAvcModuleProvider* avc_module_provider);
   virtual ~AvcVideoPixelFormatConverter() = default;
 
-  int VideoPixelFormatToAVPixelFormat(enum VideoPixelFormat video_pixel_format) const override;
-  enum VideoPixelFormat AVPixelFormatToVideoPixelFormat(int av_pixel_format) const override;
+  int VideoPixelFormatToAVPixelFormat(enum cmf::VideoPixelFormat video_pixel_format) const override;
+  enum cmf::VideoPixelFormat AVPixelFormatToVideoPixelFormat(int av_pixel_format) const override;
 
  private:
   void InitTables(IAvcModuleProvider* avc_module_provider);
@@ -30,8 +30,7 @@ class AvcVideoPixelFormatConverter
 };
 
 
-}  // namespace avc
-}  // namespace mproc
-}//namespace cmf
+}  // namespace detail
+}//namespace avc
 
 #endif  // AVC_PIXEL_FORMAT_CONVERTER_HEADER

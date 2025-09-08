@@ -1,7 +1,10 @@
 #ifndef AVC_MODULE_DATA_WRAPPER_H
 #define AVC_MODULE_DATA_WRAPPER_H
 
-#include <mproc/i_avc_module_provider.h>
+#include <avc/i_avc_module_provider.h>
+#include <media/media_timebase.h>
+#include "i_avc_module_data_wrapper_factory.h"
+
 #include <memory>
 #include <cstdint>
 
@@ -17,7 +20,7 @@
 #define AVC_MODULE_DATA_WRAPPER_NAMESPACE  ffmpeg324
 #endif //AVC_MODULE_DATA_WRAPPER_NAMESPACE
 
-namespace cmf {
+namespace avc {
 namespace detail {
 
 class AVC_MODULE_DATA_WRAPPER_CLASSNAME : public virtual IAvcModuleDataWrapper {
@@ -25,13 +28,13 @@ public:
   AVC_MODULE_DATA_WRAPPER_CLASSNAME(std::shared_ptr<IAvcModuleProvider> module_provider);
   virtual ~AVC_MODULE_DATA_WRAPPER_CLASSNAME() override;
 
-  MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const override;
-  MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const override;
-  MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const override;
+  cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const override;
+  cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const override;
+  cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const override;
   AVCodecParameters* AVStreamGetCodecPar(const AVStream* stream) const override;
-  void AVStreamSetTimeBase(AVStream* stream, MediaTimeBase tb) const override;
-  void AVStreamSetFrameRate(AVStream* stream, MediaTimeBase framerate) const override;
-  void AVStreamSetAvgFrameRate(AVStream* stream, MediaTimeBase framerate) const override;
+  void AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const override;
+  void AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
+  void AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
   void AVStreamSetStartTime(AVStream* stream, int64_t start_time) const override;
   int AVStreamGetIndex(const AVStream* stream) const override;
   void AVStreamSetIndex(AVStream* stream, int index) const override;
@@ -92,11 +95,11 @@ public:
   int AVCodecContextGetWidth(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetHeight(const AVCodecContext* codec_context) const override;
   const AVCodec* AVCodecContextGetCodec(const AVCodecContext* codec_context) const override;
-  MediaTimeBase AVCodecContextGetFramerate(const AVCodecContext* codec_context) const override;
-  MediaTimeBase AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const override;
+  cmf::MediaTimeBase AVCodecContextGetFramerate(const AVCodecContext* codec_context) const override;
+  cmf::MediaTimeBase AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const override;
   int64_t AVCodecContextGetBitRate(const AVCodecContext* codec_context) const override;
   int64_t AVCodecContextGetRcMaxRate(const AVCodecContext* codec_context) const override;
-  MediaTimeBase AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const override;
+  cmf::MediaTimeBase AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetPixFmt(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetCodecId(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetFrameSize(const AVCodecContext* codec_context) const override;
@@ -153,11 +156,11 @@ public:
   void AVCodecContextSetRcMaxAvailableVbvUse(AVCodecContext* codec_context, float max_available_vbv_use) const override;
   void AVCodecContextSetSampleRate(AVCodecContext* codec_context, int sample_rate) const override;
   void AVCodecContextSetChannels(AVCodecContext* codec_context, int channels) const override;
-  void AVCodecContextSetTimeBase(AVCodecContext* codec_context, MediaTimeBase timebase) const override;
+  void AVCodecContextSetTimeBase(AVCodecContext* codec_context, cmf::MediaTimeBase timebase) const override;
   void AVCodecContextSetBitRate(AVCodecContext* codec_context, int64_t bitrate) const override;
   void AVCodecContextSetRcMaxRate(AVCodecContext* codec_context, int64_t rc_max_rate) const override;
-  void AVCodecContextSetPktTimeBase(AVCodecContext* codec_context, MediaTimeBase pkt_time_base) const override;
-  void AVCodecContextSetFrameRate(AVCodecContext* codec_context, MediaTimeBase frame_rate) const override;
+  void AVCodecContextSetPktTimeBase(AVCodecContext* codec_context, cmf::MediaTimeBase pkt_time_base) const override;
+  void AVCodecContextSetFrameRate(AVCodecContext* codec_context, cmf::MediaTimeBase frame_rate) const override;
   void AVCodecContextSetDelay(AVCodecContext* codec_context, int delay) const override;
   void AVCodecContextSetStrictStdCompliance(AVCodecContext* codec_context, int value) const override;
   void AVCodecContextSetPixFmt(AVCodecContext* codec_context, int pixfmt) const override;
@@ -179,7 +182,7 @@ public:
   int AVCodecGetId(const AVCodec* codec) const override;
   const int* AVCodecGetPixFmts(const AVCodec* codec) const override;
   const int* AVCodecGetSampleFmts(const AVCodec* codec) const override;
-  void AVCodecGetSupportedFrameRates(const AVCodec* codec, std::vector<MediaTimeBase>& out_framerates) const override;
+  void AVCodecGetSupportedFrameRates(const AVCodec* codec, std::vector<cmf::MediaTimeBase>& out_framerates) const override;
   const int* AVCodecGetSupportedSampleRates(const AVCodec* codec) const override;
   int AVCodecGetType(const AVCodec* codec) const override;
 

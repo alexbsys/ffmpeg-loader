@@ -1,12 +1,8 @@
 project(ffmpeg-loader)
 
-file(GLOB PUBLIC_HEADERS include/*.h)
-file(GLOB PRIVATE_SOURCES *.c *.cc *.h *.hpp)
-
-file(GLOB_RECURSE EXTERNAL_SOURCES 
-    "${PROJECT_ROOT_DIR}/external/*.cc"
-    "${PROJECT_ROOT_DIR}/external/*.h"
-)
+file(GLOB PUBLIC_HEADERS "${PROJECT_ROOT_DIR}/include")
+file(GLOB_RECURSE EXTERNAL_SOURCES "${PROJECT_ROOT_DIR}/external/*.cc")
+file(GLOB PRIVATE_SOURCES *.c *.cc *.h *.hpp *.def)
 
 if(FFMPEGLOADER_LOAD_AVC_STATICALLY)  
   set(STATIC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/static/ffmpeg-static-loader.cc")
@@ -36,23 +32,24 @@ else() # FFMPEGLOADER_BUILD_SHARED
 endif() # FFMPEGLOADER_BUILD_SHARED
 
 target_include_directories(ffmpeg-loader PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_include_directories(ffmpeg-loader PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-	${PROJECT_ROOT_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${PROJECT_ROOT_DIR}/include
 )
 
-if(FFMPEGLOADER_LOAD_AVC_STATICALLY)  # FFmpeg libraries are planned to load statically: include and libs are necessary
-  set(STATIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/static/ffmpeg-loader-static.cc)
+# When FFmpeg libraries are planned to load statically, package includes and libs are necessary
+if(FFMPEGLOADER_LOAD_AVC_STATICALLY)  
   target_compile_definitions(ffmpeg-loader PUBLIC AVC_LIBRARIES_STATIC_LINK=1)
 
-  if(DEFINED ENV{VCPKG_ROOT})
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-  endif()
-  
   if("${FFMPEGLOADER_FFMPEG_INCLUDE_DIR}" STREQUAL "") # User was not set FFMPEGLOADER_FFMPEG_INCLUDE_DIR - try to find package via find_package
+    # VCPkg support
+    if(DEFINED ENV{VCPKG_ROOT})
+      set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+    endif()
+  
     find_package(FFmpeg REQUIRED)  
     if(FFmpeg_FOUND)
       target_link_libraries(ffmpeg-loader PRIVATE
@@ -64,7 +61,7 @@ if(FFMPEGLOADER_LOAD_AVC_STATICALLY)  # FFmpeg libraries are planned to load sta
         FFmpeg::swresample
       )
     endif()
-  else()  # User set FFMPEGLOADER_FFMPEG_INCLUDE_DIR / FFMPEGLOADER_FFMPEG_LIB_DIR
+  else()  # User manually provided FFMPEGLOADER_FFMPEG_INCLUDE_DIR / FFMPEGLOADER_FFMPEG_LIB_DIR
 	target_include_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_INCLUDE_DIR})
 	target_link_directories(ffmpeg-loader PRIVATE ${FFMPEGLOADER_FFMPEG_LIB_DIR})
 	target_link_libraries(ffmpeg-loader PRIVATE avcodec avdevice avutil avfilter avformat swresample swscale)

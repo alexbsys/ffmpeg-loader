@@ -33,7 +33,7 @@ int av_buffer_realloc_wrapper2(AVBufferRef **buf, int size) {
 
 void AvcDataProvidersGlobalInit();
 
-namespace cmf {
+namespace avc {
 namespace detail {
 
 template<typename T1, typename T2>
@@ -331,7 +331,6 @@ void AvcModuleProvider::LoadStatically() {
 }
 
 }//namespace detail
-}//namespace cmf
+}//namespace avc
 
 #endif /*AVC_LIBRARIES_STATIC_LINK*/
-

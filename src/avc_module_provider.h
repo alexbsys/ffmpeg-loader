@@ -4,28 +4,31 @@
 #include <memory>
 #include <string>
 #include <tools/i_dynamic_modules_loader.h>
-#include <mproc/i_avc_module_provider.h>
+#include <avc/i_avc_module_provider.h>
+#include <avc/i_avc_module_load_handler.h>
 
-namespace cmf {
+namespace avc {
 namespace detail {
-
-class AvcCodecInitializer;
 
 class AvcModuleProvider : public virtual IAvcModuleProvider,
                           public std::enable_shared_from_this<AvcModuleProvider> {
  public:
-  AvcModuleProvider(std::shared_ptr<IDynamicModulesLoader> modules_loader,
-                    const std::string &modules_path);
+  AvcModuleProvider(
+    std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
+    std::shared_ptr<IAvcModuleLoadHandler> load_handler,
+    const std::string &modules_path);
 
-  AvcModuleProvider(std::shared_ptr<IDynamicModulesLoader> modules_loader,
-                    const std::string &modules_path,
-                    const std::string &avcodec_module_name,
-                    const std::string &avformat_module_name,
-                    const std::string &avutil_module_name,
-                    const std::string &avdevice_module_name,
-                    const std::string &swscale_module_name,
-                    const std::string &swresample_module_name,
-                    bool strict_modules_names = false);
+  AvcModuleProvider(
+    std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
+    std::shared_ptr<IAvcModuleLoadHandler> load_handler,
+    const std::string &modules_path,
+    const std::string &avcodec_module_name,
+    const std::string &avformat_module_name,
+    const std::string &avutil_module_name,
+    const std::string &avdevice_module_name,
+    const std::string &swscale_module_name,
+    const std::string &swresample_module_name,
+    bool strict_modules_names = false);
 
   virtual ~AvcModuleProvider() override;
 
@@ -39,11 +42,13 @@ class AvcModuleProvider : public virtual IAvcModuleProvider,
   bool IsSwScaleLoaded() const override;
   bool IsSwResampleLoaded() const override;
 
+  std::shared_ptr<IAvcModuleLoadHandler> GetLoadHandler() const;
+  void SetLoadHandler(std::shared_ptr<IAvcModuleLoadHandler> load_handler);
+
 #ifdef AVC_LIBRARIES_STATIC_LINK
   void LoadStatically();
 #endif /*AVC_LIBRARIES_STATIC_LINK*/
 
-  std::shared_ptr<AvcCodecInitializer> modules_initializer_;
 
 private:
   bool LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name);
@@ -51,6 +56,10 @@ private:
 
 public:
   void SetupDataWrapper();
+
+  /// \brief   Calculate FFmpeg libraries compatibility version score based on version difference
+  /// \return  0 - full compatibility, some positive value - lesser values means more compatibility,
+  ///          <0 - checked version cannot be used
   static int CalculateVersionsScore(const AvcModuleVersion& required, const AvcModuleVersion& checked);
 
   // avcodec
@@ -632,13 +641,12 @@ public:
   int64_t (*swr_get_delay_)(struct SwrContext *s, int64_t base);
 
   // avdevice
-
   unsigned (*avdevice_version_)(void);
   void (*avdevice_register_all_)(void);
 
  private:
-  std::shared_ptr<IDynamicModulesLoader> modules_loader_;
-
+  std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader_;
+  std::shared_ptr<IAvcModuleLoadHandler> load_handler_;
   std::string modules_path_;
 
   void *avcodec_handle_;
@@ -660,6 +668,6 @@ public:
 };
 
 }  // namespace detail
-}  // namespace cmf
+}  // namespace avc
 
 #endif  // AVC_MODULE_PROVIDER_H
