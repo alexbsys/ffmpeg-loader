@@ -1,5 +1,8 @@
 LIBRARY ffmpeg-loader
 EXPORTS
+  CreateAvcDynamicModulesLoader
   CreateAvcPixelFormatConverter
   CreateAvcModuleProvider
   CreateAvcModuleProvider2
+  CreateAvcModuleProvider3
+  CreateAvcModuleProvider4

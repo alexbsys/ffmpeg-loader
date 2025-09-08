@@ -1,10 +1,21 @@
 
 #include "avc_module_provider.h"
 #include "avc_pixel_format_converter.h"
+#include "avc_default_libraries_names.hpp"
+#include "avc_dynamic_modules_loader.h"
 #include "i_avc_module_data_wrapper_factory.h"
-#include "default_libraries_names.hpp"
-#include <tools/dynamic_export.h>
+
 #include <avc/ffmpeg-loader.h>
+
+#ifndef FFMPEG_LOADER_DLL
+#define FFMPEG_LOADER_DLL 0
+#endif //FFMPEG_LOADER_DLL
+
+#if FFMPEG_LOADER_DLL
+#include <tools/dynamic_export.h>
+#else //
+#define API_EXPORT
+#endif //FFMPEG_LOADER_DLL
 
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
 #include "dynamic_loader.hpp"
@@ -17,11 +28,14 @@ void AvcDataProvidersGlobalInit();
 
 namespace avc {
 
-std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider(
+std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider(
     std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
     std::shared_ptr<avc::IAvcModuleLoadHandler> load_handler,
     const std::string& modules_path,
     bool auto_load) {
+  if (!modules_loader)
+    modules_loader = CreateAvcDynamicModulesLoader();
+
   auto module_provider = std::make_shared<detail::AvcModuleProvider>(modules_loader, load_handler, modules_path);
   if (auto_load) {
     module_provider->Load();
@@ -29,7 +43,7 @@ std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider(
   return module_provider;
 }
 
-std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider2(
+std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider2(
   std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader,
   std::shared_ptr<avc::IAvcModuleLoadHandler> load_handler,
   const std::string &modules_path,
@@ -40,6 +54,9 @@ std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider2(
   const std::string &swscale_module_name,
   const std::string &swresample_module_name, 
   bool auto_load) {
+  if (!modules_loader)
+    modules_loader = CreateAvcDynamicModulesLoader();
+
   auto module_provider = std::make_shared<detail::AvcModuleProvider>(
         modules_loader,
         load_handler,
@@ -55,7 +72,46 @@ std::shared_ptr<IAvcModuleProvider> CreateAvcModuleProvider2(
   }
   return module_provider;
 }
-	
+
+std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider3(
+  const std::string& modules_path,
+  bool auto_load,
+  std::shared_ptr<avc::IAvcModuleLoadHandler> load_handler) {
+  auto modules_loader = CreateAvcDynamicModulesLoader();
+  auto module_provider = std::make_shared<detail::AvcModuleProvider>(modules_loader, load_handler, modules_path);
+  if (auto_load) {
+    module_provider->Load();
+  }
+  return module_provider;
+}
+
+std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider4(  
+  const std::string& modules_path,
+  const std::string& avcodec_module_name,
+  const std::string& avformat_module_name,
+  const std::string& avutil_module_name,
+  const std::string& avdevice_module_name,
+  const std::string& swscale_module_name,
+  const std::string& swresample_module_name,
+  bool auto_load,
+  std::shared_ptr<avc::IAvcModuleLoadHandler> load_handler) {
+  auto modules_loader = CreateAvcDynamicModulesLoader();
+  auto module_provider = std::make_shared<detail::AvcModuleProvider>(
+    modules_loader,
+    load_handler,
+    modules_path,
+    avcodec_module_name,
+    avformat_module_name,
+    avutil_module_name,
+    avdevice_module_name,
+    swscale_module_name,
+    swresample_module_name);
+  if (auto_load) {
+    module_provider->Load();
+  }
+  return module_provider;
+}
+
 namespace detail {
 
 AvcModuleProvider::AvcModuleProvider(

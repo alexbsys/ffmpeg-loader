@@ -1,6 +1,6 @@
 project(ffmpeg-loader)
 
-file(GLOB PUBLIC_HEADERS "${PROJECT_ROOT_DIR}/include")
+file(GLOB_RECURSE PUBLIC_HEADERS "${PROJECT_ROOT_DIR}/include/*.h" "${PROJECT_ROOT_DIR}/include/*.hpp")
 file(GLOB_RECURSE EXTERNAL_SOURCES "${PROJECT_ROOT_DIR}/external/*.cc")
 file(GLOB PRIVATE_SOURCES *.c *.cc *.h *.hpp *.def)
 
@@ -18,6 +18,8 @@ if (FFMPEGLOADER_BUILD_SHARED)
 	${STATIC_SOURCES}
   )
 
+  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1)
+
   set_target_properties(ffmpeg-loader PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS OFF
     LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-loader.def"
@@ -28,6 +30,8 @@ else() # FFMPEGLOADER_BUILD_SHARED
     ${PRIVATE_SOURCES}
 	${EXTERNAL_SOURCES}
 	${STATIC_SOURCES}
+
+  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=0)
   )
 endif() # FFMPEGLOADER_BUILD_SHARED
 
