@@ -2,6 +2,7 @@
 *.log
 build/**
 external/**
+tmp/**
 !external/cmake/**
 !external/cmake
 !src/.clang-format

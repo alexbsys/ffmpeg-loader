@@ -143,6 +143,8 @@ function(process_ffmpeg_version version tag)
         FILE_PATTERNS "*.h"
       )
 
+	fix_includes_in_file("${EXTERNAL_BASE_DIR}/ffmpeg-${version}/libswresample/swresample.h")
+	  
 	# Create libavutil/avconfig.h for each FFmpeg version
 	file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-${version}/libavutil/avconfig.h" "
 #ifndef AVUTIL_AVCONFIG_H
@@ -189,4 +191,28 @@ struct SwrContext;
 ")
 
   message(STATUS "Finished processing FFmpeg ${version}")
+endfunction()
+
+
+# fix swresample include header: replace #include "libswresample/version_major.h" to #include "version_major.h"
+function(fix_includes_in_file file_path)
+    if(NOT EXISTS "${file_path}")
+        message(WARNING "File not found: ${file_path}")
+        return()
+    endif()
+    
+    # Читаем содержимое файла
+    file(READ "${file_path}" file_content)
+    
+    # Заменяем include директивы
+    string(REPLACE "#include \"libswresample/version_major.h\"" "#include \"version_major.h\"" new_content "${file_content}")
+    string(REPLACE "#include \"libavcodec/version_major.h\"" "#include \"version_major.h\"" new_content "${new_content}")
+    string(REPLACE "#include \"libavformat/version_major.h\"" "#include \"version_major.h\"" new_content "${new_content}")
+    # Добавьте другие замены по необходимости
+    
+    # Если содержимое изменилось, записываем обратно
+    if(NOT "${file_content}" STREQUAL "${new_content}")
+        file(WRITE "${file_path}" "${new_content}")
+        message(STATUS "Fixed includes in: ${file_path}")
+    endif()
 endfunction()
