@@ -2,8 +2,7 @@
 
 This library solves fundamental FFmpeg compatibility problems, providing developers with a stable and reliable media processing interface without versioning headaches.
 
-
-## Overview
+## Library overview
 
 A universal C++ wrapper library that enables dynamic loading and interaction with functions and data structures from various FFmpeg versions (starting from 3.2 to 8.0): `libavcodec`, `libavutil`, `libavdevice`, `libavformat`, `libswresample`, and `libswscale`. 
 Allows client applications to work with any FFmpeg version without recompilation through a unified stable interface.
@@ -33,21 +32,21 @@ Major and minor versions for each libav* component, fields in the data structure
 
 Static linking of FFmpeg libraries approach creates new problems:
 
-* Binary Distribution Complexity — particularly in Linux/macOS ecosystems where `libavdevice` tightly integrates with system libraries, and user cannot change installed version of libraries
+* **Binary Distribution Complexity**, particularly in Linux/macOS ecosystems where `libavdevice` tightly integrates with system libraries, and user cannot change installed version of libraries
 
-* Version Conflicts — applications with embedded FFmpeg specific version cannot run everywhere
+* **Version Conflicts**: applications with embedded FFmpeg specific version cannot run everywhere
 
-* Hardware Accelerator Issues — statically built FFmpeg with specific SDK support (NVIDIA, Intel Media SDK) often fails on other systems
+* **Hardware Acceleration specific build issues**. Statically linked FFmpeg with specific SDK support (NVIDIA, Intel Media SDK) often fails on other systems
 
-* No Fallback Mechanisms — inability to handle errors when FFmpeg cannot be loaded
+* **No Fallback Mechanisms**. Your app just cannot start when FFmpeg cannot be loaded
 
 ### Solution Architecture
 
 The library implements a multi-layer abstraction system:
 
-* Internal Versioned Namespaces — each FFmpeg data structure set is encapsulated in separate C++ namespaces (`ffmpeg_3_2`, `ffmpeg_4_0`, `ffmpeg_7_1` etc.)
+* **Internal Versioned Namespaces**: each FFmpeg data structure set is encapsulated in separate C++ namespaces (`ffmpeg_3_2`, `ffmpeg_4_0`, `ffmpeg_7_1` etc.)
 
-* Dynamic Function Resolution — all FFmpeg functions are loaded via dlsym/GetProcAddress at runtime
+* **Dynamic Function Resolution**: all FFmpeg functions are loaded via `dlsym`/`GetProcAddress` at runtime
 
 * Unified Access Interface — developers work through a stable C++ API independent of FFmpeg version
 
@@ -56,24 +55,24 @@ The library implements a multi-layer abstraction system:
 
 ### Key Features
 
-* Zero Overhead Abstraction — minimal performance impact through template-based design
+* **Zero Overhead Abstraction**. Minimal performance impact through template-based design
 
-* Exception Safety — guaranteed safety during loading errors
+* **Exception Safety**. Guaranteed safety during loading errors
 
-* Cross-Platform — single codebase for all supported platforms
+* **Cross-Platform**. Single codebase for all supported platforms
 
-* Extensible — easy addition of new FFmpeg version support
+* **Extensible**. Easy addition of new FFmpeg version support
 
 
 ### Benefits
 
-* Guaranteed Compatibility — applications work with any FFmpeg version ≥ 3.2
+* **Guaranteed Compatibility**. Applications work with any FFmpeg version from 3.2 (all functions from 3.4)
 
-* Simplified Distribution — single binary build for all systems
+* **Simplified Distribution**. Single binary works with all FFmpeg versions.
 
-* Automatic Fallback — runtime switching between versions
+* **Automatic Fallback**. Runtime switching between versions
 
-* Future-Proof — new FFmpeg version support added without client code changes
+* **Future-Proof**. New FFmpeg version support added without client code changes
 
 
 ## Supported Platforms
