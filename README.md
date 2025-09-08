@@ -14,18 +14,14 @@ Native FFmpeg integration faces fundamental compatibility issues:
 
 1. **Binary Data Structure Incompatibility**
 
-FFmpeg data structures (AVCodecContext, AVFrame, etc.) are unstable between versions — field layout, sizes, and composition change constantly. Even with dynamic function loading, direct structure access causes crashes due to memory layout mismatches.
+    FFmpeg data structures (AVCodecContext, AVFrame, etc.) are unstable between versions — field layout, sizes, and composition change constantly. Even with dynamic function loading, direct structure access causes crashes due to memory layout mismatches.
 
 2. **Pixel Format Incompatibility**
 
-The pixel format system (AVPixelFormat) varies even within the same version:
-
-Different format codes for hardware accelerators (VDPAU, CUDA, VAAPI): dynamic numbering changes when built with specific hardware support
+    The pixel format system (AVPixelFormat) varies even within the same version, depends on different format codes for hardware accelerators (VDPAU, CUDA, VAAPI): dynamic numbering changes when built with specific hardware support. FFmpeg-loader solves that by using dynamic pixel format number binding (pixel formats deduced by names and saved to conversion table)
 
 3. **Versioning Complexity**
-Each FFmpeg component has its own versioning system:
-
-Major and minor versions for each libav* component, fields in the data structures appearing and disappearing within the same major version
+    Each FFmpeg component has its own versioning system, major and minor versions for each libav* component. Fields in the data structures appearing and disappearing within the same major version
 
 
 ### Static Linking Limitations
@@ -40,7 +36,17 @@ Static linking of FFmpeg libraries approach creates new problems:
 
 * **No Fallback Mechanisms**. Your app just cannot start when FFmpeg cannot be loaded
 
-### Solution Architecture
+### Benefits of runtime dynamic linkage
+
+* **Guaranteed Compatibility**. Applications work with any FFmpeg version from 3.2 (all functions from 3.4)
+
+* **Simplified Distribution**. Single binary works with all FFmpeg versions.
+
+* **Automatic Fallback**. Runtime switching between versions
+
+* **Future-Proof**. New FFmpeg version support added without client code changes
+
+### FFmpeg-loader solution architecture
 
 The library implements a multi-layer abstraction system:
 
@@ -53,7 +59,7 @@ The library implements a multi-layer abstraction system:
 * Automatic Version Detection for data interaction — the library automatically detects loaded FFmpeg version and selects the appropriate implementation
 
 
-### Key Features
+### Key features
 
 * **Zero Overhead Abstraction**. Minimal performance impact through template-based design
 
@@ -62,17 +68,6 @@ The library implements a multi-layer abstraction system:
 * **Cross-Platform**. Single codebase for all supported platforms
 
 * **Extensible**. Easy addition of new FFmpeg version support
-
-
-### Benefits
-
-* **Guaranteed Compatibility**. Applications work with any FFmpeg version from 3.2 (all functions from 3.4)
-
-* **Simplified Distribution**. Single binary works with all FFmpeg versions.
-
-* **Automatic Fallback**. Runtime switching between versions
-
-* **Future-Proof**. New FFmpeg version support added without client code changes
 
 
 ## Supported Platforms
@@ -89,6 +84,8 @@ Also it can load FFmpeg libraries dynamically, or statically (useful for **ios**
 Simple build (loader builds as static library, FFmpeg libraries are loaded in runtime)
 ```bash
 cmake -B build
+cd build
+make -j
 ```
 
 Set up loader for loader dynamic build. FFmpeg libraries used statically, user directories with FFmpeg are provided in command line:
@@ -96,8 +93,15 @@ Set up loader for loader dynamic build. FFmpeg libraries used statically, user d
 cmake -DFFMPEGLOADER_LOAD_AVC_STATICALLY=ON -DFFMPEGLOADER_FFMPEG_INCLUDE_DIR="n:\ffmpeg\include\other" -DFFMPEGLOADER_FFMPEG_LIB_DIR="n:\ffmpeg\lib\win_x86_64" -B build
 ```
 
+Build static library instead of shared:
+```bash
+cmake -DFFMPEGLOADER_BUILD_SHARED=OFF -B build
+cd build
+make -j
+```
 
-## User code adaptation
+
+## User C++ source code adaptation
 
 For best understanding you cal look into `examples` directory: provided example with regular usage of FFmpeg linking, and with loader library.
 
@@ -119,10 +123,14 @@ if (!avc_loader->IsAvCodecLoaded() || !avc_loader->IsAvFormatLoaded()) {
 
 3. All direct calls to AVC libraries replace to calls through loader. And prefix FFmpeg data types with `avc::` namespace
 ```cpp
-avc_loader->avformat_network_init();  // replacement for avformat_network_init()
+// replacement for avformat_network_init()
+avc_loader->avformat_network_init();  
 
-avc::AVFormatContext* fmt_ctx = nullptr;  // replacement for AVFormatContext* fmt_ctx = nullptr
-avc_loader->avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename); // replacement for avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename)
+// replacement for AVFormatContext* fmt_ctx = nullptr
+avc::AVFormatContext* fmt_ctx = nullptr;  
+
+// replacement for avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename)
+avc_loader->avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename); 
 
 ```
 
