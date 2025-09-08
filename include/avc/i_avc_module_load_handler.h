@@ -23,6 +23,10 @@ struct IAvcModuleLoadHandler {
   virtual void OnBeforeUnload(std::shared_ptr<IAvcModuleProvider> module_provider) {
     (void)module_provider;	  
   }
+
+  virtual void OnLoadFinished(std::shared_ptr<IAvcModuleProvider> module_provider) {
+    (void)module_provider;
+  }
 };	
 	
 }//namespace avc

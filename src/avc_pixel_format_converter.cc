@@ -3,8 +3,17 @@
 #define DEBUG_PRINT 1
 #endif //DEBUG_PRINT
 
+#ifndef FFMPEG_LOADER_DLL
+#define FFMPEG_LOADER_DLL 0
+#endif //FFMPEG_LOADER_DLL
+
+#if FFMPEG_LOADER_DLL
+#include <tools/api/dynamic_export.h>
+#else //
+#define API_EXPORT
+#endif //FFMPEG_LOADER_DLL
+
 #include "avc_pixel_format_converter.h"
-#include <tools/dynamic_export.h>
 #include <string>
 
 #if DEBUG_PRINT

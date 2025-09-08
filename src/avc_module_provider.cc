@@ -1,4 +1,18 @@
 
+#ifndef DEBUG_PRINT
+#define DEBUG_PRINT 1
+#endif //DEBUG_PRINT
+
+#ifndef FFMPEG_LOADER_DLL
+#define FFMPEG_LOADER_DLL 0
+#endif //FFMPEG_LOADER_DLL
+
+#if FFMPEG_LOADER_DLL
+#include <tools/api/dynamic_export.h>
+#else //
+#define API_EXPORT
+#endif //FFMPEG_LOADER_DLL
+
 #include "avc_module_provider.h"
 #include "avc_pixel_format_converter.h"
 #include "avc_default_libraries_names.hpp"
@@ -6,16 +20,6 @@
 #include "i_avc_module_data_wrapper_factory.h"
 
 #include <avc/ffmpeg-loader.h>
-
-#ifndef FFMPEG_LOADER_DLL
-#define FFMPEG_LOADER_DLL 0
-#endif //FFMPEG_LOADER_DLL
-
-#if FFMPEG_LOADER_DLL
-#include <tools/dynamic_export.h>
-#else //
-#define API_EXPORT
-#endif //FFMPEG_LOADER_DLL
 
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
 #include "dynamic_loader.hpp"
@@ -115,16 +119,12 @@ std::shared_ptr<IAvcModuleProvider> API_EXPORT CreateAvcModuleProvider4(
 namespace detail {
 
 AvcModuleProvider::AvcModuleProvider(
-  std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader, std::shared_ptr<IAvcModuleLoadHandler> load_handler, const std::string &modules_path)
+  std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader, 
+  std::shared_ptr<IAvcModuleLoadHandler> load_handler, 
+  const std::string &modules_path)
     : modules_loader_(modules_loader)
     , load_handler_(load_handler)
     , modules_path_(modules_path)
-    , avcodec_handle_(nullptr)
-    , avformat_handle_(nullptr)
-    , avutil_handle_(nullptr)
-    , avdevice_handle_(nullptr)
-    , swscale_handle_(nullptr)
-    , swresample_handle_(nullptr)
     , strict_modules_names_(false)
 {
   avcodec_module_name_ = kDefaultAvCodecModuleName;
@@ -152,12 +152,6 @@ AvcModuleProvider::AvcModuleProvider(
     , load_handler_(load_handler)
     , strict_modules_names_(strict_modules_names)
     , modules_path_(modules_path)
-    , avcodec_handle_(nullptr)
-    , avformat_handle_(nullptr)
-    , avutil_handle_(nullptr)
-    , avdevice_handle_(nullptr)
-    , swscale_handle_(nullptr)
-    , swresample_handle_(nullptr)
     , avcodec_module_name_(avcodec_module_name)
     , avformat_module_name_(avformat_module_name)
     , avutil_module_name_(avutil_module_name)
@@ -258,7 +252,7 @@ int AvcModuleProvider::CalculateVersionsScore(const AvcModuleVersion& required, 
   return score;
 }
 
-void AvcModuleProvider::SetupDataWrapper() {
+bool AvcModuleProvider::SetupDataWrapper() {
   AvcModuleVersion version;
 
   if (avcodec_handle_)
@@ -314,12 +308,19 @@ void AvcModuleProvider::SetupDataWrapper() {
   }
 
   if (!selected_factory) {
+#if DEBUG_PRINT
     printf("LIBAV data wrapper was not selected!");
-  } else {
-    AvcModuleVersion wrapver = selected_factory->GetVersion();
-    std::shared_ptr<IAvcModuleDataWrapper> data_wrapper = selected_factory->Create(shared_from_this());
-    data_wrapper_ = data_wrapper;
-  }
+#endif //DEBUG_PRINT
+    if (load_handler_) {
+      load_handler_->OnModuleLoadError(shared_from_this(), "DATASTRUCT");
+    }
+    return false;
+  } 
+
+  AvcModuleVersion wrapver = selected_factory->GetVersion();
+  std::shared_ptr<IAvcModuleDataWrapper> data_wrapper = selected_factory->Create(shared_from_this());
+  data_wrapper_ = data_wrapper;
+  return true;
 }
 
 bool AvcModuleProvider::LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name) {
@@ -347,9 +348,6 @@ bool AvcModuleProvider::LoadAvModule(const char* name, void** handle, const std:
   if (*handle != nullptr) {
     return true;
   }
-
-  printf("cannot load module %s: %s, path %s",
-              name, module_name.c_str(), modules_path_.c_str());
   return false;
 }
 
@@ -362,34 +360,51 @@ void AvcModuleProvider::SetLoadHandler(std::shared_ptr<IAvcModuleLoadHandler> lo
 }
 
 void AvcModuleProvider::Load() {
+  static const char* kAvCodecModuleName = "AVCODEC";
+  static const char* kAvFormatModuleName = "AVFORMAT";
+  static const char* kAvUtilModuleName = "AVUTIL";
+  static const char* kAvDeviceModuleName = "AVDEVICE";
+  static const char* kSwScaleModuleName = "SWSCALE";
+  static const char* kSwResampleModuleName = "SWRESAMPLE";
+
 #ifdef AVC_LIBRARIES_STATIC_LINK
   LoadStatically();
 #endif /*AVC_LIBRARIES_STATIC_LINK*/
 
   if (!avcodec_handle_) {
-    if (LoadAvModule("AVCODEC", &avcodec_handle_, avcodec_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvCodecModuleName)) {
+    if (LoadAvModule(kAvCodecModuleName, &avcodec_handle_, avcodec_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvCodecModuleName)) {
       LoadAvCodecFunctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kAvCodecModuleName, avcodec_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "AVCODEC");
+        load_handler_->OnModuleLoadError(shared_from_this(), kAvCodecModuleName);
       }
     }
   }
 
   if (!avformat_handle_) {
-    if (LoadAvModule("AVFORMAT", &avformat_handle_, avformat_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvFormatModuleName)) {
+    if (LoadAvModule(kAvFormatModuleName, &avformat_handle_, avformat_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvFormatModuleName)) {
       LoadAvFormatFunctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kAvFormatModuleName, avformat_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "AVFORMAT");
+        load_handler_->OnModuleLoadError(shared_from_this(), kAvFormatModuleName);
       }
     }
   }
 
   if (!avutil_handle_) {
-    if (LoadAvModule("AVUTIL", &avutil_handle_, avutil_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvUtilModuleName)) {
+    if (LoadAvModule(kAvUtilModuleName, &avutil_handle_, avutil_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvUtilModuleName)) {
       LoadAvUtilFunctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kAvUtilModuleName, avutil_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
+
       if (load_handler_) {
         load_handler_->OnModuleLoadError(shared_from_this(), "AVUTIL");
       }
@@ -397,36 +412,52 @@ void AvcModuleProvider::Load() {
   }
 
   if (!avdevice_handle_) {
-    if (LoadAvModule("AVDEVICE", &avdevice_handle_, avdevice_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvDeviceModuleName)) {
+    if (LoadAvModule(kAvDeviceModuleName, &avdevice_handle_, avdevice_module_name_, strict_modules_names_ ? std::string() : kNoVersionAvDeviceModuleName)) {
       LoadAvDeviceFunctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kAvDeviceModuleName, avdevice_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
+
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "AVDEVICE");
+        load_handler_->OnModuleLoadError(shared_from_this(), kAvDeviceModuleName);
       }
     }
   }
 
   if (!swscale_handle_) {
-    if (LoadAvModule("SWSCALE", &swscale_handle_, swscale_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwScaleModuleName)) {
+    if (LoadAvModule(kSwScaleModuleName, &swscale_handle_, swscale_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwScaleModuleName)) {
       LoadSwScaleFunctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kSwScaleModuleName, swscale_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
+
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "SWSCALE");
+        load_handler_->OnModuleLoadError(shared_from_this(), kSwScaleModuleName);
       }
     }
   }
 
   if (!swresample_handle_) {
-    if (LoadAvModule("SWRESAMPLE", &swresample_handle_, swresample_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwResampleModuleName)) {
+    if (LoadAvModule(kSwResampleModuleName, &swresample_handle_, swresample_module_name_, strict_modules_names_ ? std::string() : kNoVersionSwResampleModuleName)) {
       LoadSwResampleFuctions();
     } else {
+#if DEBUG_PRINT
+      printf("cannot load module %s: %s, path %s", kSwResampleModuleName, swresample_module_name_.c_str(), modules_path_.c_str());
+#endif //DEBUG_PRINT
+
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "SWRESAMPLE");
+        load_handler_->OnModuleLoadError(shared_from_this(), kSwResampleModuleName);
       }
     }
   }
 
-  SetupDataWrapper();
+  if (SetupDataWrapper()) {
+    if (load_handler_) {
+      load_handler_->OnLoadFinished(shared_from_this());
+    }
+  }
 }
 
 void AvcModuleProvider::Unload() {

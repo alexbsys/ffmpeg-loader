@@ -49,13 +49,8 @@ class AvcModuleProvider : public virtual IAvcModuleProvider,
   void LoadStatically();
 #endif /*AVC_LIBRARIES_STATIC_LINK*/
 
-
-private:
-  bool LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name);
-  bool strict_modules_names_;
-
 public:
-  void SetupDataWrapper();
+  bool SetupDataWrapper();
 
   /// \brief   Calculate FFmpeg libraries compatibility version score based on version difference
   /// \return  0 - full compatibility, some positive value - lesser values means more compatibility,
@@ -367,294 +362,285 @@ public:
   void LoadSwResampleFuctions();
 
   // avcodec
-  unsigned (*avcodec_version_)(void);
+  unsigned (*avcodec_version_)(void) = nullptr;
 
   int (*avcodec_encode_video2_)(AVCodecContext *avctx, AVPacket *avpkt,
-                                const AVFrame *frame, int *got_packet_ptr);
+                                const AVFrame *frame, int *got_packet_ptr) = nullptr;
 
-  size_t (*av_get_codec_tag_string_)(char *buf, size_t buf_size, unsigned int codec_tag);
-  int (*avcodec_parameters_copy_)(AVCodecParameters *dst, const AVCodecParameters *src);
+  size_t (*av_get_codec_tag_string_)(char *buf, size_t buf_size, unsigned int codec_tag) = nullptr;
+  int (*avcodec_parameters_copy_)(AVCodecParameters *dst, const AVCodecParameters *src) = nullptr;
   int (*avcodec_parameters_from_context_)(AVCodecParameters *par,
-                                          const AVCodecContext *codec);
-  void (*avcodec_parameters_free_)(AVCodecParameters **par);
-  AVCodecParameters *(*avcodec_parameters_alloc_)(void);
+                                          const AVCodecContext *codec) = nullptr;
+  void (*avcodec_parameters_free_)(AVCodecParameters **par) = nullptr;
+  AVCodecParameters *(*avcodec_parameters_alloc_)(void) = nullptr;
   int (*avcodec_parameters_to_context_)(AVCodecContext *codec,
-                                        const AVCodecParameters *par);
-  void (*av_register_hwaccel_)(AVHWAccel *hwaccel);
-  AVHWAccel *(*av_hwaccel_next_)(const AVHWAccel *hwaccel);
-  int (*av_lockmgr_register_)(int (*cb)(void **mutex, /*enum AVLockOp*/ int op));
-  AVPacket *(*av_packet_alloc_)(void);
-  AVPacket *(*av_packet_clone_)(AVPacket *src);
-  void (*av_packet_free_)(AVPacket **pkt);
-  void (*av_init_packet_)(AVPacket *pkt);
-  int (*av_new_packet_)(AVPacket *pkt, int size);
-  int (*av_packet_ref_)(AVPacket *dst, const AVPacket* src);
-  void (*av_packet_unref_)(AVPacket *pkt);
+                                        const AVCodecParameters *par) = nullptr;
+  void (*av_register_hwaccel_)(AVHWAccel *hwaccel) = nullptr;
+  AVHWAccel *(*av_hwaccel_next_)(const AVHWAccel *hwaccel) = nullptr;
+  int (*av_lockmgr_register_)(int (*cb)(void **mutex, /*enum AVLockOp*/ int op)) = nullptr;
+  AVPacket *(*av_packet_alloc_)(void) = nullptr;
+  AVPacket *(*av_packet_clone_)(AVPacket *src) = nullptr;
+  void (*av_packet_free_)(AVPacket **pkt) = nullptr;
+  void (*av_init_packet_)(AVPacket *pkt) = nullptr;
+  int (*av_new_packet_)(AVPacket *pkt, int size) = nullptr;
+  int (*av_packet_ref_)(AVPacket *dst, const AVPacket* src) = nullptr;
+  void (*av_packet_unref_)(AVPacket *pkt) = nullptr;
 
-  AVCodecContext *(*avcodec_alloc_context3_)(const AVCodec *codec);
-  void (*avcodec_free_context_)(AVCodecContext **avctx);
-  AVCodec *(*avcodec_find_decoder_)(/*enum AVCodecID*/ int id);
-  AVCodec *(*avcodec_find_decoder_by_name_)(const char *name);
-  AVCodec *(*avcodec_find_encoder_)(/*enum AVCodecID*/ int id);
-  AVCodec *(*avcodec_find_encoder_by_name_)(const char *name);
-  void (*avcodec_flush_buffers_)(AVCodecContext *avctx);
+  AVCodecContext *(*avcodec_alloc_context3_)(const AVCodec *codec) = nullptr;
+  void (*avcodec_free_context_)(AVCodecContext **avctx) = nullptr;
+  AVCodec *(*avcodec_find_decoder_)(/*enum AVCodecID*/ int id) = nullptr;
+  AVCodec *(*avcodec_find_decoder_by_name_)(const char *name) = nullptr;
+  AVCodec *(*avcodec_find_encoder_)(/*enum AVCodecID*/ int id) = nullptr;
+  AVCodec *(*avcodec_find_encoder_by_name_)(const char *name) = nullptr;
+  void (*avcodec_flush_buffers_)(AVCodecContext *avctx) = nullptr;
 
-  const AVCodec *(*av_codec_iterate_)(void **opaque);
-  const AVCodecHWConfig *(*avcodec_get_hw_config_)(const AVCodec *codec, int index);
-  const char *(*avcodec_get_name_)(/*enum AVCodecID*/ int id);
-  int (*av_codec_is_encoder_)(const AVCodec *codec);
-  int (*av_codec_is_decoder_)(const AVCodec *codec);
+  const AVCodec *(*av_codec_iterate_)(void **opaque) = nullptr;
+  const AVCodecHWConfig *(*avcodec_get_hw_config_)(const AVCodec *codec, int index) = nullptr;
+  const char *(*avcodec_get_name_)(/*enum AVCodecID*/ int id) = nullptr;
+  int (*av_codec_is_encoder_)(const AVCodec *codec) = nullptr;
+  int (*av_codec_is_decoder_)(const AVCodec *codec) = nullptr;
   int (*avcodec_open2_)(AVCodecContext *avctx, const AVCodec *codec,
-                        AVDictionary **options);
-  int (*avcodec_receive_frame_)(AVCodecContext *avctx, AVFrame *frame);
-  int (*avcodec_send_frame_)(AVCodecContext *avctx, const AVFrame *frame);
-  int (*avcodec_receive_packet_)(AVCodecContext *avctx, AVPacket *avpkt);
-  int (*avcodec_send_packet_)(AVCodecContext *avctx, const AVPacket *avpkt);
-  void (*avcodec_register_all_)(void);
+                        AVDictionary **options) = nullptr;
+  int (*avcodec_receive_frame_)(AVCodecContext *avctx, AVFrame *frame) = nullptr;
+  int (*avcodec_send_frame_)(AVCodecContext *avctx, const AVFrame *frame) = nullptr;
+  int (*avcodec_receive_packet_)(AVCodecContext *avctx, AVPacket *avpkt) = nullptr;
+  int (*avcodec_send_packet_)(AVCodecContext *avctx, const AVPacket *avpkt) = nullptr;
+  void (*avcodec_register_all_)(void) = nullptr;
 
   // avformat
-  unsigned (*avformat_version_)(void);
+  unsigned (*avformat_version_)(void) = nullptr;
 
-  void (*av_dump_format_)(AVFormatContext *ic, int index, const char *url, int is_output);
-  AVInputFormat *(*av_find_input_format_)(const char *short_name);
+  void (*av_dump_format_)(AVFormatContext *ic, int index, const char *url, int is_output) = nullptr;
+  AVInputFormat *(*av_find_input_format_)(const char *short_name) = nullptr;
 
   AVOutputFormat *(*av_guess_format_)(const char *short_name, const char *filename,
-                                      const char *mime_type);
+                                      const char *mime_type) = nullptr;
 
-  int (*av_read_frame_)(AVFormatContext *s, AVPacket *pkt);
-  int (*av_read_play_)(AVFormatContext *s);
-  int (*av_read_pause_)(AVFormatContext *s);
+  int (*av_read_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
+  int (*av_read_play_)(AVFormatContext *s) = nullptr;
+  int (*av_read_pause_)(AVFormatContext *s) = nullptr;
 
-  void (*av_register_all_)(void);
-  int (*avformat_flush_)(AVFormatContext *s);
-  int (*av_seek_frame_)(AVFormatContext *s, int stream_index, int64_t timestamp,
-                        int flags);
-  int (*av_write_frame_)(AVFormatContext *s, AVPacket *pkt);
-  int (*av_interleaved_write_frame_)(AVFormatContext *s, AVPacket *pkt);
+  void (*av_register_all_)(void) = nullptr;
+  int (*avformat_flush_)(AVFormatContext *s) = nullptr;
+  int (*av_seek_frame_)(AVFormatContext *s, int stream_index, int64_t timestamp, int flags) = nullptr;
+  int (*av_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
+  int (*av_interleaved_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
+  int (*av_write_trailer_)(AVFormatContext *s) = nullptr;
 
-  int (*av_write_trailer_)(AVFormatContext *s);
-
-  AVFormatContext *(*avformat_alloc_context_)(void);
+  AVFormatContext *(*avformat_alloc_context_)(void) = nullptr;
   int (*avformat_alloc_output_context2_)(AVFormatContext **ctx, AVOutputFormat *oformat,
-                                         const char *format_name, const char *filename);
+                                         const char *format_name, const char *filename) = nullptr;
 
-  void (*avformat_free_context_)(AVFormatContext *s);
+  void (*avformat_free_context_)(AVFormatContext *s) = nullptr;
+  void (*avformat_close_input_)(AVFormatContext **s) = nullptr;
+  int (*avformat_find_stream_info_)(AVFormatContext *ic, AVDictionary **options) = nullptr;
 
-  void (*avformat_close_input_)(AVFormatContext **s);
-  int (*avformat_find_stream_info_)(AVFormatContext *ic, AVDictionary **options);
+  int (*avformat_network_init_)(void) = nullptr;
+  int (*avformat_network_deinit_)(void) = nullptr;
 
-  int (*avformat_network_init_)(void);
-  int (*avformat_network_deinit_)(void);
-
-  AVStream *(*avformat_new_stream_)(AVFormatContext *s, const AVCodec *c);
+  AVStream *(*avformat_new_stream_)(AVFormatContext *s, const AVCodec *c) = nullptr;
 
   int (*av_stream_add_side_data_)(AVStream *st, int type,
-                              uint8_t *data, size_t size);
+                              uint8_t *data, size_t size) = nullptr;
   uint8_t *(*av_stream_new_side_data_)(AVStream *stream,
-                                   int type, int size);
+                                   int type, int size) = nullptr;
   uint8_t *(*av_stream_get_side_data_)(const AVStream *stream,
-                                   int type, int *size);
-
+                                   int type, int *size) = nullptr;
 
   int (*avformat_open_input_)(AVFormatContext **ps, const char *url, AVInputFormat *fmt,
-                              AVDictionary **options);
+                              AVDictionary **options) = nullptr;
 
-  int (*avformat_write_header_)(AVFormatContext *s, AVDictionary **options);
+  int (*avformat_write_header_)(AVFormatContext *s, AVDictionary **options) = nullptr;
 
   AVIOContext *(*avio_alloc_context_)(
     unsigned char *buffer, int buffer_size, int write_flag, void *opaque,
     int (*read_packet)(void *opaque, uint8_t *buf, int buf_size),
     int (*write_packet)(void *opaque, uint8_t *buf, int buf_size),
-    int64_t (*seek)(void *opaque, int64_t offset, int whence));
+    int64_t (*seek)(void *opaque, int64_t offset, int whence)) = nullptr;
 
-  void (*avio_context_free_)(AVIOContext** s);
+  void (*avio_context_free_)(AVIOContext** s) = nullptr;
 
-  int (*avio_close_)(AVIOContext *s);
-  int (*avio_closep_)(AVIOContext **s);
-  void (*avio_flush_)(AVIOContext *s);
+  int (*avio_close_)(AVIOContext *s) = nullptr;
+  int (*avio_closep_)(AVIOContext **s) = nullptr;
+  void (*avio_flush_)(AVIOContext *s) = nullptr;
 
   int (*avio_open2_)(AVIOContext **s, const char *url, int flags,
-                     const AVIOInterruptCB *int_cb, AVDictionary **options);
+                     const AVIOInterruptCB *int_cb, AVDictionary **options) = nullptr;
 
   // avutil
-  unsigned (*avutil_version_)(void);
+  unsigned (*avutil_version_)(void) = nullptr;
 
   int (*av_samples_get_buffer_size_)(int *linesize, int nb_channels, int nb_samples,
-                                     int /*enum AVSampleFormat*/ sample_fmt, int align);
+                                     int /*enum AVSampleFormat*/ sample_fmt, int align) = nullptr;
 
   int64_t (*av_rescale_rnd_)(int64_t a, int64_t b, int64_t c,
-                             int /*enum AVRounding*/ rnd);
+                             int /*enum AVRounding*/ rnd) = nullptr;
 
   int (*av_samples_alloc_)(uint8_t **audio_data, int *linesize, int nb_channels,
                            int nb_samples, int /*enum AVSampleFormat*/ sample_fmt,
-                           int /*(0 = default, 1 = no alignment)*/ align);
+                           int /*(0 = default, 1 = no alignment)*/ align) = nullptr;
 
   int (*av_samples_alloc_array_and_samples_)(
     uint8_t ***audio_data, int *linesize, int nb_channels, int nb_samples,
     int /*enum AVSampleFormat*/ sample_fmt,
-    int /*(0 = default, 1 = no alignment)*/ align);
+    int /*(0 = default, 1 = no alignment)*/ align) = nullptr;
 
-  int (*av_opt_set_int_)(void *obj, const char *name, int64_t val, int search_flags);
+  int (*av_opt_set_int_)(void *obj, const char *name, int64_t val, int search_flags) = nullptr;
   int (*av_opt_set_sample_fmt_)(void *obj, const char *name,
                                 int /*enum AVSampleFormat*/ fmt, int search_flags);
-  AVBufferRef *(*av_hwdevice_ctx_alloc_)(int /*enum AVHWDeviceType*/ type);
-  int (*av_hwdevice_ctx_init_)(AVBufferRef *ref);
-  AVBufferRef *(*av_hwframe_ctx_alloc_)(AVBufferRef *device_ctx);
+  AVBufferRef *(*av_hwdevice_ctx_alloc_)(int /*enum AVHWDeviceType*/ type) = nullptr;
+  int (*av_hwdevice_ctx_init_)(AVBufferRef *ref) = nullptr;
+  AVBufferRef *(*av_hwframe_ctx_alloc_)(AVBufferRef *device_ctx) = nullptr;
 
-  /*enum AVHWDeviceType*/ int (*av_hwdevice_find_type_by_name_)(const char *name);
+  /*enum AVHWDeviceType*/ int (*av_hwdevice_find_type_by_name_)(const char *name) = nullptr;
 
-  const char *(*av_hwdevice_get_type_name_)(int /*enum AVHWDeviceType*/ type);
+  const char *(*av_hwdevice_get_type_name_)(int /*enum AVHWDeviceType*/ type) = nullptr;
 
-  /*enum AVHWDeviceType*/ int (*av_hwdevice_iterate_types_)(int /*enum AVHWDeviceType*/ prev);
+  /*enum AVHWDeviceType*/ int (*av_hwdevice_iterate_types_)(int /*enum AVHWDeviceType*/ prev) = nullptr;
 
   int (*av_hwdevice_ctx_create_)(AVBufferRef **device_ctx,
                                  int /*enum AVHWDeviceType*/ type, const char *device,
-                                 AVDictionary *opts, int flags);
+                                 AVDictionary *opts, int flags) = nullptr;
 
-  int (*av_hwframe_ctx_init_)(AVBufferRef *ref);
-  int (*av_hwframe_get_buffer_)(AVBufferRef *hwframe_ctx, AVFrame *frame, int flags);
-  int (*av_hwframe_transfer_data_)(AVFrame *dst, const AVFrame *src, int flags);
+  int (*av_hwframe_ctx_init_)(AVBufferRef *ref) = nullptr;
+  int (*av_hwframe_get_buffer_)(AVBufferRef *hwframe_ctx, AVFrame *frame, int flags) = nullptr;
+  int (*av_hwframe_transfer_data_)(AVFrame *dst, const AVFrame *src, int flags) = nullptr;
 
   int (*av_hwframe_transfer_get_formats_)(AVBufferRef *hwframe_ctx,
                                           int /*enum AVHWFrameTransferDirection*/ dir,
                                           int /*enum AVPixelFormat*/ **formats,
-                                          int flags);
+                                          int flags) = nullptr;
 
-  void *(*av_hwdevice_hwconfig_alloc_)(AVBufferRef *device_ctx);
+  void *(*av_hwdevice_hwconfig_alloc_)(AVBufferRef *device_ctx) = nullptr;
 
   AVHWFramesConstraints *(*av_hwdevice_get_hwframe_constraints_)(AVBufferRef *ref,
-                                                                 const void *hwconfig);
+                                                                 const void *hwconfig) = nullptr;
 
-  void (*av_hwframe_constraints_free_)(AVHWFramesConstraints **constraints);
-  int (*av_hwframe_map_)(AVFrame *dst, const AVFrame *src, int flags);
+  void (*av_hwframe_constraints_free_)(AVHWFramesConstraints **constraints) = nullptr;
+  int (*av_hwframe_map_)(AVFrame *dst, const AVFrame *src, int flags) = nullptr;
 
-  int (*av_dict_set_)(AVDictionary **pm, const char *key, const char *value, int flags);
-  int (*av_dict_set_int_)(AVDictionary **pm, const char *key, int64_t value, int flags);
+  int (*av_dict_set_)(AVDictionary **pm, const char *key, const char *value, int flags) = nullptr;
+  int (*av_dict_set_int_)(AVDictionary **pm, const char *key, int64_t value, int flags) = nullptr;
   AVDictionaryEntry *(*av_dict_get_)(const AVDictionary *m, const char *key,
-                                     const AVDictionaryEntry *prev, int flags);
-  int (*av_dict_count_)(const AVDictionary *m);
-  void (*av_dict_free_)(AVDictionary **m);
+                                     const AVDictionaryEntry *prev, int flags) = nullptr;
+  int (*av_dict_count_)(const AVDictionary *m) = nullptr;
+  void (*av_dict_free_)(AVDictionary **m) = nullptr;
 
-  AVFrame *(*av_frame_alloc_)(void);
-  void (*av_frame_free_)(AVFrame **frame);
+  AVFrame *(*av_frame_alloc_)(void) = nullptr;
+  void (*av_frame_free_)(AVFrame **frame) = nullptr;
 
-  int (*av_frame_get_buffer_)(AVFrame *frame, int align);
+  int (*av_frame_get_buffer_)(AVFrame *frame, int align) = nullptr;
 
-  int (*av_frame_get_channels_)(const AVFrame *frame);
-  void (*av_frame_set_channels_)(AVFrame *frame, int val);
-  int64_t (*av_frame_get_pkt_duration_)(const AVFrame *frame);
-  void (*av_frame_set_pkt_duration_)(AVFrame *frame, int64_t val);
-  int64_t (*av_frame_get_pkt_pos_)(const AVFrame *frame);
-  void (*av_frame_set_pkt_pos_)(AVFrame *frame, int64_t val);
-  int (*av_frame_get_sample_rate_)(const AVFrame *frame);
-  void (*av_frame_set_sample_rate_)(AVFrame *frame, int val);
+  int (*av_frame_get_channels_)(const AVFrame *frame) = nullptr;
+  void (*av_frame_set_channels_)(AVFrame *frame, int val) = nullptr;
+  int64_t (*av_frame_get_pkt_duration_)(const AVFrame *frame) = nullptr;
+  void (*av_frame_set_pkt_duration_)(AVFrame *frame, int64_t val) = nullptr;
+  int64_t (*av_frame_get_pkt_pos_)(const AVFrame *frame) = nullptr;
+  void (*av_frame_set_pkt_pos_)(AVFrame *frame, int64_t val) = nullptr;
+  int (*av_frame_get_sample_rate_)(const AVFrame *frame) = nullptr;
+  void (*av_frame_set_sample_rate_)(AVFrame *frame, int val) = nullptr;
 
-  void (*av_free_)(void *ptr);
-  void (*av_freep_)(void *ptr);
+  void (*av_free_)(void *ptr) = nullptr;
+  void (*av_freep_)(void *ptr) = nullptr;
 
-  int (*av_get_bytes_per_sample_)(/*enum AVSampleFormat*/ int sample_fmt);
+  int (*av_get_bytes_per_sample_)(/*enum AVSampleFormat*/ int sample_fmt) = nullptr;
 
   int (*av_image_copy_to_buffer_)(uint8_t *dst, int dst_size,
                                   const uint8_t *const src_data[4],
                                   const int src_linesize[4], /*enum AVPixelFormat*/ int pix_fmt,
-                                  int width, int height, int align);
+                                  int width, int height, int align) = nullptr;
 
   int (*av_image_fill_arrays_)(uint8_t *dst_data[4], int dst_linesize[4],
                                const uint8_t *src, /*enum AVPixelFormat*/ int pix_fmt, int width,
-                               int height, int align);
+                               int height, int align) = nullptr;
 
   int (*av_image_get_buffer_size_)(/*enum AVPixelFormat*/ int pix_fmt, int width, int height,
-                                   int align);
+                                   int align) = nullptr;
 
-  void (*av_log_default_callback_)(void *avcl, int level, const char *fmt, va_list vl);
+  void (*av_log_default_callback_)(void *avcl, int level, const char *fmt, va_list vl) = nullptr;
 
-  void (*av_log_set_callback_)(void (*callback)(void *, int, const char *, va_list));
+  void (*av_log_set_callback_)(void (*callback)(void *, int, const char *, va_list)) = nullptr;
 
-  void (*av_log_set_level_)(int level);
+  void (*av_log_set_level_)(int level) = nullptr;
 
-  void *(*av_malloc_)(size_t size);
-  char *(*av_strdup_)(const char *s);
+  void *(*av_malloc_)(size_t size) = nullptr;
+  char *(*av_strdup_)(const char *s) = nullptr;
 
   AVBufferRef *(*av_buffer_create_)(uint8_t *data, int size,
                                     void (*free)(void *opaque, uint8_t *data),
-                                    void *opaque, int flags);
+                                    void *opaque, int flags) = nullptr;
 
-  int (*av_buffer_is_writable_)(const AVBufferRef *buf);
-  void *(*av_buffer_get_opaque_)(const AVBufferRef *buf);
-  int (*av_buffer_get_ref_count_)(const AVBufferRef *buf);
-  int (*av_buffer_make_writable_)(AVBufferRef **buf);
+  int (*av_buffer_is_writable_)(const AVBufferRef *buf) = nullptr;
+  void *(*av_buffer_get_opaque_)(const AVBufferRef *buf) = nullptr;
+  int (*av_buffer_get_ref_count_)(const AVBufferRef *buf) = nullptr;
+  int (*av_buffer_make_writable_)(AVBufferRef **buf) = nullptr;
+  int (*av_buffer_realloc_)(AVBufferRef **pbuf, int size) = nullptr;
+  void (*av_buffer_unref_)(AVBufferRef **buf) = nullptr;
+  AVBufferRef *(*av_buffer_ref_)(AVBufferRef *buf) = nullptr;
 
-  int (*av_buffer_realloc_)(AVBufferRef **pbuf, int size);
+  int (*av_pix_fmt_count_planes_)(/*enum AVPixelFormat*/ int pix_fmt) = nullptr;
+  const AVPixFmtDescriptor* (*av_pix_fmt_desc_get_)(int /*enum AVPixelFormat*/ pix_fmt) = nullptr;
 
-  void (*av_buffer_unref_)(AVBufferRef **buf);
-
-  AVBufferRef *(*av_buffer_ref_)(AVBufferRef *buf);
-
-  int (*av_pix_fmt_count_planes_)(/*enum AVPixelFormat*/ int pix_fmt);
-  const AVPixFmtDescriptor* (*av_pix_fmt_desc_get_)(int /*enum AVPixelFormat*/ pix_fmt);
-
-  int (*av_sample_fmt_is_planar_)(/*enum AVSampleFormat*/ int sample_fmt);
-
+  int (*av_sample_fmt_is_planar_)(/*enum AVSampleFormat*/ int sample_fmt) = nullptr;
   int (*av_samples_set_silence_)(uint8_t **audio_data, int offset, int nb_samples,
-                                 int nb_channels, /*enum AVSampleFormat*/ int sample_fmt);
+                                 int nb_channels, /*enum AVSampleFormat*/ int sample_fmt) = nullptr;
 
-  int (*av_strerror_)(int errnum, char *errbuf, size_t errbuf_size);
+  int (*av_strerror_)(int errnum, char *errbuf, size_t errbuf_size) = nullptr;
 
-  uint64_t (*av_get_channel_layout_)(const char *name);
-  int (*av_get_channel_layout_nb_channels_)(uint64_t channel_layout);
-  int64_t (*av_get_default_channel_layout_)(int nb_channels);
-
-  int (*av_get_channel_layout_channel_index_)(uint64_t channel_layout, uint64_t channel);
-
-  uint64_t (*av_channel_layout_extract_channel_)(uint64_t channel_layout, int index);
-
-  const char *(*av_get_channel_name_)(uint64_t channel);
-
-  const char *(*av_get_channel_description_)(uint64_t channel);
+  uint64_t (*av_get_channel_layout_)(const char *name) = nullptr;
+  int (*av_get_channel_layout_nb_channels_)(uint64_t channel_layout) = nullptr;
+  int64_t (*av_get_default_channel_layout_)(int nb_channels) = nullptr;
+  int (*av_get_channel_layout_channel_index_)(uint64_t channel_layout, uint64_t channel) = nullptr;
+  uint64_t (*av_channel_layout_extract_channel_)(uint64_t channel_layout, int index) = nullptr;
+  const char *(*av_get_channel_name_)(uint64_t channel) = nullptr;
+  const char *(*av_get_channel_description_)(uint64_t channel) = nullptr;
   int (*av_get_standard_channel_layout_)(unsigned index, uint64_t *layout,
-                                         const char **name);
+                                         const char **name) = nullptr;
 
   // swscale
-  unsigned (*swscale_version_)(void);
+  unsigned (*swscale_version_)(void) = nullptr;
 
-  void (*sws_freeContext_)(struct SwsContext *swsContext);
+  void (*sws_freeContext_)(struct SwsContext *swsContext) = nullptr;
 
   struct SwsContext *(*sws_getContext_)(int srcW, int srcH, /*enum AVPixelFormat*/ int srcFormat,
                                         int dstW, int dstH, /*enum AVPixelFormat*/ int dstFormat,
                                         int flags, SwsFilter *srcFilter,
-                                        SwsFilter *dstFilter, const double *param);
+                                        SwsFilter *dstFilter, const double *param) = nullptr;
 
   int (*sws_scale_)(struct SwsContext *c, const uint8_t *const srcSlice[],
                     const int srcStride[], int srcSliceY, int srcSliceH,
-                    uint8_t *const dst[], const int dstStride[]);
+                    uint8_t *const dst[], const int dstStride[]) = nullptr;
 
   // swresample
-  unsigned (*swresample_version_)(void);
+  unsigned (*swresample_version_)(void) = nullptr;
 
-  struct SwrContext *(*swr_alloc_)();
-  int (*swr_init_)(struct SwrContext *s);
-  int (*swr_is_initialized_)(struct SwrContext *s);
-  void (*swr_free_)(struct SwrContext **s);
-  void (*swr_close_)(struct SwrContext *s);
+  struct SwrContext *(*swr_alloc_)() = nullptr;
+  int (*swr_init_)(struct SwrContext *s) = nullptr;
+  int (*swr_is_initialized_)(struct SwrContext *s) = nullptr;
+  void (*swr_free_)(struct SwrContext **s) = nullptr;
+  void (*swr_close_)(struct SwrContext *s) = nullptr;
   int (*swr_convert_)(struct SwrContext *s, uint8_t **out, int out_count,
-                      const uint8_t **in, int in_count);
-  int64_t (*swr_get_delay_)(struct SwrContext *s, int64_t base);
+                      const uint8_t **in, int in_count) = nullptr;
+  int64_t (*swr_get_delay_)(struct SwrContext *s, int64_t base) = nullptr;
 
   // avdevice
-  unsigned (*avdevice_version_)(void);
-  void (*avdevice_register_all_)(void);
+  unsigned (*avdevice_version_)(void) = nullptr;
+  void (*avdevice_register_all_)(void) = nullptr;
 
  private:
+  bool LoadAvModule(const char* name, void** handle, const std::string& module_name, const std::string& noversion_module_name);
+  bool strict_modules_names_ = false;
+
   std::shared_ptr<cmf::IDynamicModulesLoader> modules_loader_;
   std::shared_ptr<IAvcModuleLoadHandler> load_handler_;
   std::string modules_path_;
 
-  void *avcodec_handle_;
-  void *avformat_handle_;
-  void *avutil_handle_;
-  void *avdevice_handle_;
-  void *swscale_handle_;
-  void *swresample_handle_;
+  void *avcodec_handle_ = nullptr;
+  void *avformat_handle_ = nullptr;
+  void *avutil_handle_ = nullptr;
+  void *avdevice_handle_ = nullptr;
+  void *swscale_handle_ = nullptr;
+  void *swresample_handle_ = nullptr;
 
   std::string avcodec_module_name_;
   std::string avformat_module_name_;
