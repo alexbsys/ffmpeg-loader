@@ -26,10 +26,12 @@ if(FFMPEGLOADER_BUILD_SHARED)
 
   target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1)
 
-  set_target_properties(ffmpeg-loader PROPERTIES
-    WINDOWS_EXPORT_ALL_SYMBOLS OFF
-    LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-loader.def"
-  )
+  if(WIN32)
+    set_target_properties(ffmpeg-loader PROPERTIES
+      WINDOWS_EXPORT_ALL_SYMBOLS OFF
+      LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-loader.def"
+    )
+  endif()
 else() # FFMPEGLOADER_BUILD_SHARED
   # Building static library
   add_library(ffmpeg-loader STATIC

@@ -43,6 +43,7 @@ struct AVStream;
 struct AVIOContext;
 struct AVIOInterruptCB;
 struct AVCPBProperties;
+struct AVChannelLayout;
 
 // avutil structures definition
 struct AVHWFramesConstraints;

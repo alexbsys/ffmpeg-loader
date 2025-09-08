@@ -14,5 +14,6 @@
 #include <cerrno>
 
 #define AVC_PREINCLUDED_HEADERS 1
+struct AVChannelLayout;
 
 #endif//LIBAV_LOADER_COMMON_HEADER
