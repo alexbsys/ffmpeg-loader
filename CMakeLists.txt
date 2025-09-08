@@ -49,3 +49,5 @@ if(DEFINED FFMPEG_VERSIONS)
 endif()
 
 add_subdirectory(src)
+
+add_subdirectory(examples)

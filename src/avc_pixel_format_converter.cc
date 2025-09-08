@@ -1,6 +1,6 @@
 
 #ifndef DEBUG_PRINT
-#define DEBUG_PRINT 1
+#define DEBUG_PRINT 0
 #endif //DEBUG_PRINT
 
 #ifndef FFMPEG_LOADER_DLL

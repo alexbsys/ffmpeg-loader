@@ -3,8 +3,13 @@
 #define FFMPEG_LOADER_HEADER
 
 #include "i_avc_module_provider.h"
+#include "i_avc_module_load_handler.h"
 #include <memory>
 #include <string>
+
+namespace cmf {
+struct IDynamicModulesLoader;
+}//namespace cmf
 
 namespace avc {
 
