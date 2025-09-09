@@ -6,45 +6,48 @@ This library solves fundamental FFmpeg compatibility problems, providing develop
 
 A universal C++ wrapper library that enables dynamic loading and interaction with functions and data structures from various FFmpeg versions (starting from 3.2 to 8.0): `libavcodec`, `libavutil`, `libavdevice`, `libavformat`, `libswresample`, and `libswscale`. 
 Allows client applications to work with any FFmpeg version without recompilation through a unified stable interface.
-Built on Dependency Injection principles, it provides an abstraction layer over native FFmpeg APIs, solving binary compatibility issues between different library versions.
+Built on Dependency Injection principles, it provides an abstraction layer over native FFmpeg APIs, solving binary compatibility issues between different FFmpeg libraries versions.
 
-### FFmpeg compatibility Challenge
+### FFmpeg compatibility challenge
 
 Native FFmpeg integration faces fundamental compatibility issues:
 
 1. **Binary Data Structure Incompatibility**
 
-    FFmpeg data structures (AVCodecContext, AVFrame, etc.) are unstable between versions — field layout, sizes, and composition change constantly. Even with dynamic function loading, direct structure access causes crashes due to memory layout mismatches.
+    FFmpeg data structures (AVCodecContext, AVFrame, etc.) are unstable between versions because of changes in field layout, sizes, and composition. Even with dynamic function loading, direct structure access causes crashes due to memory layout mismatches.
 
 2. **Pixel Format Incompatibility**
 
     The pixel format system (AVPixelFormat) varies even within the same version, depends on different format codes for hardware accelerators (VDPAU, CUDA, VAAPI): dynamic numbering changes when built with specific hardware support. FFmpeg-loader solves that by using dynamic pixel format number binding (pixel formats deduced by names and saved to conversion table)
 
 3. **Versioning Complexity**
+
     Each FFmpeg component has its own versioning system, major and minor versions for each libav* component. Fields in the data structures appearing and disappearing within the same major version
 
 
-### Static Linking Limitations
+### Static linking limitations
 
 Static linking of FFmpeg libraries approach creates new problems:
 
-* **Binary Distribution Complexity**, particularly in Linux/macOS ecosystems where `libavdevice` tightly integrates with system libraries, and user cannot change installed version of libraries
+* **Binary Distribution Complexity**, particularly in Linux/macOS ecosystems where `libavdevice` tightly integrates with system libraries, and user cannot change installed version of FFmpeg binaries easily
 
 * **Version Conflicts**: applications with embedded FFmpeg specific version cannot run everywhere
 
 * **Hardware Acceleration specific build issues**. Statically linked FFmpeg with specific SDK support (NVIDIA, Intel Media SDK) often fails on other systems
 
-* **No Fallback Mechanisms**. Your app just cannot start when FFmpeg cannot be loaded
+* **No Fallback Mechanisms**. Your app just cannot start when FFmpeg statically linked libraries cannot be loaded
+
 
 ### Benefits of runtime dynamic linkage
 
-* **Guaranteed Compatibility**. Applications work with any FFmpeg version from 3.2 (all functions from 3.4)
+* **Guaranteed Compatibility**. Applications work with any FFmpeg version from 3.2 (better functionality is comping from version 3.4)
 
 * **Simplified Distribution**. Single binary works with all FFmpeg versions.
 
-* **Automatic Fallback**. Runtime switching between versions
+* **Automatic Fallback**. Runtime switching between versions, user code can provide path to FFmpeg libs that will be used
 
 * **Future-Proof**. New FFmpeg version support added without client code changes
+
 
 ### FFmpeg-loader solution architecture
 
