@@ -7,9 +7,9 @@ option(FFMPEGLOADER_BUILD_EXAMPLES "Build FFmpeg loader examples" ON)
 set(FFMPEGLOADER_FFMPEG_INCLUDE_DIR "" CACHE STRING "FFmpeg include directory (make sense only when LOAD_AVC_STATICALLY=ON)")
 set(FFMPEGLOADER_FFMPEG_LIB_DIR "" CACHE STRING "FFmpeg lib directory (make sense only when LOAD_AVC_STATICALLY=ON)")
 
-set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR} CACHE INTERNAL "Project root directory")
-set(EXTERNAL_CMAKE_DIR ${PROJECT_ROOT_DIR}/external/cmake CACHE INTERNAL "External cmake directory")
-set(EXTERNAL_BASE_DIR ${PROJECT_ROOT_DIR}/external CACHE INTERNAL "External libraries directory")
+set(FFMPEGLOADER_PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR} CACHE INTERNAL "Project root directory")
+set(FFMPEGLOADER_EXTERNAL_CMAKE_DIR ${FFMPEGLOADER_PROJECT_ROOT_DIR}/external/cmake CACHE INTERNAL "External cmake directory")
+set(FFMPEGLOADER_EXTERNAL_BASE_DIR ${FFMPEGLOADER_PROJECT_ROOT_DIR}/external CACHE INTERNAL "External libraries directory")
 
 # Include all .cmake from current directory
 file(GLOB MODULE_CMAKE_FILES ./*.cmake)

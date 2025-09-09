@@ -28,7 +28,7 @@ function(process_ffmpeg_versions)
     endif()
     
 	# Recreate ffmpeg-versions.h 
-    file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" 
+    file(WRITE "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions.h" 
 	"// THIS FILE IS CREATED AUTOMATICALLY BY CMAKE SCRIPTS. DO NOT EDIT
 #ifndef FFMPEG_VERSIONS_HEADER
 #define FFMPEG_VERSIONS_HEADER
@@ -42,7 +42,7 @@ extern std::vector<std::shared_ptr<avc::IAvcModuleDataWrapperFactory> > g_ffmpeg
 ")
 
     # Recreate ffmpeg-versions-register.cc
-    file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
+    file(WRITE "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
 "// THIS FILE IS CREATED AUTOMATICALLY BY CMAKE SCRIPTS. DO NOT EDIT
 #include \"ffmpeg-versions.h\"
 
@@ -104,18 +104,17 @@ void AvcDataProvidersGlobalInit() {
     endforeach()
 
     # Finalize ffmpeg-versions.h	
-    file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" 
-	"
+    file(APPEND "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions.h" "
 #endif //FFMPEG_VERSIONS_HEADER
 ")
  
     # Finalize ffmpeg-versions-register.cc
-    file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
-"#else // !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0		
+    file(APPEND "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" 
+"#else // !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
   g_ffmpeg_data_wrappers.push_back(AvcModuleProviderDataWrapFactory_Static_Create());
 #endif //AVC_LIBRARIES_STATIC_LINK
 }
-"	)	
+"    )
 endfunction()
 
 
@@ -125,7 +124,7 @@ function(process_ffmpeg_version version tag)
   message(STATUS "=== Download headers from FFmpeg ${version} ===")
   string(REPLACE "." "_" FFMPEG_CUR_VERSION_UNDERSCORE ${version})   # 3.2 -> 3_2
     
-  if(NOT EXISTS "${EXTERNAL_BASE_DIR}/ffmpeg-${version}")
+  if(NOT EXISTS "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}")
     fetch_git_partial(
         GIT_URL "https://github.com/FFmpeg/FFmpeg.git"
         TAG "${tag}"
@@ -138,24 +137,24 @@ function(process_ffmpeg_version version tag)
           "libswresample"
           "libswscale"
   
-        DEST_DIR "${EXTERNAL_BASE_DIR}/ffmpeg-${version}"
-        TEMP_DIR "${PROJECT_ROOT_DIR}/tmp"
+        DEST_DIR "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}"
+        TEMP_DIR "${FFMPEGLOADER_PROJECT_ROOT_DIR}/tmp"
         FILE_PATTERNS "*.h"
       )
 
-	fix_includes_in_file("${EXTERNAL_BASE_DIR}/ffmpeg-${version}/libswresample/swresample.h")
-	  
-	# Create libavutil/avconfig.h for each FFmpeg version
-	file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-${version}/libavutil/avconfig.h" "
+    fix_includes_in_file("${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}/libswresample/swresample.h")
+
+    # Create libavutil/avconfig.h for each FFmpeg version
+    file(WRITE "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}/libavutil/avconfig.h" "
 #ifndef AVUTIL_AVCONFIG_H
 #define AVUTIL_AVCONFIG_H
 #define AV_HAVE_BIGENDIAN 0
 #define AV_HAVE_FAST_UNALIGNED 1
 #endif /*AVUTIL_AVCONFIG_H*/
 ")
-	  
+  
     # Create loader source file
-    file(WRITE "${EXTERNAL_BASE_DIR}/ffmpeg-${version}/ffmpeg-${FFMPEG_CUR_VERSION_UNDERSCORE}-loader.cc" 
+    file(WRITE "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}/ffmpeg-${FFMPEG_CUR_VERSION_UNDERSCORE}-loader.cc" 
 "
 #define AVC_MODULE_DATA_WRAPPER_NAMESPACE ffmpeg_${FFMPEG_CUR_VERSION_UNDERSCORE}
 #define AVC_MODULE_DATA_WRAPPER_CLASSNAME AvcModuleProviderDataWrap_${FFMPEG_CUR_VERSION_UNDERSCORE}
@@ -181,13 +180,13 @@ struct SwrContext;
 #include \"avc_module_data_wrapper.hpp\"
 ")
 
-  endif()  # EXISTS "${EXTERNAL_BASE_DIR}/ffmpeg-${version}"
+  endif()  # EXISTS "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}"
 
   # Declare this version factory create function in  ffmpeg-versions.h
-  file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions.h" "std::shared_ptr<avc::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create();
+  file(APPEND "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions.h" "std::shared_ptr<avc::IAvcModuleDataWrapperFactory> AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create();
 ")
   # Add version registration procedure to ffmpeg-versions-register.cc
-  file(APPEND "${EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" "  g_ffmpeg_data_wrappers.push_back(AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create());
+  file(APPEND "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-versions-register.cc" "  g_ffmpeg_data_wrappers.push_back(AvcModuleProviderDataWrapFactory_${FFMPEG_CUR_VERSION_UNDERSCORE}_Create());
 ")
 
   message(STATUS "Finished processing FFmpeg ${version}")

@@ -329,9 +329,6 @@ function(copy_directory_with_filter src_dir dest_dir file_patterns)
                 RESULT_VARIABLE result
             )
             
-#            if(NOT result)
-#                message(STATUS "Copied ${file_path}")
-#            else()
             if(result)
                 message(WARNING "Failed to copy ${file_path}")
             endif()
@@ -351,10 +348,8 @@ function(copy_file_if_matches src_file dest_file file_patterns)
             COMMAND ${CMAKE_COMMAND} -E copy ${src_file} ${dest_file}
             RESULT_VARIABLE result
         )
-#        if(NOT result)
-#            message(STATUS "Copied ${src_file} to ${dest_file}")
-#        else()
-		if(result)
+
+        if(result)
             message(WARNING "Failed to copy ${src_file}")
         endif()
         return()
@@ -374,10 +369,7 @@ function(copy_file_if_matches src_file dest_file file_patterns)
                 RESULT_VARIABLE result
             )
             
-#            if(NOT result)
-#               message(STATUS "Copied ${src_file} to ${dest_file}")
-#           else()
-			if(result)
+            if(result)
                 message(WARNING "Failed to copy ${src_file}")
             endif()
             return()
