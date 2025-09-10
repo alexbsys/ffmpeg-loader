@@ -53,13 +53,13 @@ Static linking of FFmpeg libraries approach creates new problems:
 
 The library implements a multi-layer abstraction system:
 
-* **Internal Versioned Namespaces**: each FFmpeg data structure set is encapsulated in separate C++ namespaces (`ffmpeg_3_2`, `ffmpeg_4_0`, `ffmpeg_7_1` etc.)
+* **Internal Versioned Namespaces**: Library downloads multiple FFmpeg versions headers and use correspond data structures related to binary versions obtained in runtime. Each FFmpeg version data structures set is encapsulated in separate C++ namespaces (`ffmpeg_3_2`, `ffmpeg_4_0`, `ffmpeg_7_1` etc.)
 
 * **Dynamic Function Resolution**: all FFmpeg functions are loaded via `dlsym`/`GetProcAddress` at runtime
 
-* Unified Access Interface — developers work through a stable C++ API independent of FFmpeg version
+* **Unified Access Interface**:  developers work through a stable C++ API independent of FFmpeg version. Data structures can be obtained through single interface with getters and setters, but internally correct version of FFmpeg data structure version is used.
 
-* Automatic Version Detection for data interaction — the library automatically detects loaded FFmpeg version and selects the appropriate implementation
+* **Automatic Version Detection for data interaction**: the library automatically detects loaded FFmpeg version and selects the appropriate implementation
 
 
 ### Key features
@@ -103,15 +103,31 @@ cd build
 make -j
 ```
 
+During `cmake` process, multiple versions of FFmpeg headers are downloaded and patched. All headers linked to single version as relatives includes.
 
 ## User C++ source code adaptation
 
 For best understanding you cal look into `examples` directory: provided example with regular usage of FFmpeg linking, and with loader library.
 
-Common rules:
+### How does it work
 
-1. Remove all includes libav* headers. Instead of them please add:
+User calls FFmpeg functions via `IAvcModuleProvider` interface. It also provides data abstraction layer as `IAvcModuleDataWrapper` interface, provided by `module_provider->d()` call.
+
+Data abstraction layer object is accessible after libraries successful loading procedure is finished.
+
+
+### Common C++ code adaptation rules
+
+1. Remove all includes libav* headers. Instead of them please add includes to FFmpeg loader files:
 ```cpp
+// Remove that lines from your code!
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+...
+```
+
+```cpp
+// Put these lines
 #include <avc/ffmpeg-loader.h>
 #include <avc/libav_detached_common.h>  // some useful constants from ffmpeg
 ```
@@ -137,11 +153,11 @@ avc_loader->avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename)
 
 ```
 
-So, calls and pointers definition is simple. Just perform same call through object.
+    So, calls and pointers definition is simple. Just perform same call through object.
 
-4. Data structures access adaptation. This is most complicated thing
+4. Data structures access adaptation. This is most complicated thing, you ndeed replace direct calls to structures fields with getters/setters via data abstraction layer interface calls
 
-Before:
+    Before:
 ```cpp
 AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
 codec_ctx->width = width;
@@ -153,7 +169,7 @@ frame->format = codec_ctx->pix_fmt; // frame is AVFrame*, codec_ctx is AVCodecCo
 
 ```
 
-After:
+    After:
 ```cpp
 avc::AVCodecContext* codec_ctx = avc_loader->avcodec_alloc_context3(codec);
 avc_loader->d()->AVCodecContextSetWidth(codec_ctx, width);
@@ -164,13 +180,13 @@ avc_loader->d()->AVCodecContextSetFrameRate(codec_ctx, cmf::MediaTimeBase(fps, 1
 avc_loader->d()->AVFrameSetFormat(frame, avc_loader->d()->AVCodecContextGetPixFmt(codec_ctx));
 ```
 
-In some cases call produces input data structure modification:
+    In some cases call produces input data structure modification:
 ```cpp
 // this call modifies fmt_ctx->pb pointer
 avio_open2(&fmt_ctx->pb, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
 ```
 
-Solution: call getter, save pointer to local variable, provide pointer to variable into call, set modified value back:
+    Solution: call getter, save pointer to local variable, provide pointer to variable into call, set modified value back:
 ```cpp
 avc::AVIOContext* ioctx = avc_loader->d()->AVFormatContextGetPb(fmt_ctx);
 avc_loader->avio_open2(&ioctx, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
