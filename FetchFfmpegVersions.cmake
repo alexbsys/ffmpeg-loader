@@ -194,7 +194,7 @@ endfunction()
 
 # patching FFmpeg headers
 function(patch_ffmpeg_headers ffmpeg_source_dir)
-    message(STATUS "Cross-platform FFmpeg header patching...")
+    message(DEBUG "Cross-platform FFmpeg header patching in ${ffmpeg_source_dir}...")
     
     set(FFMPEG_LIBS
         libavcodec libavformat libavutil 
