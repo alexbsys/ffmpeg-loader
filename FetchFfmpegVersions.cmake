@@ -205,7 +205,7 @@ function(patch_ffmpeg_headers ffmpeg_source_dir)
     foreach(lib IN LISTS FFMPEG_LIBS)
         set(lib_path "${ffmpeg_source_dir}/${lib}")
         if(EXISTS "${lib_path}" AND IS_DIRECTORY "${lib_path}")
-            message(STATUS "Processing ${lib}...")
+            message(DEBUG "Patching ${lib}...")
             
             file(GLOB_RECURSE HEADER_FILES "${lib_path}/*.h")
             
@@ -238,7 +238,7 @@ function(patch_ffmpeg_headers ffmpeg_source_dir)
                 endif()
                 
                 file(READ "${header}" content)
-				set(original_content "${content}")
+                set(original_content "${content}")
                 
                 foreach(target_lib IN LISTS FFMPEG_LIBS)  
                         string(REPLACE 
@@ -248,15 +248,15 @@ function(patch_ffmpeg_headers ffmpeg_source_dir)
                             "${content}"
                         )	  
                 endforeach()                
-				
+
                 # check for changes
                 if(NOT content STREQUAL original_content)
                     file(WRITE "${header}" "${content}")
-                    message(STATUS "    Patched: ${rel_path}")
+                    message(DEBUG "    Patched: ${rel_path}")
                 endif()
             endforeach()
         endif()
     endforeach()
     
-    message(STATUS "  FFmpeg header patching completed!")
+    message(DEBUG "  FFmpeg header patching completed!")
 endfunction()
