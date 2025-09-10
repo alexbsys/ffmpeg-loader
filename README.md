@@ -105,9 +105,11 @@ make -j
 
 During `cmake` process, multiple versions of FFmpeg headers are downloaded and patched. All headers linked to single version as relatives includes.
 
+
+
 ## User C++ source code adaptation
 
-For best understanding you cal look into `examples` directory: provided example with regular usage of FFmpeg linking, and with loader library.
+For best understanding you may look into `examples` directory: provided example with regular usage of FFmpeg linking, and with loader library.
 
 ### How does it work
 
@@ -149,11 +151,10 @@ avc_loader->avformat_network_init();
 avc::AVFormatContext* fmt_ctx = nullptr;  
 
 // replacement for avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename)
-avc_loader->avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename); 
-
+avc_loader->avformat_alloc_output_context2(&fmt_ctx, nullptr, nullptr, filename);
 ```
 
-    So, calls and pointers definition is simple. Just perform same call through object.
+  So, calls and pointers definition is simple. Just perform same call through object.
 
 4. Data structures access adaptation. This is most complicated thing, you ndeed replace direct calls to structures fields with getters/setters via data abstraction layer interface calls
 
@@ -169,7 +170,7 @@ frame->format = codec_ctx->pix_fmt; // frame is AVFrame*, codec_ctx is AVCodecCo
 
 ```
 
-    After:
+  After:
 ```cpp
 avc::AVCodecContext* codec_ctx = avc_loader->avcodec_alloc_context3(codec);
 avc_loader->d()->AVCodecContextSetWidth(codec_ctx, width);
@@ -180,13 +181,13 @@ avc_loader->d()->AVCodecContextSetFrameRate(codec_ctx, cmf::MediaTimeBase(fps, 1
 avc_loader->d()->AVFrameSetFormat(frame, avc_loader->d()->AVCodecContextGetPixFmt(codec_ctx));
 ```
 
-    In some cases call produces input data structure modification:
+  In some cases call produces input data structure modification:
 ```cpp
 // this call modifies fmt_ctx->pb pointer
 avio_open2(&fmt_ctx->pb, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
 ```
 
-    Solution: call getter, save pointer to local variable, provide pointer to variable into call, set modified value back:
+  Solution: call getter, save pointer to local variable, provide pointer to variable into call, set modified value back:
 ```cpp
 avc::AVIOContext* ioctx = avc_loader->d()->AVFormatContextGetPb(fmt_ctx);
 avc_loader->avio_open2(&ioctx, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
