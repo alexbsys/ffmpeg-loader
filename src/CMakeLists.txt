@@ -23,7 +23,7 @@ if(FFMPEGLOADER_BUILD_SHARED)
     ${STATIC_SOURCES}
   )
 
-  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1)
+  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1 DEBUG_PRINT=${FFMPEGLOADER_DEBUG_PRINT})
   target_sources(ffmpeg-loader PRIVATE ${EXTERNAL_SOURCES})
 
   if(WIN32)
@@ -41,7 +41,7 @@ else() # FFMPEGLOADER_BUILD_SHARED
     ${STATIC_SOURCES}
   )
 
-  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=0)
+  target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=0 DEBUG_PRINT=${FFMPEGLOADER_DEBUG_PRINT})
   target_sources(ffmpeg-loader PRIVATE ${EXTERNAL_SOURCES})
 
   set_target_properties(ffmpeg-loader PROPERTIES POSITION_INDEPENDENT_CODE ON)

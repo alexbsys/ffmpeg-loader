@@ -43,6 +43,10 @@
 
 #include <avc/ffmpeg-loader.h>
 
+#if DEBUG_PRINT
+#include <cstdio>
+#endif //DEBUG_PRINT
+
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
 #include "dynamic_loader.hpp"
 #endif //AVC_LIBRARIES_STATIC_LINK

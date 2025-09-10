@@ -23,11 +23,20 @@
 #ifndef DYNAMIC_LIBRARY_FINDER_HEADER
 #define DYNAMIC_LIBRARY_FINDER_HEADER
 
+
+#ifndef DEBUG_PRINT
+#define DEBUG_PRINT 0
+#endif //DEBUG_PRINT
+
 #include <iostream>
 #include <filesystem>
 #include <string>
 #include <vector>
 #include <algorithm>
+
+#if DEBUG_PRINT
+#include <cstdio>
+#endif //DEBUG_PRINT
 
 namespace avc {
 namespace detail {
@@ -41,6 +50,10 @@ public:
     const std::string& module_name) {
     std::vector<std::string> results;
 
+#if DEBUG_PRINT
+    printf("AVCLOADER: Search module '%s' in directory '%s'\n", module_name.c_str(), directory_path.c_str());
+#endif //DEBUG_PRINT
+
     try {
       for (const auto& entry : fs::directory_iterator(directory_path)) {
         if (entry.is_regular_file()) {
@@ -48,14 +61,23 @@ public:
 
           if (MatchesPattern(filename, module_name)) {
             results.push_back(filename);
+#if DEBUG_PRINT
+            printf("AVCLOADER: Found matched module '%s' in directory '%s'\n", filename.c_str(), directory_path.c_str());
+#endif //DEBUG_PRINT
           }
         }
       }
     }
     catch (const fs::filesystem_error&) {
       // no such directory
+#if DEBUG_PRINT
+      printf("AVCLOADER: Cannot find path '%s'\n", directory_path.c_str());
+#endif //DEBUG_PRINT
     }
 
+#if DEBUG_PRINT
+    printf("AVCLOADER: Found %d matched modules in directory '%s'\n", static_cast<int>(results.size()), directory_path.c_str());
+#endif //DEBUG_PRINT
     return results;
   }
 
