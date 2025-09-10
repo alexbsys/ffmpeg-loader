@@ -142,7 +142,7 @@ function(process_ffmpeg_version version tag)
         FILE_PATTERNS "*.h"
       )
 
-    fix_includes_in_file("${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}/libswresample/swresample.h")
+    patch_ffmpeg_headers("${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}")
 
     # Create libavutil/avconfig.h for each FFmpeg version
     file(WRITE "${FFMPEGLOADER_EXTERNAL_BASE_DIR}/ffmpeg-${version}/libavutil/avconfig.h" "
@@ -192,26 +192,71 @@ struct SwrContext;
   message(STATUS "Finished processing FFmpeg ${version}")
 endfunction()
 
+# patching FFmpeg headers
+function(patch_ffmpeg_headers ffmpeg_source_dir)
+    message(DEBUG "Cross-platform FFmpeg header patching in ${ffmpeg_source_dir}...")
+    
+    set(FFMPEG_LIBS
+        libavcodec libavformat libavutil 
+        libavdevice libavfilter 
+        libswscale libswresample libpostproc
+    )
+    
+    foreach(lib IN LISTS FFMPEG_LIBS)
+        set(lib_path "${ffmpeg_source_dir}/${lib}")
+        if(EXISTS "${lib_path}" AND IS_DIRECTORY "${lib_path}")
+            message(DEBUG "Patching ${lib}...")
+            
+            file(GLOB_RECURSE HEADER_FILES "${lib_path}/*.h")
+            
+            foreach(header IN LISTS HEADER_FILES)
+                # normalize path
+                file(TO_CMAKE_PATH "${header}" header_cmake_path)
+                
+                # relative path from FFmpeg root
+                file(RELATIVE_PATH rel_path "${ffmpeg_source_dir}" "${header_cmake_path}")
+                file(TO_NATIVE_PATH "${rel_path}" rel_native_path)
+                
+                get_filename_component(header_dir "${rel_path}" DIRECTORY)
+                
+                if(header_dir)
+                    # replace all separators to / for consistency
+                    string(REPLACE "\\" "/" header_dir_unix "${header_dir}")
+                    # counting subdirectories
+                    string(REPLACE "/" ";" dir_list "${header_dir_unix}")
+                    list(LENGTH dir_list depth)
+                else()
+                    set(depth 0)
+                endif()
+                
+                # relative path to root
+                set(relative_prefix "")
+                if(depth GREATER 0)
+                    foreach(i RANGE 1 ${depth})
+                        set(relative_prefix "${relative_prefix}../")
+                    endforeach()
+                endif()
+                
+                file(READ "${header}" content)
+                set(original_content "${content}")
+                
+                foreach(target_lib IN LISTS FFMPEG_LIBS)  
+                        string(REPLACE 
+                            "#include \"${target_lib}/" 
+                            "#include \"${relative_prefix}${target_lib}/" 
+                            content 
+                            "${content}"
+                        )	  
+                endforeach()                
 
-# fix swresample include header: replace #include "libswresample/version_major.h" to #include "version_major.h"
-function(fix_includes_in_file file_path)
-    if(NOT EXISTS "${file_path}")
-        message(WARNING "File not found: ${file_path}")
-        return()
-    endif()
+                # check for changes
+                if(NOT content STREQUAL original_content)
+                    file(WRITE "${header}" "${content}")
+                    message(DEBUG "    Patched: ${rel_path}")
+                endif()
+            endforeach()
+        endif()
+    endforeach()
     
-    # Читаем содержимое файла
-    file(READ "${file_path}" file_content)
-    
-    # Заменяем include директивы
-    string(REPLACE "#include \"libswresample/version_major.h\"" "#include \"version_major.h\"" new_content "${file_content}")
-    string(REPLACE "#include \"libavcodec/version_major.h\"" "#include \"version_major.h\"" new_content "${new_content}")
-    string(REPLACE "#include \"libavformat/version_major.h\"" "#include \"version_major.h\"" new_content "${new_content}")
-    # Добавьте другие замены по необходимости
-    
-    # Если содержимое изменилось, записываем обратно
-    if(NOT "${file_content}" STREQUAL "${new_content}")
-        file(WRITE "${file_path}" "${new_content}")
-        message(STATUS "Fixed includes in: ${file_path}")
-    endif()
+    message(DEBUG "  FFmpeg header patching completed!")
 endfunction()

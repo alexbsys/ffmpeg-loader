@@ -56,6 +56,14 @@
 #define AVFMT_FLAG_NOBUFFER     0x0040 ///< Do not buffer frames when possible
 #define AVFMT_FLAG_CUSTOM_IO    0x0080 ///< The caller has supplied a custom AVIOContext, don't avio_close() it.
 #define AVFMT_FLAG_FLUSH_PACKETS    0x0200 ///< Flush the AVIOContext every packet.
+#define AVFMT_FLAG_DISCARD_CORRUPT  0x0100 ///< Discard frames marked corrupted
+#define AVFMT_FLAG_FAST_SEEK        0x80000
+#define AVFMT_FLAG_BITEXACT         0x0400
+#define AVFMT_FLAG_NOFILLIN         0x0010
+#define AVFMT_FLAG_NONBLOCK         0x0004
+#define AVFMT_FLAG_IGNDTS           0x0008
+#define AVFMT_FLAG_NOPARSE          0x0020
+#define AVFMT_FLAG_IGNIDX           0x0002
 
 #define AVFMT_NOFILE        0x0001
 #define AVFMT_GLOBALHEADER  0x0040 /**< Format wants global header. */

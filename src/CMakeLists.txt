@@ -20,11 +20,11 @@ if(FFMPEGLOADER_BUILD_SHARED)
   add_library(ffmpeg-loader SHARED
     ${PUBLIC_HEADERS}
     ${PRIVATE_SOURCES}
-    ${EXTERNAL_SOURCES}
     ${STATIC_SOURCES}
   )
 
   target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=1)
+  target_sources(ffmpeg-loader PRIVATE ${EXTERNAL_SOURCES})
 
   if(WIN32)
     set_target_properties(ffmpeg-loader PROPERTIES
@@ -42,6 +42,8 @@ else() # FFMPEGLOADER_BUILD_SHARED
   )
 
   target_compile_definitions(ffmpeg-loader PUBLIC FFMPEG_LOADER_DLL=0)
+  target_sources(ffmpeg-loader PRIVATE ${EXTERNAL_SOURCES})
+
   set_target_properties(ffmpeg-loader PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif() # FFMPEGLOADER_BUILD_SHARED
 
