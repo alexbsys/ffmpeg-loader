@@ -188,4 +188,13 @@ enum AVLockOp {
   AV_LOCK_DESTROY, ///< Free mutex resources
 };
 
+enum AVRounding {
+  AV_ROUND_ZERO = 0, ///< Round toward zero.
+  AV_ROUND_INF = 1, ///< Round away from zero.
+  AV_ROUND_DOWN = 2, ///< Round toward -infinity.
+  AV_ROUND_UP = 3, ///< Round toward +infinity.
+  AV_ROUND_NEAR_INF = 5, ///< Round to nearest and halfway cases away from zero.
+  AV_ROUND_PASS_MINMAX = 8192, ///< Flag to pass INT64_MIN/MAX through instead of rescaling, this avoids special cases for AV_NOPTS_VALUE
+};
+
 #endif //LIBAV_DETACHED_COMMON_HEADER

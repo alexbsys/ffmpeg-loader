@@ -721,6 +721,7 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("avutil_version", avutil_version_)
     .LoadProc("av_samples_get_buffer_size", av_samples_get_buffer_size_)
     .LoadProc("av_rescale_rnd", av_rescale_rnd_)
+    .LoadProc("av_rescale_q_rnd", av_rescale_q_rnd_)
     .LoadProc("av_samples_alloc", av_samples_alloc_)
     .LoadProc("av_samples_alloc_array_and_samples", av_samples_alloc_array_and_samples_)
     .LoadProc("av_opt_set_int", av_opt_set_int_)
@@ -1284,6 +1285,13 @@ int64_t AvcModuleProvider::av_rescale_rnd(int64_t a, int64_t b, int64_t c,
   if (!avutil_handle_) Load();
   return av_rescale_rnd_(a, b, c, rnd);
 }
+
+int64_t AvcModuleProvider::av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq,
+  int /*enum AVRounding*/ rnd) {
+  if (!avutil_handle_) Load();
+  return av_rescale_q_rnd_(a, bq, cq, rnd);
+}
+
 
 int AvcModuleProvider::av_samples_alloc(uint8_t **audio_data, int *linesize,
                                         int nb_channels, int nb_samples,

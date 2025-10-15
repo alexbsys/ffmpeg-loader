@@ -212,6 +212,8 @@ struct IAvcModuleProvider {
   virtual int64_t av_rescale_rnd(int64_t a, int64_t b, int64_t c,
                                  int /*enum AVRounding*/ rnd) = 0;
 
+  virtual int64_t av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq, int /*enum AVRounding*/ rnd) = 0;
+
   virtual int av_samples_alloc(uint8_t **audio_data, int *linesize, int nb_channels,
                                int nb_samples, int /*enum AVSampleFormat*/ sample_fmt,
                                int /*(0 = default, 1 = no alignment)*/ align) = 0;
