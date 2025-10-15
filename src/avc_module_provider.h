@@ -115,6 +115,7 @@ public:
   int av_new_packet(AVPacket *pkt, int size) override;
   void av_packet_ref(AVPacket *dst, const AVPacket* src) override;
   void av_packet_unref(AVPacket *pkt) override;
+  void av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) override;
 
   AVCodecContext *avcodec_alloc_context3(const AVCodec *codec) override;
   void avcodec_free_context(AVCodecContext **avctx) override;
@@ -431,6 +432,7 @@ public:
   int (*av_new_packet_)(AVPacket *pkt, int size) = nullptr;
   int (*av_packet_ref_)(AVPacket *dst, const AVPacket* src) = nullptr;
   void (*av_packet_unref_)(AVPacket *pkt) = nullptr;
+  void (*av_packet_rescale_ts_)(AVPacket* pkt, AVRational tb_src, AVRational tb_dst) = nullptr;
 
   AVCodecContext *(*avcodec_alloc_context3_)(const AVCodec *codec) = nullptr;
   void (*avcodec_free_context_)(AVCodecContext **avctx) = nullptr;

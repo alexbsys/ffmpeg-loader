@@ -40,6 +40,8 @@
 #define MKTAG(a, b, c, d) (a | (b << 8) | (c << 16) | (d << 24))
 #define FFERRTAG(a, b, c, d) (-(int)MKTAG(a, b, c, d))
 #define AVERROR_EOF                FFERRTAG( 'E','O','F',' ') ///< End of file
+#define AVERROR_EXIT               FFERRTAG( 'E','X','I','T') ///< Exit requested
+#define AVERROR_INVALIDDATA        FFERRTAG('I','N','D','A') // Invalid data on input
 #define AVERROR(e) (-(e))   ///< Returns a negative error code from a POSIX error code, to return from library functions.
 
 #define 	AVSEEK_SIZE   0x10000

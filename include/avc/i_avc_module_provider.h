@@ -109,6 +109,8 @@ struct IAvcModuleProvider {
   virtual int av_new_packet(AVPacket *pkt, int size) = 0;
   virtual void av_packet_ref(AVPacket *dst, const AVPacket* src) = 0;
   virtual void av_packet_unref(AVPacket *pkt) = 0;
+  virtual void av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) = 0;
+
   virtual AVCodecContext *avcodec_alloc_context3(const AVCodec *codec) = 0;
   virtual void avcodec_free_context(AVCodecContext **avctx) = 0;
   virtual AVCodec *avcodec_find_decoder(int /*enum AVCodecID*/ id) = 0;

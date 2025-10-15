@@ -628,6 +628,7 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
     .LoadProc("av_new_packet", av_new_packet_)
     .LoadProc("av_packet_ref", av_packet_ref_)
     .LoadProc("av_packet_unref", av_packet_unref_)
+    .LoadProc("av_packet_rescale_ts", av_packet_rescale_ts_)
     .LoadProc("avcodec_alloc_context3", avcodec_alloc_context3_)
     .LoadProc("avcodec_free_context", avcodec_free_context_)
     .LoadProc("avcodec_find_decoder", avcodec_find_decoder_)
@@ -981,6 +982,11 @@ void AvcModuleProvider::av_packet_ref(AVPacket *dst, const AVPacket* src) {
 void AvcModuleProvider::av_packet_unref(AVPacket *pkt) {
   if (!avcodec_handle_) Load();
   av_packet_unref_(pkt);
+}
+
+void AvcModuleProvider::av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) {
+  if (!avcodec_handle_) Load();
+  av_packet_rescale_ts_(pkt, { tb_src.num_,tb_src.den_ }, { tb_dst.num_, tb_dst.den_ });
 }
 
 AVCodecContext *AvcModuleProvider::avcodec_alloc_context3(const AVCodec *codec) {
