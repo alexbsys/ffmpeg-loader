@@ -135,6 +135,9 @@ struct IAvcModuleProvider {
   // avformat functions
   virtual unsigned avformat_version() = 0;
 
+  virtual cmf::MediaTimeBase av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = 0;
+  virtual cmf::MediaTimeBase av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = 0;
+
   virtual void av_dump_format(AVFormatContext *ic, int index, const char *url,
                               int is_output) = 0;
   virtual AVInputFormat *av_find_input_format(const char *short_name) = 0;

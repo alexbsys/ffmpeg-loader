@@ -667,6 +667,8 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .SetModuleHandle(avformat_handle_)
     .LoadProc("avformat_version", avformat_version_)
     .LoadProc("av_dump_format", av_dump_format_)
+    .LoadProc("av_guess_sample_aspect_ratio", av_guess_sample_aspect_ratio_)
+    .LoadProc("av_guess_frame_rate", av_guess_frame_rate_)
     .LoadProc("av_find_input_format", av_find_input_format_)
     .LoadProc("av_guess_format", av_guess_format_)
     .LoadProc("av_read_frame", av_read_frame_)
@@ -1069,6 +1071,21 @@ void AvcModuleProvider::av_dump_format(AVFormatContext *ic, int index, const cha
                                        int is_output) {
   if (!avformat_handle_) Load();
   return av_dump_format_(ic, index, url, is_output);
+}
+
+cmf::MediaTimeBase AvcModuleProvider::av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) {
+  if (!avformat_handle_) Load();
+  if (!av_guess_sample_aspect_ratio_) return cmf::MediaTimeBase{ 0,0 };
+  
+  auto avr = av_guess_sample_aspect_ratio_(ctx, stream, frame);
+  return cmf::MediaTimeBase(avr.num, avr.den);
+}
+
+cmf::MediaTimeBase AvcModuleProvider::av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) {
+  if (!avformat_handle_) Load();
+  if (!av_guess_frame_rate_) return cmf::MediaTimeBase{ 0,0 };
+  auto avr = av_guess_frame_rate_(ctx, stream, frame);
+  return cmf::MediaTimeBase(avr.num, avr.den);
 }
 
 AVInputFormat *AvcModuleProvider::av_find_input_format(const char *short_name) {

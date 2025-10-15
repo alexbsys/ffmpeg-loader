@@ -278,6 +278,9 @@ public:
   int AVCodecParametersGetCodecId(const AVCodecParameters* codecpar) const override;
   int AVCodecParametersGetVideoDelay(const AVCodecParameters* codecpar) const override;
   uint32_t AVCodecParametersGetCodecTag(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const override;
 
   void AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const override;
   void AVCodecParametersSetWidth(AVCodecParameters* codecpar, int width) const override;
@@ -292,6 +295,9 @@ public:
   void AVCodecParametersSetCodecId(AVCodecParameters* codecpar, int codec_id) const override;
   void AVCodecParametersSetVideoDelay(AVCodecParameters* codecpar, int video_delay) const override;
   void AVCodecParametersSetCodecTag(AVCodecParameters* codecpar, uint32_t codec_tag) const override;
+  void AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const override;
+  void AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const override;
+  void AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const override;
 
   uint8_t* AVBufferRefGetData(const AVBufferRef* bufferref) const override;
   int AVBufferRefGetSize(const AVBufferRef* bufferref) const override;

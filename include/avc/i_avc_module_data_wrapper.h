@@ -36,6 +36,7 @@ struct AVCodec;
 struct AVCodecHWConfig;
 
 // avformat structures definition
+struct AVRational { int num; int den; };
 struct AVFormatContext;
 struct AVInputFormat;
 struct AVOutputFormat;
@@ -303,6 +304,9 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecParametersGetCodecId(const AVCodecParameters* codecpar) const = 0;
   virtual int AVCodecParametersGetVideoDelay(const AVCodecParameters* codecpar) const = 0;
   virtual uint32_t AVCodecParametersGetCodecTag(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const = 0;
 
   virtual void AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const = 0;
   virtual void AVCodecParametersSetWidth(AVCodecParameters* codecpar, int width) const = 0;
@@ -317,6 +321,10 @@ struct IAvcModuleDataWrapper {
   virtual void AVCodecParametersSetCodecId(AVCodecParameters* codecpar, int codec_id) const = 0;
   virtual void AVCodecParametersSetVideoDelay(AVCodecParameters* codecpar, int video_delay) const = 0;
   virtual void AVCodecParametersSetCodecTag(AVCodecParameters* codecpar, uint32_t codec_tag) const = 0;
+  virtual void AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const = 0;
+  virtual void AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const = 0;
+  virtual void AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const = 0;
+
 
   // AVBufferRef
   virtual uint8_t* AVBufferRefGetData(const AVBufferRef* bufferref) const = 0;

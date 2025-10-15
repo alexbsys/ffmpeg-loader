@@ -1324,6 +1324,21 @@ uint32_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetCodecTag(const A
   return codecpar_d->codec_tag;
 }
 
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->frame_size;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->bits_per_coded_sample;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->bits_per_raw_sample;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const {
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->codec_type = static_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVMediaType>(codec_type);
@@ -1392,6 +1407,22 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetCodecTag(AVCodecPara
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->codec_tag = codec_tag;
 }
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->frame_size = frame_size;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->bits_per_coded_sample = bits_per_coded_sample;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->bits_per_raw_sample = bits_per_raw_sample;
+}
+
 
 ////
 // AVBuffer

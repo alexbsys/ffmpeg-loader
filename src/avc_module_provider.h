@@ -143,6 +143,10 @@ public:
 
   void av_dump_format(AVFormatContext *ic, int index, const char *url,
                       int is_output) override;
+
+  cmf::MediaTimeBase av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) override;
+  cmf::MediaTimeBase av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) override;
+
   AVInputFormat *av_find_input_format(const char *short_name) override;
 
   AVOutputFormat *av_guess_format(const char *short_name, const char *filename,
@@ -441,6 +445,9 @@ public:
 
   // avformat
   unsigned (*avformat_version_)(void) = nullptr;
+
+  AVRational (*av_guess_sample_aspect_ratio_)(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = nullptr;
+  AVRational (*av_guess_frame_rate_)(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = nullptr;
 
   void (*av_dump_format_)(AVFormatContext *ic, int index, const char *url, int is_output) = nullptr;
   AVInputFormat *(*av_find_input_format_)(const char *short_name) = nullptr;
