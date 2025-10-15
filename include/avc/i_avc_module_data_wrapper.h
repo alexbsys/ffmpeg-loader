@@ -73,13 +73,15 @@ struct IAvcModuleDataWrapper {
   virtual cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const = 0;
+  virtual int64_t AVStreamGetStartTime(const AVStream* stream) const = 0;
+  virtual int AVStreamGetIndex(const AVStream* stream) const = 0;
+  virtual int AVStreamGetId(const AVStream* stream) const = 0;
+
   virtual void AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const = 0;
   virtual void AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const = 0;
   virtual void AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const = 0;
   virtual void AVStreamSetStartTime(AVStream* stream, int64_t start_time) const = 0;
-  virtual int AVStreamGetIndex(const AVStream* stream) const = 0;
   virtual void AVStreamSetIndex(AVStream* stream, int index) const = 0;
-  virtual int AVStreamGetId(const AVStream* stream) const = 0;
   virtual void AVStreamSetId(AVStream* stream, int id) const = 0;
 
   // AVFormatContext

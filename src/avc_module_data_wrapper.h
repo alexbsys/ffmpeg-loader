@@ -53,14 +53,16 @@ public:
   cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const override;
+  int64_t AVStreamGetStartTime(const AVStream* stream) const override;
+  int AVStreamGetIndex(const AVStream* stream) const override;
+  int AVStreamGetId(const AVStream* stream) const override;
   AVCodecParameters* AVStreamGetCodecPar(const AVStream* stream) const override;
+
   void AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const override;
   void AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
   void AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
   void AVStreamSetStartTime(AVStream* stream, int64_t start_time) const override;
-  int AVStreamGetIndex(const AVStream* stream) const override;
   void AVStreamSetIndex(AVStream* stream, int index) const override;
-  int AVStreamGetId(const AVStream* stream) const override;
   void AVStreamSetId(AVStream* stream, int id) const override;
 
   unsigned char* AVIOContextGetBuffer(const AVIOContext* ctx) const override;

@@ -130,6 +130,11 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetStartTime(AVStream* stream, i
   stream_d->start_time = start_time;
 }
 
+int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetStartTime(const AVStream* stream) const {
+  auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
+  return stream_d->start_time;
+}
+
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetIndex(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   return stream_d->index;
