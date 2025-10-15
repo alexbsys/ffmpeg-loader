@@ -676,6 +676,7 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .LoadProc("av_read_pause", av_read_pause_)
     .LoadProc("av_register_all", av_register_all_)
     .LoadProc("avformat_flush", avformat_flush_)
+    .LoadProc("avformat_seek_file", avformat_seek_file_)
     .LoadProc("av_seek_frame", av_seek_frame_)
     .LoadProc("av_write_frame", av_write_frame_)
     .LoadProc("av_interleaved_write_frame", av_interleaved_write_frame_)
@@ -1125,6 +1126,12 @@ void AvcModuleProvider::av_register_all(void) {
   if (!avformat_handle_) Load();
   if (av_register_all_)
     av_register_all_();
+}
+
+int AvcModuleProvider::avformat_seek_file(AVFormatContext* s, int stream_index,
+  int64_t min_ts, int64_t ts, int64_t max_ts, int flags) {
+  if (!avformat_handle_) Load();
+  return avformat_seek_file_(s, stream_index, min_ts, ts, max_ts, flags);
 }
 
 int AvcModuleProvider::avformat_flush(AVFormatContext *s) {

@@ -150,6 +150,10 @@ struct IAvcModuleProvider {
   virtual int av_read_pause(AVFormatContext *s) = 0;
 
   virtual void av_register_all(void) = 0;
+
+  virtual int avformat_seek_file(AVFormatContext* s, int stream_index,
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) = 0;
+
   virtual int avformat_flush(AVFormatContext *s) = 0;
   virtual int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp,
                             int flags) = 0;

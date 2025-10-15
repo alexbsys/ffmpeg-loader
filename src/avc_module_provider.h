@@ -157,6 +157,9 @@ public:
   int av_read_pause(AVFormatContext *s) override;
 
   void av_register_all(void) override;
+  int avformat_seek_file(AVFormatContext* s, int stream_index, 
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) override;
+
   int avformat_flush(AVFormatContext *s) override;
   int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp,
                     int flags) override;
@@ -468,6 +471,10 @@ public:
 
   void (*av_register_all_)(void) = nullptr;
   int (*avformat_flush_)(AVFormatContext *s) = nullptr;
+
+  int (*avformat_seek_file_)(AVFormatContext* s, int stream_index,
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) = nullptr;
+
   int (*av_seek_frame_)(AVFormatContext *s, int stream_index, int64_t timestamp, int flags) = nullptr;
   int (*av_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
   int (*av_interleaved_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
@@ -536,7 +543,7 @@ public:
 
   int (*av_opt_set_int_)(void *obj, const char *name, int64_t val, int search_flags) = nullptr;
   int (*av_opt_set_sample_fmt_)(void *obj, const char *name,
-                                int /*enum AVSampleFormat*/ fmt, int search_flags);
+                                int /*enum AVSampleFormat*/ fmt, int search_flags) = nullptr;
   AVBufferRef *(*av_hwdevice_ctx_alloc_)(int /*enum AVHWDeviceType*/ type) = nullptr;
   int (*av_hwdevice_ctx_init_)(AVBufferRef *ref) = nullptr;
   AVBufferRef *(*av_hwframe_ctx_alloc_)(AVBufferRef *device_ctx) = nullptr;
