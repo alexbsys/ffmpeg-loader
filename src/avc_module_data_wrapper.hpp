@@ -339,6 +339,14 @@ int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketGetDuration(const AVPacket* p
   return pkt_d->duration;
 }
 
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketGetTimeBase(AVPacket* pkt) const {
+  auto pkt_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
+#if LIBAVUTIL_VERSION_MAJOR >= 57
+  return cmf::MediaTimeBase(pkt_d->time_base.num, pkt_d->time_base.den);
+#else 
+  return cmf::MediaTimeBase{ 0,0 };
+#endif
+}
 
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetPts(AVPacket* pkt, int64_t pts) const {
   auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
@@ -384,6 +392,15 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetDuration(AVPacket* pkt, int64
   auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
   pkt_d->duration = duration;
 }
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const {
+  auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
+#if LIBAVUTIL_VERSION_MAJOR >= 57
+  pkt_d->time_base.num = tb.num_;
+  pkt_d->time_base.den = tb.den_;
+#endif //LIBAVUTIL_VERSION_MAJOR
+}
+
 
 /////
 // AVCodecContext

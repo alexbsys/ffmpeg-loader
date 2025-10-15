@@ -123,6 +123,7 @@ struct IAvcModuleDataWrapper {
   virtual AVBufferRef* AVPacketGetBuf(const AVPacket* pkt) const = 0;
   virtual int64_t AVPacketGetPos(const AVPacket* pkt) const = 0;
   virtual int64_t AVPacketGetDuration(const AVPacket* pkt) const = 0;
+  virtual cmf::MediaTimeBase AVPacketGetTimeBase(AVPacket* pkt) const = 0;
 
   virtual void AVPacketSetPts(AVPacket* pkt, int64_t pts) const = 0;
   virtual void AVPacketSetDts(AVPacket* pkt, int64_t dts) const = 0;
@@ -133,6 +134,7 @@ struct IAvcModuleDataWrapper {
   virtual void AVPacketSetBuf(AVPacket* pkt, AVBufferRef* buf) const = 0;
   virtual void AVPacketSetPos(AVPacket* pkt, int64_t pos) const = 0;
   virtual void AVPacketSetDuration(AVPacket* pkt, int64_t duration) const = 0;
+  virtual void AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const = 0;
 
   // AVCodecContext
   virtual int AVCodecContextGetChannels(const AVCodecContext* codec_context) const = 0;

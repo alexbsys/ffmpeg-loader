@@ -99,6 +99,7 @@ public:
   AVBufferRef* AVPacketGetBuf(const AVPacket* pkt) const override;
   int64_t AVPacketGetPos(const AVPacket* pkt) const override;
   int64_t AVPacketGetDuration(const AVPacket* pkt) const override;
+  cmf::MediaTimeBase AVPacketGetTimeBase(AVPacket* pkt) const override;
 
   void AVPacketSetPts(AVPacket* pkt, int64_t pts) const override;
   void AVPacketSetDts(AVPacket* pkt, int64_t dts) const override;
@@ -109,6 +110,7 @@ public:
   void AVPacketSetBuf(AVPacket* pkt, AVBufferRef* buf) const override;
   void AVPacketSetPos(AVPacket* pkt, int64_t pos) const override;
   void AVPacketSetDuration(AVPacket* pkt, int64_t duration) const override;
+  void AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const override;
 
   int AVCodecContextGetChannels(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetSampleFormat(const AVCodecContext* codec_context) const override;
