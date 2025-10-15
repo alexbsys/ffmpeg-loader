@@ -276,8 +276,12 @@ public:
   AVFrame *av_frame_alloc(void) override;
   void av_frame_free(AVFrame **frame) override;
 
+  int av_frame_ref(AVFrame* dst, const AVFrame* src) override;
+  int av_frame_replace(AVFrame* dst, const AVFrame* src) override;
+  AVFrame* av_frame_clone(const AVFrame* src) override;
+  void av_frame_unref(AVFrame* frame) override;
+  void av_frame_move_ref(AVFrame* dst, AVFrame* src) override;
   int av_frame_get_buffer(AVFrame *frame, int align) override;
-
   int av_frame_get_channels(const AVFrame *frame) override;
   void av_frame_set_channels(AVFrame *frame, int val) override;
   int64_t av_frame_get_pkt_duration(const AVFrame *frame) override;
@@ -567,6 +571,12 @@ public:
 
   AVFrame *(*av_frame_alloc_)(void) = nullptr;
   void (*av_frame_free_)(AVFrame **frame) = nullptr;
+
+  int (*av_frame_ref_)(AVFrame* dst, const AVFrame* src) = nullptr;
+  int (*av_frame_replace_)(AVFrame* dst, const AVFrame* src) = nullptr;
+  AVFrame* (*av_frame_clone_)(const AVFrame* src) = nullptr;
+  void (*av_frame_unref_)(AVFrame* frame) = nullptr;
+  void (*av_frame_move_ref_)(AVFrame* dst, AVFrame* src) = nullptr;
 
   int (*av_frame_get_buffer_)(AVFrame *frame, int align) = nullptr;
 

@@ -272,8 +272,12 @@ struct IAvcModuleProvider {
   virtual AVFrame *av_frame_alloc(void) = 0;
   virtual void av_frame_free(AVFrame **frame) = 0;
 
+  virtual int av_frame_ref(AVFrame* dst, const AVFrame* src) = 0;
+  virtual int av_frame_replace(AVFrame* dst, const AVFrame* src) = 0;
+  virtual AVFrame* av_frame_clone(const AVFrame* src) = 0;
+  virtual void av_frame_unref(AVFrame* frame) = 0;
+  virtual void av_frame_move_ref(AVFrame* dst, AVFrame* src) = 0;
   virtual int av_frame_get_buffer(AVFrame *frame, int align) = 0;
-
   virtual int av_frame_get_channels(const AVFrame *frame) = 0;
   virtual void av_frame_set_channels(AVFrame *frame, int val) = 0;
   virtual int64_t av_frame_get_pkt_duration(const AVFrame *frame) = 0;

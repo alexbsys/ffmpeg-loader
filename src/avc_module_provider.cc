@@ -747,6 +747,11 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("av_dict_free", av_dict_free_)
     .LoadProc("av_frame_alloc", av_frame_alloc_)
     .LoadProc("av_frame_free", av_frame_free_)
+    .LoadProc("av_frame_ref", av_frame_ref_)
+    .LoadProc("av_frame_replace", av_frame_replace_)
+    .LoadProc("av_frame_clone", av_frame_clone_)
+    .LoadProc("av_frame_unref", av_frame_unref_)
+    .LoadProc("av_frame_move_ref", av_frame_move_ref_)
     .LoadProc("av_frame_get_buffer", av_frame_get_buffer_)
     .LoadProc("av_frame_get_channels", av_frame_get_channels_)
     .LoadProc("av_frame_set_channels", av_frame_set_channels_)
@@ -1429,6 +1434,30 @@ AVFrame *AvcModuleProvider::av_frame_alloc(void) {
 void AvcModuleProvider::av_frame_free(AVFrame **frame) {
   if (!avutil_handle_) Load();
   av_frame_free_(frame);
+}
+
+int AvcModuleProvider::av_frame_ref(AVFrame* dst, const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_ref_(dst, src);
+}
+
+int AvcModuleProvider::av_frame_replace(AVFrame* dst, const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_replace_(dst, src);
+}
+
+AVFrame* AvcModuleProvider::av_frame_clone(const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_clone_(src);
+}
+
+void AvcModuleProvider::av_frame_unref(AVFrame* frame) {
+  if (!avutil_handle_) Load();
+  av_frame_unref_(frame);
+}
+
+void AvcModuleProvider::av_frame_move_ref(AVFrame* dst, AVFrame* src) {
+
 }
 
 int AvcModuleProvider::av_frame_get_buffer(AVFrame *frame, int align) {
