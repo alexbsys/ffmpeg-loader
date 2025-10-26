@@ -377,7 +377,7 @@ bool AvcModuleProvider::SetupDataWrapper() {
     printf("LIBAV data wrapper was not selected!");
 #endif //DEBUG_PRINT
     if (load_handler_) {
-      load_handler_->OnModuleLoadError(shared_from_this(), "DATASTRUCT");
+      load_handler_->OnModuleLoadError(this, "DATASTRUCT");
     }
     return false;
   } 
@@ -469,7 +469,7 @@ void AvcModuleProvider::Load() {
       printf("cannot load module %s: %s, path %s", kAvCodecModuleName, avcodec_module_name_.c_str(), modules_path_.c_str());
 #endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvCodecModuleName);
+        load_handler_->OnModuleLoadError(this, kAvCodecModuleName);
       }
     }
   }
@@ -485,7 +485,7 @@ void AvcModuleProvider::Load() {
       printf("cannot load module %s: %s, path %s", kAvFormatModuleName, avformat_module_name_.c_str(), modules_path_.c_str());
 #endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvFormatModuleName);
+        load_handler_->OnModuleLoadError(this, kAvFormatModuleName);
       }
     }
   }
@@ -502,7 +502,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvUtilModuleName);
+        load_handler_->OnModuleLoadError(this, kAvUtilModuleName);
       }
     }
   }
@@ -519,7 +519,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvDeviceModuleName);
+        load_handler_->OnModuleLoadError(this, kAvDeviceModuleName);
       }
     }
   }
@@ -536,7 +536,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kSwScaleModuleName);
+        load_handler_->OnModuleLoadError(this, kSwScaleModuleName);
       }
     }
   }
@@ -553,21 +553,21 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kSwResampleModuleName);
+        load_handler_->OnModuleLoadError(this, kSwResampleModuleName);
       }
     }
   }
 
   if (SetupDataWrapper()) {
     if (load_handler_) {
-      load_handler_->OnLoadFinished(shared_from_this());
+      load_handler_->OnLoadFinished(this);
     }
   }
 }
 
 void AvcModuleProvider::Unload() {
   if (load_handler_) {
-    load_handler_->OnBeforeUnload(shared_from_this());
+    load_handler_->OnBeforeUnload(this);
   }
 
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
@@ -655,7 +655,7 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvCodecModuleName, avcodec_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvCodecModuleName, avcodec_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -709,7 +709,7 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvFormatModuleName, avformat_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvFormatModuleName, avformat_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -804,7 +804,7 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvUtilModuleName, avutil_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvUtilModuleName, avutil_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -827,7 +827,7 @@ void AvcModuleProvider::LoadSwScaleFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwScaleModuleName, swscale_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kSwScaleModuleName, swscale_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -854,7 +854,7 @@ void AvcModuleProvider::LoadSwResampleFuctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwResampleModuleName, swresample_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kSwResampleModuleName, swresample_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -875,7 +875,7 @@ void AvcModuleProvider::LoadAvDeviceFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvDeviceModuleName, avdevice_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvDeviceModuleName, avdevice_loader.ProblemFunctions().str().c_str());
     }
 
   }

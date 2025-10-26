@@ -30,28 +30,28 @@ struct IAvcModuleProvider;
 struct IAvcModuleLoadHandler {
   virtual ~IAvcModuleLoadHandler() = default;
   
-  virtual void OnModuleLoad(std::shared_ptr<IAvcModuleProvider> module_provider, const char* module_name) {
+  virtual void OnModuleLoad(IAvcModuleProvider* module_provider, const char* module_name) {
     (void)module_provider;
     (void)module_name;
   }
   
   // module_name contains AVCODEC, AVFORMAT, AVDEVICE, AVUTIL, SWSCALE, SWRESAMPLE
-  virtual void OnModuleLoadError(std::shared_ptr<IAvcModuleProvider> module_provider, const char* module_name) {
+  virtual void OnModuleLoadError(IAvcModuleProvider* module_provider, const char* module_name) {
     (void)module_provider;
     (void)module_name;	  
   }
 
-  virtual void OnModuleFunctionsNotFound(std::shared_ptr<IAvcModuleProvider> module_provider, const char* module_name, const char* functions_list) {
+  virtual void OnModuleFunctionsNotFound(IAvcModuleProvider* module_provider, const char* module_name, const char* functions_list) {
     (void)module_provider;
     (void)module_name;
     (void)functions_list;
   }
 
-  virtual void OnBeforeUnload(std::shared_ptr<IAvcModuleProvider> module_provider) {
+  virtual void OnBeforeUnload(IAvcModuleProvider* module_provider) {
     (void)module_provider;	  
   }
 
-  virtual void OnLoadFinished(std::shared_ptr<IAvcModuleProvider> module_provider) {
+  virtual void OnLoadFinished(IAvcModuleProvider* module_provider) {
     (void)module_provider;
   }
 };	
