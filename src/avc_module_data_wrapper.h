@@ -53,14 +53,16 @@ public:
   cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const override;
+  int64_t AVStreamGetStartTime(const AVStream* stream) const override;
+  int AVStreamGetIndex(const AVStream* stream) const override;
+  int AVStreamGetId(const AVStream* stream) const override;
   AVCodecParameters* AVStreamGetCodecPar(const AVStream* stream) const override;
+
   void AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const override;
   void AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
   void AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const override;
   void AVStreamSetStartTime(AVStream* stream, int64_t start_time) const override;
-  int AVStreamGetIndex(const AVStream* stream) const override;
   void AVStreamSetIndex(AVStream* stream, int index) const override;
-  int AVStreamGetId(const AVStream* stream) const override;
   void AVStreamSetId(AVStream* stream, int id) const override;
 
   unsigned char* AVIOContextGetBuffer(const AVIOContext* ctx) const override;
@@ -99,6 +101,7 @@ public:
   AVBufferRef* AVPacketGetBuf(const AVPacket* pkt) const override;
   int64_t AVPacketGetPos(const AVPacket* pkt) const override;
   int64_t AVPacketGetDuration(const AVPacket* pkt) const override;
+  cmf::MediaTimeBase AVPacketGetTimeBase(AVPacket* pkt) const override;
 
   void AVPacketSetPts(AVPacket* pkt, int64_t pts) const override;
   void AVPacketSetDts(AVPacket* pkt, int64_t dts) const override;
@@ -109,6 +112,7 @@ public:
   void AVPacketSetBuf(AVPacket* pkt, AVBufferRef* buf) const override;
   void AVPacketSetPos(AVPacket* pkt, int64_t pos) const override;
   void AVPacketSetDuration(AVPacket* pkt, int64_t duration) const override;
+  void AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const override;
 
   int AVCodecContextGetChannels(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetSampleFormat(const AVCodecContext* codec_context) const override;
@@ -278,6 +282,9 @@ public:
   int AVCodecParametersGetCodecId(const AVCodecParameters* codecpar) const override;
   int AVCodecParametersGetVideoDelay(const AVCodecParameters* codecpar) const override;
   uint32_t AVCodecParametersGetCodecTag(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const override;
+  int AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const override;
 
   void AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const override;
   void AVCodecParametersSetWidth(AVCodecParameters* codecpar, int width) const override;
@@ -292,6 +299,9 @@ public:
   void AVCodecParametersSetCodecId(AVCodecParameters* codecpar, int codec_id) const override;
   void AVCodecParametersSetVideoDelay(AVCodecParameters* codecpar, int video_delay) const override;
   void AVCodecParametersSetCodecTag(AVCodecParameters* codecpar, uint32_t codec_tag) const override;
+  void AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const override;
+  void AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const override;
+  void AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const override;
 
   uint8_t* AVBufferRefGetData(const AVBufferRef* bufferref) const override;
   int AVBufferRefGetSize(const AVBufferRef* bufferref) const override;

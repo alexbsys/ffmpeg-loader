@@ -40,6 +40,8 @@
 #define MKTAG(a, b, c, d) (a | (b << 8) | (c << 16) | (d << 24))
 #define FFERRTAG(a, b, c, d) (-(int)MKTAG(a, b, c, d))
 #define AVERROR_EOF                FFERRTAG( 'E','O','F',' ') ///< End of file
+#define AVERROR_EXIT               FFERRTAG( 'E','X','I','T') ///< Exit requested
+#define AVERROR_INVALIDDATA        FFERRTAG('I','N','D','A') // Invalid data on input
 #define AVERROR(e) (-(e))   ///< Returns a negative error code from a POSIX error code, to return from library functions.
 
 #define 	AVSEEK_SIZE   0x10000
@@ -186,6 +188,15 @@ enum AVLockOp {
   AV_LOCK_OBTAIN,  ///< Lock the mutex
   AV_LOCK_RELEASE, ///< Unlock the mutex
   AV_LOCK_DESTROY, ///< Free mutex resources
+};
+
+enum AVRounding {
+  AV_ROUND_ZERO = 0, ///< Round toward zero.
+  AV_ROUND_INF = 1, ///< Round away from zero.
+  AV_ROUND_DOWN = 2, ///< Round toward -infinity.
+  AV_ROUND_UP = 3, ///< Round toward +infinity.
+  AV_ROUND_NEAR_INF = 5, ///< Round to nearest and halfway cases away from zero.
+  AV_ROUND_PASS_MINMAX = 8192, ///< Flag to pass INT64_MIN/MAX through instead of rescaling, this avoids special cases for AV_NOPTS_VALUE
 };
 
 #endif //LIBAV_DETACHED_COMMON_HEADER

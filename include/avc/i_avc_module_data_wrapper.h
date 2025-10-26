@@ -36,6 +36,7 @@ struct AVCodec;
 struct AVCodecHWConfig;
 
 // avformat structures definition
+struct AVRational { int num; int den; };
 struct AVFormatContext;
 struct AVInputFormat;
 struct AVOutputFormat;
@@ -72,13 +73,15 @@ struct IAvcModuleDataWrapper {
   virtual cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const = 0;
+  virtual int64_t AVStreamGetStartTime(const AVStream* stream) const = 0;
+  virtual int AVStreamGetIndex(const AVStream* stream) const = 0;
+  virtual int AVStreamGetId(const AVStream* stream) const = 0;
+
   virtual void AVStreamSetTimeBase(AVStream* stream, cmf::MediaTimeBase tb) const = 0;
   virtual void AVStreamSetFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const = 0;
   virtual void AVStreamSetAvgFrameRate(AVStream* stream, cmf::MediaTimeBase framerate) const = 0;
   virtual void AVStreamSetStartTime(AVStream* stream, int64_t start_time) const = 0;
-  virtual int AVStreamGetIndex(const AVStream* stream) const = 0;
   virtual void AVStreamSetIndex(AVStream* stream, int index) const = 0;
-  virtual int AVStreamGetId(const AVStream* stream) const = 0;
   virtual void AVStreamSetId(AVStream* stream, int id) const = 0;
 
   // AVFormatContext
@@ -122,6 +125,7 @@ struct IAvcModuleDataWrapper {
   virtual AVBufferRef* AVPacketGetBuf(const AVPacket* pkt) const = 0;
   virtual int64_t AVPacketGetPos(const AVPacket* pkt) const = 0;
   virtual int64_t AVPacketGetDuration(const AVPacket* pkt) const = 0;
+  virtual cmf::MediaTimeBase AVPacketGetTimeBase(AVPacket* pkt) const = 0;
 
   virtual void AVPacketSetPts(AVPacket* pkt, int64_t pts) const = 0;
   virtual void AVPacketSetDts(AVPacket* pkt, int64_t dts) const = 0;
@@ -132,6 +136,7 @@ struct IAvcModuleDataWrapper {
   virtual void AVPacketSetBuf(AVPacket* pkt, AVBufferRef* buf) const = 0;
   virtual void AVPacketSetPos(AVPacket* pkt, int64_t pos) const = 0;
   virtual void AVPacketSetDuration(AVPacket* pkt, int64_t duration) const = 0;
+  virtual void AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const = 0;
 
   // AVCodecContext
   virtual int AVCodecContextGetChannels(const AVCodecContext* codec_context) const = 0;
@@ -303,6 +308,9 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecParametersGetCodecId(const AVCodecParameters* codecpar) const = 0;
   virtual int AVCodecParametersGetVideoDelay(const AVCodecParameters* codecpar) const = 0;
   virtual uint32_t AVCodecParametersGetCodecTag(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const = 0;
+  virtual int AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const = 0;
 
   virtual void AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const = 0;
   virtual void AVCodecParametersSetWidth(AVCodecParameters* codecpar, int width) const = 0;
@@ -317,6 +325,10 @@ struct IAvcModuleDataWrapper {
   virtual void AVCodecParametersSetCodecId(AVCodecParameters* codecpar, int codec_id) const = 0;
   virtual void AVCodecParametersSetVideoDelay(AVCodecParameters* codecpar, int video_delay) const = 0;
   virtual void AVCodecParametersSetCodecTag(AVCodecParameters* codecpar, uint32_t codec_tag) const = 0;
+  virtual void AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const = 0;
+  virtual void AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const = 0;
+  virtual void AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const = 0;
+
 
   // AVBufferRef
   virtual uint8_t* AVBufferRefGetData(const AVBufferRef* bufferref) const = 0;
