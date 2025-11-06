@@ -153,8 +153,7 @@ namespace detail {
   do { \
     if (!(func_ptr)) { \
       if (load_handler_) { \
-        load_handler_->OnModuleFunctionsNotFound(shared_from_this(), \
-            module_name, func_name); \
+        load_handler_->OnModuleFunctionsNotFound(this, module_name, func_name); \
       } \
       fprintf(stderr, "FATAL ERROR: Function '%s' from module '%s' was not loaded. " \
                      "Application cannot continue.\n", \
@@ -417,7 +416,7 @@ bool AvcModuleProvider::SetupDataWrapper() {
     if (!found_valid_factory) {
       // No valid factory found
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), "DATASTRUCT");
+        load_handler_->OnModuleLoadError(this, "DATASTRUCT");
       }
       return false;
     }
@@ -1057,6 +1056,7 @@ void AvcModuleProvider::av_packet_unref(AVPacket *pkt) {
 
 void AvcModuleProvider::av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) {
   if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_packet_rescale_ts_, "av_packet_rescale_ts", kAvCodecModuleName);
   av_packet_rescale_ts_(pkt, { tb_src.num_,tb_src.den_ }, { tb_dst.num_, tb_dst.den_ });
 }
 
@@ -1232,6 +1232,7 @@ void AvcModuleProvider::av_register_all(void) {
 int AvcModuleProvider::avformat_seek_file(AVFormatContext* s, int stream_index,
   int64_t min_ts, int64_t ts, int64_t max_ts, int flags) {
   if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_seek_file_, "avformat_seek_file", kAvFormatModuleName);
   return avformat_seek_file_(s, stream_index, min_ts, ts, max_ts, flags);
 }
 
@@ -1428,6 +1429,7 @@ int64_t AvcModuleProvider::av_rescale_rnd(int64_t a, int64_t b, int64_t c,
 int64_t AvcModuleProvider::av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq,
   int /*enum AVRounding*/ rnd) {
   if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_rescale_q_rnd_, "av_rescale_q_rnd", kAvUtilModuleName);
   return av_rescale_q_rnd_(a, bq, cq, rnd);
 }
 
@@ -1611,26 +1613,32 @@ void AvcModuleProvider::av_frame_free(AVFrame **frame) {
 
 int AvcModuleProvider::av_frame_ref(AVFrame* dst, const AVFrame* src) {
   if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_frame_ref_, "av_frame_ref", kAvUtilModuleName);
   return av_frame_ref_(dst, src);
 }
 
 int AvcModuleProvider::av_frame_replace(AVFrame* dst, const AVFrame* src) {
   if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_frame_replace_, "av_frame_replace", kAvUtilModuleName);
   return av_frame_replace_(dst, src);
 }
 
 AVFrame* AvcModuleProvider::av_frame_clone(const AVFrame* src) {
   if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_frame_clone_, "av_frame_clone", kAvUtilModuleName);
   return av_frame_clone_(src);
 }
 
 void AvcModuleProvider::av_frame_unref(AVFrame* frame) {
   if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_frame_unref_, "av_frame_unref", kAvUtilModuleName);
   av_frame_unref_(frame);
 }
 
 void AvcModuleProvider::av_frame_move_ref(AVFrame* dst, AVFrame* src) {
-
+  if (!avutil_handle_) Load();
+  AVC_CHECK_AND_CALL(av_frame_move_ref_, "av_frame_move_ref", kAvUtilModuleName);
+  av_frame_move_ref_(dst, src);
 }
 
 int AvcModuleProvider::av_frame_get_buffer(AVFrame *frame, int align) {
