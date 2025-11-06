@@ -150,6 +150,46 @@ struct IAvcModuleProvider {
   virtual int av_guess_codec(AVOutputFormat *fmt, const char *short_name, const char *filename,
                             const char *mime_type, int /*enum AVMediaType*/ type) = 0;
 
+  virtual int av_find_best_stream(AVFormatContext *ic, int /*enum AVMediaType*/ type, int wanted_stream_nb, int related_stream, const AVCodec **decoder_ret, int flags) = 0;
+
+  virtual int avformat_init_output(AVFormatContext *s, AVDictionary **options) = 0;
+
+  virtual int av_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) = 0;
+
+  virtual int av_interleaved_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) = 0;
+
+  virtual int av_write_uncoded_frame_query(AVFormatContext *s, int stream_index) = 0;
+
+  virtual int av_get_output_timestamp(AVFormatContext *s, int stream, int64_t *dts, int64_t *wall) = 0;
+
+  virtual int av_index_search_timestamp(AVStream *st, int64_t timestamp, int flags) = 0;
+
+  virtual int avformat_index_get_entries_count(AVStream *st) = 0;
+
+  virtual AVIndexEntry *avformat_index_get_entry(AVStream *st, int idx) = 0;
+
+  virtual AVIndexEntry *avformat_index_get_entry_from_timestamp(AVStream *st, int64_t wanted_timestamp, int flags) = 0;
+
+  virtual int av_add_index_entry(AVStream *st, int64_t pos, int64_t timestamp, int size, int distance, int flags) = 0;
+
+  virtual void av_url_split(char *proto, int proto_size, char *authorization, int authorization_size, char *hostname, int hostname_size, int *port_ptr, char *path, int path_size, const char *url) = 0;
+
+  virtual int av_sdp_create(AVFormatContext *ac[], int n_files, char *buf, int size) = 0;
+
+  virtual int av_match_ext(const char *filename, const char *extensions) = 0;
+
+  virtual int avformat_query_codec(const AVOutputFormat *ofmt, int /*enum AVCodecID*/ codec_id, int std_compliance) = 0;
+
+  virtual const char *avformat_get_riff_video_tags(void) = 0;
+
+  virtual const char *avformat_get_riff_audio_tags(void) = 0;
+
+  virtual const char *avformat_get_mov_video_tags(void) = 0;
+
+  virtual const char *avformat_get_mov_audio_tags(void) = 0;
+
+  virtual AVRational av_stream_get_codec_timebase(const AVStream *st) = 0;
+
   virtual int av_read_frame(AVFormatContext *s, AVPacket *pkt) = 0;
   virtual int av_read_play(AVFormatContext *s) = 0;
   virtual int av_read_pause(AVFormatContext *s) = 0;

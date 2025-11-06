@@ -45,6 +45,7 @@ struct AVIOContext;
 struct AVIOInterruptCB;
 struct AVCPBProperties;
 struct AVChannelLayout;
+struct AVIndexEntry;
 
 // avutil structures definition
 struct AVHWFramesConstraints;

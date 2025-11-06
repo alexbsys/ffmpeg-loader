@@ -146,6 +146,32 @@ void AvcModuleProvider::LoadStatically() {
   av_guess_codec_ =
     reinterpret_cast<int (*)(AVOutputFormat *fmt, const char *short_name, const char *filename,
                              const char *mime_type, int /*enum AVMediaType*/ type)>(&::av_guess_codec);
+  av_find_best_stream_ =
+    reinterpret_cast<int (*)(AVFormatContext *ic, int /*enum AVMediaType*/ type, int wanted_stream_nb, int related_stream, const AVCodec **decoder_ret, int flags)>(&::av_find_best_stream);
+  Assign(avformat_init_output_, &::avformat_init_output);
+  Assign(av_write_uncoded_frame_, &::av_write_uncoded_frame);
+  Assign(av_interleaved_write_uncoded_frame_, &::av_interleaved_write_uncoded_frame);
+  Assign(av_write_uncoded_frame_query_, &::av_write_uncoded_frame_query);
+  Assign(av_get_output_timestamp_, &::av_get_output_timestamp);
+  Assign(av_index_search_timestamp_, &::av_index_search_timestamp);
+  Assign(avformat_index_get_entries_count_, &::avformat_index_get_entries_count);
+  avformat_index_get_entry_ =
+    reinterpret_cast<AVIndexEntry *(*)(AVStream *st, int idx)>(&::avformat_index_get_entry);
+  avformat_index_get_entry_from_timestamp_ =
+    reinterpret_cast<AVIndexEntry *(*)(AVStream *st, int64_t wanted_timestamp, int flags)>(&::avformat_index_get_entry_from_timestamp);
+  Assign(av_add_index_entry_, &::av_add_index_entry);
+  av_url_split_ =
+    reinterpret_cast<void (*)(char *proto, int proto_size, char *authorization, int authorization_size, char *hostname, int hostname_size, int *port_ptr, char *path, int path_size, const char *url)>(&::av_url_split);
+  Assign(av_sdp_create_, &::av_sdp_create);
+  Assign(av_match_ext_, &::av_match_ext);
+  avformat_query_codec_ =
+    reinterpret_cast<int (*)(const AVOutputFormat *ofmt, int /*enum AVCodecID*/ codec_id, int std_compliance)>(&::avformat_query_codec);
+  avformat_get_riff_video_tags_ = &::avformat_get_riff_video_tags;
+  avformat_get_riff_audio_tags_ = &::avformat_get_riff_audio_tags;
+  avformat_get_mov_video_tags_ = &::avformat_get_mov_video_tags;
+  avformat_get_mov_audio_tags_ = &::avformat_get_mov_audio_tags;
+  av_stream_get_codec_timebase_ =
+    reinterpret_cast<AVRational (*)(const AVStream *st)>(&::av_stream_get_codec_timebase);
   Assign(av_read_frame_, &::av_read_frame);
   Assign(av_read_play_, &::av_read_play);
   Assign(av_read_pause_, &::av_read_pause);

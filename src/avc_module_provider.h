@@ -156,6 +156,46 @@ public:
   int av_guess_codec(AVOutputFormat *fmt, const char *short_name, const char *filename,
                     const char *mime_type, int /*enum AVMediaType*/ type) override;
 
+  int av_find_best_stream(AVFormatContext *ic, int /*enum AVMediaType*/ type, int wanted_stream_nb, int related_stream, const AVCodec **decoder_ret, int flags) override;
+
+  int avformat_init_output(AVFormatContext *s, AVDictionary **options) override;
+
+  int av_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) override;
+
+  int av_interleaved_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) override;
+
+  int av_write_uncoded_frame_query(AVFormatContext *s, int stream_index) override;
+
+  int av_get_output_timestamp(AVFormatContext *s, int stream, int64_t *dts, int64_t *wall) override;
+
+  int av_index_search_timestamp(AVStream *st, int64_t timestamp, int flags) override;
+
+  int avformat_index_get_entries_count(AVStream *st) override;
+
+  AVIndexEntry *avformat_index_get_entry(AVStream *st, int idx) override;
+
+  AVIndexEntry *avformat_index_get_entry_from_timestamp(AVStream *st, int64_t wanted_timestamp, int flags) override;
+
+  int av_add_index_entry(AVStream *st, int64_t pos, int64_t timestamp, int size, int distance, int flags) override;
+
+  void av_url_split(char *proto, int proto_size, char *authorization, int authorization_size, char *hostname, int hostname_size, int *port_ptr, char *path, int path_size, const char *url) override;
+
+  int av_sdp_create(AVFormatContext *ac[], int n_files, char *buf, int size) override;
+
+  int av_match_ext(const char *filename, const char *extensions) override;
+
+  int avformat_query_codec(const AVOutputFormat *ofmt, int /*enum AVCodecID*/ codec_id, int std_compliance) override;
+
+  const char *avformat_get_riff_video_tags(void) override;
+
+  const char *avformat_get_riff_audio_tags(void) override;
+
+  const char *avformat_get_mov_video_tags(void) override;
+
+  const char *avformat_get_mov_audio_tags(void) override;
+
+  AVRational av_stream_get_codec_timebase(const AVStream *st) override;
+
   int av_read_frame(AVFormatContext *s, AVPacket *pkt) override;
   int av_read_play(AVFormatContext *s) override;
   int av_read_pause(AVFormatContext *s) override;
@@ -472,6 +512,46 @@ public:
 
   int (*av_guess_codec_)(AVOutputFormat *fmt, const char *short_name, const char *filename,
                          const char *mime_type, int /*enum AVMediaType*/ type) = nullptr;
+
+  int (*av_find_best_stream_)(AVFormatContext *ic, int /*enum AVMediaType*/ type, int wanted_stream_nb, int related_stream, const AVCodec **decoder_ret, int flags) = nullptr;
+
+  int (*avformat_init_output_)(AVFormatContext *s, AVDictionary **options) = nullptr;
+
+  int (*av_write_uncoded_frame_)(AVFormatContext *s, int stream_index, AVFrame *frame) = nullptr;
+
+  int (*av_interleaved_write_uncoded_frame_)(AVFormatContext *s, int stream_index, AVFrame *frame) = nullptr;
+
+  int (*av_write_uncoded_frame_query_)(AVFormatContext *s, int stream_index) = nullptr;
+
+  int (*av_get_output_timestamp_)(AVFormatContext *s, int stream, int64_t *dts, int64_t *wall) = nullptr;
+
+  int (*av_index_search_timestamp_)(AVStream *st, int64_t timestamp, int flags) = nullptr;
+
+  int (*avformat_index_get_entries_count_)(AVStream *st) = nullptr;
+
+  AVIndexEntry *(*avformat_index_get_entry_)(AVStream *st, int idx) = nullptr;
+
+  AVIndexEntry *(*avformat_index_get_entry_from_timestamp_)(AVStream *st, int64_t wanted_timestamp, int flags) = nullptr;
+
+  int (*av_add_index_entry_)(AVStream *st, int64_t pos, int64_t timestamp, int size, int distance, int flags) = nullptr;
+
+  void (*av_url_split_)(char *proto, int proto_size, char *authorization, int authorization_size, char *hostname, int hostname_size, int *port_ptr, char *path, int path_size, const char *url) = nullptr;
+
+  int (*av_sdp_create_)(AVFormatContext *ac[], int n_files, char *buf, int size) = nullptr;
+
+  int (*av_match_ext_)(const char *filename, const char *extensions) = nullptr;
+
+  int (*avformat_query_codec_)(const AVOutputFormat *ofmt, int /*enum AVCodecID*/ codec_id, int std_compliance) = nullptr;
+
+  const char *(*avformat_get_riff_video_tags_)(void) = nullptr;
+
+  const char *(*avformat_get_riff_audio_tags_)(void) = nullptr;
+
+  const char *(*avformat_get_mov_video_tags_)(void) = nullptr;
+
+  const char *(*avformat_get_mov_audio_tags_)(void) = nullptr;
+
+  AVRational (*av_stream_get_codec_timebase_)(const AVStream *st) = nullptr;
 
   int (*av_read_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
   int (*av_read_play_)(AVFormatContext *s) = nullptr;

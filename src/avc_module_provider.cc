@@ -727,6 +727,26 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .LoadProc("av_find_input_format", av_find_input_format_)
     .LoadProc("av_guess_format", av_guess_format_)
     .LoadProc("av_guess_codec", av_guess_codec_)
+    .LoadProc("av_find_best_stream", av_find_best_stream_)
+    .LoadProc("avformat_init_output", avformat_init_output_)
+    .LoadProc("av_write_uncoded_frame", av_write_uncoded_frame_)
+    .LoadProc("av_interleaved_write_uncoded_frame", av_interleaved_write_uncoded_frame_)
+    .LoadProc("av_write_uncoded_frame_query", av_write_uncoded_frame_query_)
+    .LoadProc("av_get_output_timestamp", av_get_output_timestamp_)
+    .LoadProc("av_index_search_timestamp", av_index_search_timestamp_)
+    .LoadProc("avformat_index_get_entries_count", avformat_index_get_entries_count_)
+    .LoadProc("avformat_index_get_entry", avformat_index_get_entry_)
+    .LoadProc("avformat_index_get_entry_from_timestamp", avformat_index_get_entry_from_timestamp_)
+    .LoadProc("av_add_index_entry", av_add_index_entry_)
+    .LoadProc("av_url_split", av_url_split_)
+    .LoadProc("av_sdp_create", av_sdp_create_)
+    .LoadProc("av_match_ext", av_match_ext_)
+    .LoadProc("avformat_query_codec", avformat_query_codec_)
+    .LoadProc("avformat_get_riff_video_tags", avformat_get_riff_video_tags_)
+    .LoadProc("avformat_get_riff_audio_tags", avformat_get_riff_audio_tags_)
+    .LoadProc("avformat_get_mov_video_tags", avformat_get_mov_video_tags_)
+    .LoadProc("avformat_get_mov_audio_tags", avformat_get_mov_audio_tags_)
+    .LoadProc("av_stream_get_codec_timebase", av_stream_get_codec_timebase_)
     .LoadProc("av_read_frame", av_read_frame_)
     .LoadProc("av_read_play", av_read_play_)
     .LoadProc("av_read_pause", av_read_pause_)
@@ -1211,6 +1231,126 @@ int AvcModuleProvider::av_guess_codec(AVOutputFormat *fmt, const char *short_nam
   if (!avformat_handle_) Load();
   AVC_CHECK_AND_CALL(av_guess_codec_, "av_guess_codec", kAvFormatModuleName);
   return av_guess_codec_(fmt, short_name, filename, mime_type, type);
+}
+
+int AvcModuleProvider::av_find_best_stream(AVFormatContext *ic, int /*enum AVMediaType*/ type, int wanted_stream_nb, int related_stream, const AVCodec **decoder_ret, int flags) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_find_best_stream_, "av_find_best_stream", kAvFormatModuleName);
+  return av_find_best_stream_(ic, type, wanted_stream_nb, related_stream, decoder_ret, flags);
+}
+
+int AvcModuleProvider::avformat_init_output(AVFormatContext *s, AVDictionary **options) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_init_output_, "avformat_init_output", kAvFormatModuleName);
+  return avformat_init_output_(s, options);
+}
+
+int AvcModuleProvider::av_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_write_uncoded_frame_, "av_write_uncoded_frame", kAvFormatModuleName);
+  return av_write_uncoded_frame_(s, stream_index, frame);
+}
+
+int AvcModuleProvider::av_interleaved_write_uncoded_frame(AVFormatContext *s, int stream_index, AVFrame *frame) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_interleaved_write_uncoded_frame_, "av_interleaved_write_uncoded_frame", kAvFormatModuleName);
+  return av_interleaved_write_uncoded_frame_(s, stream_index, frame);
+}
+
+int AvcModuleProvider::av_write_uncoded_frame_query(AVFormatContext *s, int stream_index) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_write_uncoded_frame_query_, "av_write_uncoded_frame_query", kAvFormatModuleName);
+  return av_write_uncoded_frame_query_(s, stream_index);
+}
+
+int AvcModuleProvider::av_get_output_timestamp(AVFormatContext *s, int stream, int64_t *dts, int64_t *wall) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_get_output_timestamp_, "av_get_output_timestamp", kAvFormatModuleName);
+  return av_get_output_timestamp_(s, stream, dts, wall);
+}
+
+int AvcModuleProvider::av_index_search_timestamp(AVStream *st, int64_t timestamp, int flags) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_index_search_timestamp_, "av_index_search_timestamp", kAvFormatModuleName);
+  return av_index_search_timestamp_(st, timestamp, flags);
+}
+
+int AvcModuleProvider::avformat_index_get_entries_count(AVStream *st) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_index_get_entries_count_, "avformat_index_get_entries_count", kAvFormatModuleName);
+  return avformat_index_get_entries_count_(st);
+}
+
+AVIndexEntry *AvcModuleProvider::avformat_index_get_entry(AVStream *st, int idx) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_index_get_entry_, "avformat_index_get_entry", kAvFormatModuleName);
+  return avformat_index_get_entry_(st, idx);
+}
+
+AVIndexEntry *AvcModuleProvider::avformat_index_get_entry_from_timestamp(AVStream *st, int64_t wanted_timestamp, int flags) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_index_get_entry_from_timestamp_, "avformat_index_get_entry_from_timestamp", kAvFormatModuleName);
+  return avformat_index_get_entry_from_timestamp_(st, wanted_timestamp, flags);
+}
+
+int AvcModuleProvider::av_add_index_entry(AVStream *st, int64_t pos, int64_t timestamp, int size, int distance, int flags) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_add_index_entry_, "av_add_index_entry", kAvFormatModuleName);
+  return av_add_index_entry_(st, pos, timestamp, size, distance, flags);
+}
+
+void AvcModuleProvider::av_url_split(char *proto, int proto_size, char *authorization, int authorization_size, char *hostname, int hostname_size, int *port_ptr, char *path, int path_size, const char *url) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_url_split_, "av_url_split", kAvFormatModuleName);
+  av_url_split_(proto, proto_size, authorization, authorization_size, hostname, hostname_size, port_ptr, path, path_size, url);
+}
+
+int AvcModuleProvider::av_sdp_create(AVFormatContext *ac[], int n_files, char *buf, int size) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_sdp_create_, "av_sdp_create", kAvFormatModuleName);
+  return av_sdp_create_(ac, n_files, buf, size);
+}
+
+int AvcModuleProvider::av_match_ext(const char *filename, const char *extensions) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_match_ext_, "av_match_ext", kAvFormatModuleName);
+  return av_match_ext_(filename, extensions);
+}
+
+int AvcModuleProvider::avformat_query_codec(const AVOutputFormat *ofmt, int /*enum AVCodecID*/ codec_id, int std_compliance) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_query_codec_, "avformat_query_codec", kAvFormatModuleName);
+  return avformat_query_codec_(ofmt, codec_id, std_compliance);
+}
+
+const char *AvcModuleProvider::avformat_get_riff_video_tags(void) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_get_riff_video_tags_, "avformat_get_riff_video_tags", kAvFormatModuleName);
+  return avformat_get_riff_video_tags_();
+}
+
+const char *AvcModuleProvider::avformat_get_riff_audio_tags(void) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_get_riff_audio_tags_, "avformat_get_riff_audio_tags", kAvFormatModuleName);
+  return avformat_get_riff_audio_tags_();
+}
+
+const char *AvcModuleProvider::avformat_get_mov_video_tags(void) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_get_mov_video_tags_, "avformat_get_mov_video_tags", kAvFormatModuleName);
+  return avformat_get_mov_video_tags_();
+}
+
+const char *AvcModuleProvider::avformat_get_mov_audio_tags(void) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(avformat_get_mov_audio_tags_, "avformat_get_mov_audio_tags", kAvFormatModuleName);
+  return avformat_get_mov_audio_tags_();
+}
+
+AVRational AvcModuleProvider::av_stream_get_codec_timebase(const AVStream *st) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_stream_get_codec_timebase_, "av_stream_get_codec_timebase", kAvFormatModuleName);
+  return av_stream_get_codec_timebase_(st);
 }
 
 int AvcModuleProvider::av_read_frame(AVFormatContext *s, AVPacket *pkt) {
