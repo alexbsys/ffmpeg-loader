@@ -43,6 +43,10 @@
 
 #include <avc/ffmpeg-loader.h>
 
+#if DEBUG_PRINT
+#include <cstdio>
+#endif //DEBUG_PRINT
+
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
 #include "dynamic_loader.hpp"
 #endif //AVC_LIBRARIES_STATIC_LINK
@@ -427,7 +431,7 @@ bool AvcModuleProvider::SetupDataWrapper() {
     printf("LIBAV data wrapper was not selected!");
 #endif //DEBUG_PRINT
     if (load_handler_) {
-      load_handler_->OnModuleLoadError(shared_from_this(), "DATASTRUCT");
+      load_handler_->OnModuleLoadError(this, "DATASTRUCT");
     }
     return false;
   } 
@@ -520,7 +524,7 @@ void AvcModuleProvider::Load() {
       printf("cannot load module %s: %s, path %s", kAvCodecModuleName, avcodec_module_name_.c_str(), modules_path_.c_str());
 #endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvCodecModuleName);
+        load_handler_->OnModuleLoadError(this, kAvCodecModuleName);
       }
     }
   }
@@ -536,7 +540,7 @@ void AvcModuleProvider::Load() {
       printf("cannot load module %s: %s, path %s", kAvFormatModuleName, avformat_module_name_.c_str(), modules_path_.c_str());
 #endif //DEBUG_PRINT
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvFormatModuleName);
+        load_handler_->OnModuleLoadError(this, kAvFormatModuleName);
       }
     }
   }
@@ -553,7 +557,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvUtilModuleName);
+        load_handler_->OnModuleLoadError(this, kAvUtilModuleName);
       }
     }
   }
@@ -570,7 +574,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kAvDeviceModuleName);
+        load_handler_->OnModuleLoadError(this, kAvDeviceModuleName);
       }
     }
   }
@@ -587,7 +591,7 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kSwScaleModuleName);
+        load_handler_->OnModuleLoadError(this, kSwScaleModuleName);
       }
     }
   }
@@ -604,21 +608,21 @@ void AvcModuleProvider::Load() {
 #endif //DEBUG_PRINT
 
       if (load_handler_) {
-        load_handler_->OnModuleLoadError(shared_from_this(), kSwResampleModuleName);
+        load_handler_->OnModuleLoadError(this, kSwResampleModuleName);
       }
     }
   }
 
   if (SetupDataWrapper()) {
     if (load_handler_) {
-      load_handler_->OnLoadFinished(shared_from_this());
+      load_handler_->OnLoadFinished(this);
     }
   }
 }
 
 void AvcModuleProvider::Unload() {
   if (load_handler_) {
-    load_handler_->OnBeforeUnload(shared_from_this());
+    load_handler_->OnBeforeUnload(this);
   }
 
 #if !defined(AVC_LIBRARIES_STATIC_LINK) || AVC_LIBRARIES_STATIC_LINK==0
@@ -679,6 +683,7 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
     .LoadProc("av_new_packet", av_new_packet_)
     .LoadProc("av_packet_ref", av_packet_ref_)
     .LoadProc("av_packet_unref", av_packet_unref_)
+    .LoadProc("av_packet_rescale_ts", av_packet_rescale_ts_)
     .LoadProc("avcodec_alloc_context3", avcodec_alloc_context3_)
     .LoadProc("avcodec_free_context", avcodec_free_context_)
     .LoadProc("avcodec_find_decoder", avcodec_find_decoder_)
@@ -705,7 +710,7 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvCodecModuleName, avcodec_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvCodecModuleName, avcodec_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -718,6 +723,8 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .SetModuleHandle(avformat_handle_)
     .LoadProc("avformat_version", avformat_version_)
     .LoadProc("av_dump_format", av_dump_format_)
+    .LoadProc("av_guess_sample_aspect_ratio", av_guess_sample_aspect_ratio_)
+    .LoadProc("av_guess_frame_rate", av_guess_frame_rate_)
     .LoadProc("av_find_input_format", av_find_input_format_)
     .LoadProc("av_guess_format", av_guess_format_)
     .LoadProc("av_read_frame", av_read_frame_)
@@ -725,6 +732,7 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .LoadProc("av_read_pause", av_read_pause_)
     .LoadProc("av_register_all", av_register_all_)
     .LoadProc("avformat_flush", avformat_flush_)
+    .LoadProc("avformat_seek_file", avformat_seek_file_)
     .LoadProc("av_seek_frame", av_seek_frame_)
     .LoadProc("av_write_frame", av_write_frame_)
     .LoadProc("av_interleaved_write_frame", av_interleaved_write_frame_)
@@ -756,7 +764,7 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvFormatModuleName, avformat_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvFormatModuleName, avformat_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -770,6 +778,7 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("avutil_version", avutil_version_)
     .LoadProc("av_samples_get_buffer_size", av_samples_get_buffer_size_)
     .LoadProc("av_rescale_rnd", av_rescale_rnd_)
+    .LoadProc("av_rescale_q_rnd", av_rescale_q_rnd_)
     .LoadProc("av_samples_alloc", av_samples_alloc_)
     .LoadProc("av_samples_alloc_array_and_samples", av_samples_alloc_array_and_samples_)
     .LoadProc("av_opt_set_int", av_opt_set_int_)
@@ -796,6 +805,11 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("av_dict_free", av_dict_free_)
     .LoadProc("av_frame_alloc", av_frame_alloc_)
     .LoadProc("av_frame_free", av_frame_free_)
+    .LoadProc("av_frame_ref", av_frame_ref_)
+    .LoadProc("av_frame_replace", av_frame_replace_)
+    .LoadProc("av_frame_clone", av_frame_clone_)
+    .LoadProc("av_frame_unref", av_frame_unref_)
+    .LoadProc("av_frame_move_ref", av_frame_move_ref_)
     .LoadProc("av_frame_get_buffer", av_frame_get_buffer_)
     .LoadProc("av_frame_get_channels", av_frame_get_channels_)
     .LoadProc("av_frame_set_channels", av_frame_set_channels_)
@@ -845,7 +859,7 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvUtilModuleName, avutil_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvUtilModuleName, avutil_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -868,7 +882,7 @@ void AvcModuleProvider::LoadSwScaleFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwScaleModuleName, swscale_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kSwScaleModuleName, swscale_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -895,7 +909,7 @@ void AvcModuleProvider::LoadSwResampleFuctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kSwResampleModuleName, swresample_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kSwResampleModuleName, swresample_loader.ProblemFunctions().str().c_str());
     }
   }
 #endif //AV_LIBRARIES_STATIC_LINK
@@ -916,7 +930,7 @@ void AvcModuleProvider::LoadAvDeviceFunctions() {
 #endif //DEBUG_PRINT
 
     if (load_handler_) {
-      load_handler_->OnModuleFunctionsNotFound(shared_from_this(), kAvDeviceModuleName, avdevice_loader.ProblemFunctions().str().c_str());
+      load_handler_->OnModuleFunctionsNotFound(this, kAvDeviceModuleName, avdevice_loader.ProblemFunctions().str().c_str());
     }
 
   }
@@ -1041,6 +1055,11 @@ void AvcModuleProvider::av_packet_unref(AVPacket *pkt) {
   av_packet_unref_(pkt);
 }
 
+void AvcModuleProvider::av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) {
+  if (!avcodec_handle_) Load();
+  av_packet_rescale_ts_(pkt, { tb_src.num_,tb_src.den_ }, { tb_dst.num_, tb_dst.den_ });
+}
+
 AVCodecContext *AvcModuleProvider::avcodec_alloc_context3(const AVCodec *codec) {
   if (!avcodec_handle_) Load();
   AVC_CHECK_AND_CALL(avcodec_alloc_context3_, "avcodec_alloc_context3", kAvCodecModuleName);
@@ -1157,6 +1176,21 @@ void AvcModuleProvider::av_dump_format(AVFormatContext *ic, int index, const cha
   return av_dump_format_(ic, index, url, is_output);
 }
 
+cmf::MediaTimeBase AvcModuleProvider::av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) {
+  if (!avformat_handle_) Load();
+  if (!av_guess_sample_aspect_ratio_) return cmf::MediaTimeBase{ 0,0 };
+  
+  auto avr = av_guess_sample_aspect_ratio_(ctx, stream, frame);
+  return cmf::MediaTimeBase(avr.num, avr.den);
+}
+
+cmf::MediaTimeBase AvcModuleProvider::av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) {
+  if (!avformat_handle_) Load();
+  if (!av_guess_frame_rate_) return cmf::MediaTimeBase{ 0,0 };
+  auto avr = av_guess_frame_rate_(ctx, stream, frame);
+  return cmf::MediaTimeBase(avr.num, avr.den);
+}
+
 AVInputFormat *AvcModuleProvider::av_find_input_format(const char *short_name) {
   if (!avformat_handle_) Load();
   AVC_CHECK_AND_CALL(av_find_input_format_, "av_find_input_format", kAvFormatModuleName);
@@ -1193,6 +1227,12 @@ void AvcModuleProvider::av_register_all(void) {
   if (!avformat_handle_) Load();
   if (av_register_all_)
     av_register_all_();
+}
+
+int AvcModuleProvider::avformat_seek_file(AVFormatContext* s, int stream_index,
+  int64_t min_ts, int64_t ts, int64_t max_ts, int flags) {
+  if (!avformat_handle_) Load();
+  return avformat_seek_file_(s, stream_index, min_ts, ts, max_ts, flags);
 }
 
 int AvcModuleProvider::avformat_flush(AVFormatContext *s) {
@@ -1385,6 +1425,13 @@ int64_t AvcModuleProvider::av_rescale_rnd(int64_t a, int64_t b, int64_t c,
   return av_rescale_rnd_(a, b, c, rnd);
 }
 
+int64_t AvcModuleProvider::av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq,
+  int /*enum AVRounding*/ rnd) {
+  if (!avutil_handle_) Load();
+  return av_rescale_q_rnd_(a, bq, cq, rnd);
+}
+
+
 int AvcModuleProvider::av_samples_alloc(uint8_t **audio_data, int *linesize,
                                         int nb_channels, int nb_samples,
                                         int /*enum AVSampleFormat*/ sample_fmt,
@@ -1560,6 +1607,30 @@ void AvcModuleProvider::av_frame_free(AVFrame **frame) {
   if (!avutil_handle_) Load();
   AVC_CHECK_AND_CALL(av_frame_free_, "av_frame_free", kAvUtilModuleName);
   av_frame_free_(frame);
+}
+
+int AvcModuleProvider::av_frame_ref(AVFrame* dst, const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_ref_(dst, src);
+}
+
+int AvcModuleProvider::av_frame_replace(AVFrame* dst, const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_replace_(dst, src);
+}
+
+AVFrame* AvcModuleProvider::av_frame_clone(const AVFrame* src) {
+  if (!avutil_handle_) Load();
+  return av_frame_clone_(src);
+}
+
+void AvcModuleProvider::av_frame_unref(AVFrame* frame) {
+  if (!avutil_handle_) Load();
+  av_frame_unref_(frame);
+}
+
+void AvcModuleProvider::av_frame_move_ref(AVFrame* dst, AVFrame* src) {
+
 }
 
 int AvcModuleProvider::av_frame_get_buffer(AVFrame *frame, int align) {

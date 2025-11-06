@@ -130,6 +130,11 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamSetStartTime(AVStream* stream, i
   stream_d->start_time = start_time;
 }
 
+int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetStartTime(const AVStream* stream) const {
+  auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
+  return stream_d->start_time;
+}
+
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetIndex(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   return stream_d->index;
@@ -339,6 +344,14 @@ int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketGetDuration(const AVPacket* p
   return pkt_d->duration;
 }
 
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketGetTimeBase(AVPacket* pkt) const {
+  auto pkt_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
+#if LIBAVUTIL_VERSION_MAJOR >= 57
+  return cmf::MediaTimeBase(pkt_d->time_base.num, pkt_d->time_base.den);
+#else 
+  return cmf::MediaTimeBase{ 0,0 };
+#endif
+}
 
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetPts(AVPacket* pkt, int64_t pts) const {
   auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
@@ -384,6 +397,15 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetDuration(AVPacket* pkt, int64
   auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
   pkt_d->duration = duration;
 }
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketSetTimeBase(AVPacket* pkt, cmf::MediaTimeBase tb) const {
+  auto pkt_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
+#if LIBAVUTIL_VERSION_MAJOR >= 57
+  pkt_d->time_base.num = tb.num_;
+  pkt_d->time_base.den = tb.den_;
+#endif //LIBAVUTIL_VERSION_MAJOR
+}
+
 
 /////
 // AVCodecContext
@@ -1324,6 +1346,21 @@ uint32_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetCodecTag(const A
   return codecpar_d->codec_tag;
 }
 
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->frame_size;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->bits_per_coded_sample;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return codecpar_d->bits_per_raw_sample;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const {
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->codec_type = static_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVMediaType>(codec_type);
@@ -1392,6 +1429,22 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetCodecTag(AVCodecPara
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->codec_tag = codec_tag;
 }
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->frame_size = frame_size;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->bits_per_coded_sample = bits_per_coded_sample;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const {
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  codecpar_d->bits_per_raw_sample = bits_per_raw_sample;
+}
+
 
 ////
 // AVBuffer

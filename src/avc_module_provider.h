@@ -115,6 +115,7 @@ public:
   int av_new_packet(AVPacket *pkt, int size) override;
   void av_packet_ref(AVPacket *dst, const AVPacket* src) override;
   void av_packet_unref(AVPacket *pkt) override;
+  void av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) override;
 
   AVCodecContext *avcodec_alloc_context3(const AVCodec *codec) override;
   void avcodec_free_context(AVCodecContext **avctx) override;
@@ -143,6 +144,10 @@ public:
 
   void av_dump_format(AVFormatContext *ic, int index, const char *url,
                       int is_output) override;
+
+  cmf::MediaTimeBase av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) override;
+  cmf::MediaTimeBase av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) override;
+
   AVInputFormat *av_find_input_format(const char *short_name) override;
 
   AVOutputFormat *av_guess_format(const char *short_name, const char *filename,
@@ -153,6 +158,9 @@ public:
   int av_read_pause(AVFormatContext *s) override;
 
   void av_register_all(void) override;
+  int avformat_seek_file(AVFormatContext* s, int stream_index, 
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) override;
+
   int avformat_flush(AVFormatContext *s) override;
   int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp,
                     int flags) override;
@@ -216,6 +224,9 @@ public:
   int64_t av_rescale_rnd(int64_t a, int64_t b, int64_t c,
                          int /*enum AVRounding*/ rnd) override;
 
+  int64_t av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq, 
+    int /*enum AVRounding*/ rnd) override;
+
   int av_samples_alloc(uint8_t **audio_data, int *linesize, int nb_channels,
                        int nb_samples, int /*enum AVSampleFormat*/ sample_fmt,
                        int /*(0 = default, 1 = no alignment)*/ align) override;
@@ -272,8 +283,12 @@ public:
   AVFrame *av_frame_alloc(void) override;
   void av_frame_free(AVFrame **frame) override;
 
+  int av_frame_ref(AVFrame* dst, const AVFrame* src) override;
+  int av_frame_replace(AVFrame* dst, const AVFrame* src) override;
+  AVFrame* av_frame_clone(const AVFrame* src) override;
+  void av_frame_unref(AVFrame* frame) override;
+  void av_frame_move_ref(AVFrame* dst, AVFrame* src) override;
   int av_frame_get_buffer(AVFrame *frame, int align) override;
-
   int av_frame_get_channels(const AVFrame *frame) override;
   void av_frame_set_channels(AVFrame *frame, int val) override;
   int64_t av_frame_get_pkt_duration(const AVFrame *frame) override;
@@ -417,6 +432,7 @@ public:
   int (*av_new_packet_)(AVPacket *pkt, int size) = nullptr;
   int (*av_packet_ref_)(AVPacket *dst, const AVPacket* src) = nullptr;
   void (*av_packet_unref_)(AVPacket *pkt) = nullptr;
+  void (*av_packet_rescale_ts_)(AVPacket* pkt, AVRational tb_src, AVRational tb_dst) = nullptr;
 
   AVCodecContext *(*avcodec_alloc_context3_)(const AVCodec *codec) = nullptr;
   void (*avcodec_free_context_)(AVCodecContext **avctx) = nullptr;
@@ -442,6 +458,9 @@ public:
   // avformat
   unsigned (*avformat_version_)(void) = nullptr;
 
+  AVRational (*av_guess_sample_aspect_ratio_)(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = nullptr;
+  AVRational (*av_guess_frame_rate_)(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = nullptr;
+
   void (*av_dump_format_)(AVFormatContext *ic, int index, const char *url, int is_output) = nullptr;
   AVInputFormat *(*av_find_input_format_)(const char *short_name) = nullptr;
 
@@ -454,6 +473,10 @@ public:
 
   void (*av_register_all_)(void) = nullptr;
   int (*avformat_flush_)(AVFormatContext *s) = nullptr;
+
+  int (*avformat_seek_file_)(AVFormatContext* s, int stream_index,
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) = nullptr;
+
   int (*av_seek_frame_)(AVFormatContext *s, int stream_index, int64_t timestamp, int flags) = nullptr;
   int (*av_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
   int (*av_interleaved_write_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
@@ -508,6 +531,9 @@ public:
   int64_t (*av_rescale_rnd_)(int64_t a, int64_t b, int64_t c,
                              int /*enum AVRounding*/ rnd) = nullptr;
 
+  int64_t (*av_rescale_q_rnd_)(int64_t a, AVRational bq, AVRational cq, 
+    int /*enum AVRounding*/ rnd) = nullptr;
+
   int (*av_samples_alloc_)(uint8_t **audio_data, int *linesize, int nb_channels,
                            int nb_samples, int /*enum AVSampleFormat*/ sample_fmt,
                            int /*(0 = default, 1 = no alignment)*/ align) = nullptr;
@@ -519,7 +545,7 @@ public:
 
   int (*av_opt_set_int_)(void *obj, const char *name, int64_t val, int search_flags) = nullptr;
   int (*av_opt_set_sample_fmt_)(void *obj, const char *name,
-                                int /*enum AVSampleFormat*/ fmt, int search_flags);
+                                int /*enum AVSampleFormat*/ fmt, int search_flags) = nullptr;
   AVBufferRef *(*av_hwdevice_ctx_alloc_)(int /*enum AVHWDeviceType*/ type) = nullptr;
   int (*av_hwdevice_ctx_init_)(AVBufferRef *ref) = nullptr;
   AVBufferRef *(*av_hwframe_ctx_alloc_)(AVBufferRef *device_ctx) = nullptr;
@@ -560,6 +586,12 @@ public:
 
   AVFrame *(*av_frame_alloc_)(void) = nullptr;
   void (*av_frame_free_)(AVFrame **frame) = nullptr;
+
+  int (*av_frame_ref_)(AVFrame* dst, const AVFrame* src) = nullptr;
+  int (*av_frame_replace_)(AVFrame* dst, const AVFrame* src) = nullptr;
+  AVFrame* (*av_frame_clone_)(const AVFrame* src) = nullptr;
+  void (*av_frame_unref_)(AVFrame* frame) = nullptr;
+  void (*av_frame_move_ref_)(AVFrame* dst, AVFrame* src) = nullptr;
 
   int (*av_frame_get_buffer_)(AVFrame *frame, int align) = nullptr;
 

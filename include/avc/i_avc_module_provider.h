@@ -109,6 +109,8 @@ struct IAvcModuleProvider {
   virtual int av_new_packet(AVPacket *pkt, int size) = 0;
   virtual void av_packet_ref(AVPacket *dst, const AVPacket* src) = 0;
   virtual void av_packet_unref(AVPacket *pkt) = 0;
+  virtual void av_packet_rescale_ts(AVPacket* pkt, cmf::MediaTimeBase tb_src, cmf::MediaTimeBase tb_dst) = 0;
+
   virtual AVCodecContext *avcodec_alloc_context3(const AVCodec *codec) = 0;
   virtual void avcodec_free_context(AVCodecContext **avctx) = 0;
   virtual AVCodec *avcodec_find_decoder(int /*enum AVCodecID*/ id) = 0;
@@ -135,6 +137,9 @@ struct IAvcModuleProvider {
   // avformat functions
   virtual unsigned avformat_version() = 0;
 
+  virtual cmf::MediaTimeBase av_guess_sample_aspect_ratio(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = 0;
+  virtual cmf::MediaTimeBase av_guess_frame_rate(AVFormatContext* ctx, AVStream* stream, AVFrame* frame) = 0;
+
   virtual void av_dump_format(AVFormatContext *ic, int index, const char *url,
                               int is_output) = 0;
   virtual AVInputFormat *av_find_input_format(const char *short_name) = 0;
@@ -147,6 +152,10 @@ struct IAvcModuleProvider {
   virtual int av_read_pause(AVFormatContext *s) = 0;
 
   virtual void av_register_all(void) = 0;
+
+  virtual int avformat_seek_file(AVFormatContext* s, int stream_index,
+    int64_t min_ts, int64_t ts, int64_t max_ts, int flags) = 0;
+
   virtual int avformat_flush(AVFormatContext *s) = 0;
   virtual int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp,
                             int flags) = 0;
@@ -209,6 +218,8 @@ struct IAvcModuleProvider {
   virtual int64_t av_rescale_rnd(int64_t a, int64_t b, int64_t c,
                                  int /*enum AVRounding*/ rnd) = 0;
 
+  virtual int64_t av_rescale_q_rnd(int64_t a, AVRational bq, AVRational cq, int /*enum AVRounding*/ rnd) = 0;
+
   virtual int av_samples_alloc(uint8_t **audio_data, int *linesize, int nb_channels,
                                int nb_samples, int /*enum AVSampleFormat*/ sample_fmt,
                                int /*(0 = default, 1 = no alignment)*/ align) = 0;
@@ -269,8 +280,12 @@ struct IAvcModuleProvider {
   virtual AVFrame *av_frame_alloc(void) = 0;
   virtual void av_frame_free(AVFrame **frame) = 0;
 
+  virtual int av_frame_ref(AVFrame* dst, const AVFrame* src) = 0;
+  virtual int av_frame_replace(AVFrame* dst, const AVFrame* src) = 0;
+  virtual AVFrame* av_frame_clone(const AVFrame* src) = 0;
+  virtual void av_frame_unref(AVFrame* frame) = 0;
+  virtual void av_frame_move_ref(AVFrame* dst, AVFrame* src) = 0;
   virtual int av_frame_get_buffer(AVFrame *frame, int align) = 0;
-
   virtual int av_frame_get_channels(const AVFrame *frame) = 0;
   virtual void av_frame_set_channels(AVFrame *frame, int val) = 0;
   virtual int64_t av_frame_get_pkt_duration(const AVFrame *frame) = 0;
