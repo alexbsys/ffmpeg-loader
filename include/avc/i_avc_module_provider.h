@@ -147,6 +147,9 @@ struct IAvcModuleProvider {
   virtual AVOutputFormat *av_guess_format(const char *short_name, const char *filename,
                                           const char *mime_type) = 0;
 
+  virtual int av_guess_codec(AVOutputFormat *fmt, const char *short_name, const char *filename,
+                            const char *mime_type, int /*enum AVMediaType*/ type) = 0;
+
   virtual int av_read_frame(AVFormatContext *s, AVPacket *pkt) = 0;
   virtual int av_read_play(AVFormatContext *s) = 0;
   virtual int av_read_pause(AVFormatContext *s) = 0;

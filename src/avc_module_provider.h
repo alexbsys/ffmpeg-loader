@@ -153,6 +153,9 @@ public:
   AVOutputFormat *av_guess_format(const char *short_name, const char *filename,
                                   const char *mime_type) override;
 
+  int av_guess_codec(AVOutputFormat *fmt, const char *short_name, const char *filename,
+                    const char *mime_type, int /*enum AVMediaType*/ type) override;
+
   int av_read_frame(AVFormatContext *s, AVPacket *pkt) override;
   int av_read_play(AVFormatContext *s) override;
   int av_read_pause(AVFormatContext *s) override;
@@ -466,6 +469,9 @@ public:
 
   AVOutputFormat *(*av_guess_format_)(const char *short_name, const char *filename,
                                       const char *mime_type) = nullptr;
+
+  int (*av_guess_codec_)(AVOutputFormat *fmt, const char *short_name, const char *filename,
+                         const char *mime_type, int /*enum AVMediaType*/ type) = nullptr;
 
   int (*av_read_frame_)(AVFormatContext *s, AVPacket *pkt) = nullptr;
   int (*av_read_play_)(AVFormatContext *s) = nullptr;

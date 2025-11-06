@@ -143,6 +143,9 @@ void AvcModuleProvider::LoadStatically() {
   av_guess_format_ =
     reinterpret_cast<AVOutputFormat *(*)(const char *short_name, const char *filename,
                                           const char *mime_type)>(&::av_guess_format);
+  av_guess_codec_ =
+    reinterpret_cast<int (*)(AVOutputFormat *fmt, const char *short_name, const char *filename,
+                             const char *mime_type, int /*enum AVMediaType*/ type)>(&::av_guess_codec);
   Assign(av_read_frame_, &::av_read_frame);
   Assign(av_read_play_, &::av_read_play);
   Assign(av_read_pause_, &::av_read_pause);

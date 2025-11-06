@@ -726,6 +726,7 @@ void AvcModuleProvider::LoadAvFormatFunctions() {
     .LoadProc("av_guess_frame_rate", av_guess_frame_rate_)
     .LoadProc("av_find_input_format", av_find_input_format_)
     .LoadProc("av_guess_format", av_guess_format_)
+    .LoadProc("av_guess_codec", av_guess_codec_)
     .LoadProc("av_read_frame", av_read_frame_)
     .LoadProc("av_read_play", av_read_play_)
     .LoadProc("av_read_pause", av_read_pause_)
@@ -1203,6 +1204,13 @@ AVOutputFormat *AvcModuleProvider::av_guess_format(const char *short_name,
   if (!avformat_handle_) Load();
   AVC_CHECK_AND_CALL(av_guess_format_, "av_guess_format", kAvFormatModuleName);
   return av_guess_format_(short_name, filename, mime_type);
+}
+
+int AvcModuleProvider::av_guess_codec(AVOutputFormat *fmt, const char *short_name, const char *filename,
+                                     const char *mime_type, int /*enum AVMediaType*/ type) {
+  if (!avformat_handle_) Load();
+  AVC_CHECK_AND_CALL(av_guess_codec_, "av_guess_codec", kAvFormatModuleName);
+  return av_guess_codec_(fmt, short_name, filename, mime_type, type);
 }
 
 int AvcModuleProvider::av_read_frame(AVFormatContext *s, AVPacket *pkt) {
