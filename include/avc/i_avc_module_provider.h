@@ -134,6 +134,30 @@ struct IAvcModuleProvider {
   virtual int avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt) = 0;
   virtual void avcodec_register_all() = 0;
 
+  virtual const char *avcodec_configuration(void) = 0;
+  virtual const char *avcodec_license(void) = 0;
+  virtual const AVClass *avcodec_get_class(void) = 0;
+  virtual void avsubtitle_free(AVSubtitle *sub) = 0;
+  virtual int avcodec_align_dimensions(AVCodecContext *s, int *width, int *height) = 0;
+  virtual int avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height, int linesize_align[8]) = 0;
+  virtual int avcodec_enum_to_chroma_pos(int *xpos, int *ypos, int /*enum AVChromaLocation*/ pos) = 0;
+  virtual int avcodec_chroma_pos_to_enum(int *xpos, int *ypos, int /*enum AVChromaLocation*/ pos) = 0;
+  virtual int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub, int *got_sub_ptr, const AVPacket *avpkt) = 0;
+  virtual int avcodec_get_hw_frames_parameters(AVCodecContext *avctx, AVBufferRef *device_ref, const char *hw_pix_fmt, AVBufferRef **out_frames_ref) = 0;
+  virtual AVCodecParserContext *av_parser_init(int /*enum AVCodecID*/ codec_id) = 0;
+  virtual const AVCodecParser *av_parser_iterate(void **opaque) = 0;
+  virtual int av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx, uint8_t **poutbuf, int *poutbuf_size, const uint8_t *buf, int buf_size, int64_t pts, int64_t dts, int64_t pos) = 0;
+  virtual void av_parser_close(AVCodecParserContext *s) = 0;
+  virtual int avcodec_encode_subtitle(AVCodecContext *avctx, uint8_t *buf, int buf_size, const AVSubtitle *sub) = 0;
+  virtual unsigned int avcodec_pix_fmt_to_codec_tag(const AVPixFmtDescriptor *pix_fmt) = 0;
+  virtual int /*enum AVPixelFormat*/ avcodec_find_best_pix_fmt_of_list(const int /*enum AVPixelFormat*/ *pix_fmt_list, int /*enum AVPixelFormat*/ src_pix_fmt, int has_alpha, int *loss_ptr) = 0;
+  virtual int /*enum AVPixelFormat*/ avcodec_default_get_format(struct AVCodecContext *s, const int /*enum AVPixelFormat*/ *fmt) = 0;
+  virtual int avcodec_fill_audio_frame(AVFrame *frame, int nb_channels, int /*enum AVSampleFormat*/ sample_fmt, const uint8_t *buf, int buf_size, int align) = 0;
+  virtual int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes) = 0;
+  virtual void av_fast_padded_malloc(void *ptr, unsigned int *size, size_t min_size) = 0;
+  virtual void av_fast_padded_mallocz(void *ptr, unsigned int *size, size_t min_size) = 0;
+  virtual int avcodec_is_open(AVCodecContext *s) = 0;
+
   // avformat functions
   virtual unsigned avformat_version() = 0;
 

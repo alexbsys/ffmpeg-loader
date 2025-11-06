@@ -701,6 +701,29 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
     .LoadProc("avcodec_register_all", avcodec_register_all_)
     .LoadProc("av_codec_iterate", av_codec_iterate_)
     .LoadProc("avcodec_get_hw_config", avcodec_get_hw_config_)
+    .LoadProc("avcodec_configuration", avcodec_configuration_)
+    .LoadProc("avcodec_license", avcodec_license_)
+    .LoadProc("avcodec_get_class", avcodec_get_class_)
+    .LoadProc("avsubtitle_free", avsubtitle_free_)
+    .LoadProc("avcodec_align_dimensions", avcodec_align_dimensions_)
+    .LoadProc("avcodec_align_dimensions2", avcodec_align_dimensions2_)
+    .LoadProc("avcodec_enum_to_chroma_pos", avcodec_enum_to_chroma_pos_)
+    .LoadProc("avcodec_chroma_pos_to_enum", avcodec_chroma_pos_to_enum_)
+    .LoadProc("avcodec_decode_subtitle2", avcodec_decode_subtitle2_)
+    .LoadProc("avcodec_get_hw_frames_parameters", avcodec_get_hw_frames_parameters_)
+    .LoadProc("av_parser_init", av_parser_init_)
+    .LoadProc("av_parser_iterate", av_parser_iterate_)
+    .LoadProc("av_parser_parse2", av_parser_parse2_)
+    .LoadProc("av_parser_close", av_parser_close_)
+    .LoadProc("avcodec_encode_subtitle", avcodec_encode_subtitle_)
+    .LoadProc("avcodec_pix_fmt_to_codec_tag", avcodec_pix_fmt_to_codec_tag_)
+    .LoadProc("avcodec_find_best_pix_fmt_of_list", avcodec_find_best_pix_fmt_of_list_)
+    .LoadProc("avcodec_default_get_format", avcodec_default_get_format_)
+    .LoadProc("avcodec_fill_audio_frame", avcodec_fill_audio_frame_)
+    .LoadProc("av_get_audio_frame_duration", av_get_audio_frame_duration_)
+    .LoadProc("av_fast_padded_malloc", av_fast_padded_malloc_)
+    .LoadProc("av_fast_padded_mallocz", av_fast_padded_mallocz_)
+    .LoadProc("avcodec_is_open", avcodec_is_open_)
     ;
 
   if (avcodec_loader.HasErrors()) {
@@ -1168,6 +1191,144 @@ void AvcModuleProvider::avcodec_register_all() {
   if (!avcodec_handle_) Load();
   if (avcodec_register_all_)
     avcodec_register_all_();
+}
+
+const char *AvcModuleProvider::avcodec_configuration(void) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_configuration_, "avcodec_configuration", kAvCodecModuleName);
+  return avcodec_configuration_();
+}
+
+const char *AvcModuleProvider::avcodec_license(void) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_license_, "avcodec_license", kAvCodecModuleName);
+  return avcodec_license_();
+}
+
+const AVClass *AvcModuleProvider::avcodec_get_class(void) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_get_class_, "avcodec_get_class", kAvCodecModuleName);
+  return avcodec_get_class_();
+}
+
+void AvcModuleProvider::avsubtitle_free(AVSubtitle *sub) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avsubtitle_free_, "avsubtitle_free", kAvCodecModuleName);
+  avsubtitle_free_(sub);
+}
+
+int AvcModuleProvider::avcodec_align_dimensions(AVCodecContext *s, int *width, int *height) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_align_dimensions_, "avcodec_align_dimensions", kAvCodecModuleName);
+  return avcodec_align_dimensions_(s, width, height);
+}
+
+int AvcModuleProvider::avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height, int linesize_align[8]) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_align_dimensions2_, "avcodec_align_dimensions2", kAvCodecModuleName);
+  return avcodec_align_dimensions2_(s, width, height, linesize_align);
+}
+
+int AvcModuleProvider::avcodec_enum_to_chroma_pos(int *xpos, int *ypos, int /*enum AVChromaLocation*/ pos) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_enum_to_chroma_pos_, "avcodec_enum_to_chroma_pos", kAvCodecModuleName);
+  return avcodec_enum_to_chroma_pos_(xpos, ypos, pos);
+}
+
+int AvcModuleProvider::avcodec_chroma_pos_to_enum(int *xpos, int *ypos, int /*enum AVChromaLocation*/ pos) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_chroma_pos_to_enum_, "avcodec_chroma_pos_to_enum", kAvCodecModuleName);
+  return avcodec_chroma_pos_to_enum_(xpos, ypos, pos);
+}
+
+int AvcModuleProvider::avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub, int *got_sub_ptr, const AVPacket *avpkt) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_decode_subtitle2_, "avcodec_decode_subtitle2", kAvCodecModuleName);
+  return avcodec_decode_subtitle2_(avctx, sub, got_sub_ptr, avpkt);
+}
+
+int AvcModuleProvider::avcodec_get_hw_frames_parameters(AVCodecContext *avctx, AVBufferRef *device_ref, const char *hw_pix_fmt, AVBufferRef **out_frames_ref) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_get_hw_frames_parameters_, "avcodec_get_hw_frames_parameters", kAvCodecModuleName);
+  return avcodec_get_hw_frames_parameters_(avctx, device_ref, hw_pix_fmt, out_frames_ref);
+}
+
+AVCodecParserContext *AvcModuleProvider::av_parser_init(int /*enum AVCodecID*/ codec_id) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_parser_init_, "av_parser_init", kAvCodecModuleName);
+  return av_parser_init_(codec_id);
+}
+
+const AVCodecParser *AvcModuleProvider::av_parser_iterate(void **opaque) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_parser_iterate_, "av_parser_iterate", kAvCodecModuleName);
+  return av_parser_iterate_(opaque);
+}
+
+int AvcModuleProvider::av_parser_parse2(AVCodecParserContext *s, AVCodecContext *avctx, uint8_t **poutbuf, int *poutbuf_size, const uint8_t *buf, int buf_size, int64_t pts, int64_t dts, int64_t pos) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_parser_parse2_, "av_parser_parse2", kAvCodecModuleName);
+  return av_parser_parse2_(s, avctx, poutbuf, poutbuf_size, buf, buf_size, pts, dts, pos);
+}
+
+void AvcModuleProvider::av_parser_close(AVCodecParserContext *s) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_parser_close_, "av_parser_close", kAvCodecModuleName);
+  av_parser_close_(s);
+}
+
+int AvcModuleProvider::avcodec_encode_subtitle(AVCodecContext *avctx, uint8_t *buf, int buf_size, const AVSubtitle *sub) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_encode_subtitle_, "avcodec_encode_subtitle", kAvCodecModuleName);
+  return avcodec_encode_subtitle_(avctx, buf, buf_size, sub);
+}
+
+unsigned int AvcModuleProvider::avcodec_pix_fmt_to_codec_tag(const AVPixFmtDescriptor *pix_fmt) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_pix_fmt_to_codec_tag_, "avcodec_pix_fmt_to_codec_tag", kAvCodecModuleName);
+  return avcodec_pix_fmt_to_codec_tag_(pix_fmt);
+}
+
+int AvcModuleProvider::avcodec_find_best_pix_fmt_of_list(const int /*enum AVPixelFormat*/ *pix_fmt_list, int /*enum AVPixelFormat*/ src_pix_fmt, int has_alpha, int *loss_ptr) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_find_best_pix_fmt_of_list_, "avcodec_find_best_pix_fmt_of_list", kAvCodecModuleName);
+  return avcodec_find_best_pix_fmt_of_list_(pix_fmt_list, src_pix_fmt, has_alpha, loss_ptr);
+}
+
+int AvcModuleProvider::avcodec_default_get_format(struct AVCodecContext *s, const int /*enum AVPixelFormat*/ *fmt) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_default_get_format_, "avcodec_default_get_format", kAvCodecModuleName);
+  return avcodec_default_get_format_(s, fmt);
+}
+
+int AvcModuleProvider::avcodec_fill_audio_frame(AVFrame *frame, int nb_channels, int /*enum AVSampleFormat*/ sample_fmt, const uint8_t *buf, int buf_size, int align) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_fill_audio_frame_, "avcodec_fill_audio_frame", kAvCodecModuleName);
+  return avcodec_fill_audio_frame_(frame, nb_channels, sample_fmt, buf, buf_size, align);
+}
+
+int AvcModuleProvider::av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_get_audio_frame_duration_, "av_get_audio_frame_duration", kAvCodecModuleName);
+  return av_get_audio_frame_duration_(avctx, frame_bytes);
+}
+
+void AvcModuleProvider::av_fast_padded_malloc(void *ptr, unsigned int *size, size_t min_size) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_fast_padded_malloc_, "av_fast_padded_malloc", kAvCodecModuleName);
+  av_fast_padded_malloc_(ptr, size, min_size);
+}
+
+void AvcModuleProvider::av_fast_padded_mallocz(void *ptr, unsigned int *size, size_t min_size) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(av_fast_padded_mallocz_, "av_fast_padded_mallocz", kAvCodecModuleName);
+  av_fast_padded_mallocz_(ptr, size, min_size);
+}
+
+int AvcModuleProvider::avcodec_is_open(AVCodecContext *s) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_is_open_, "avcodec_is_open", kAvCodecModuleName);
+  return avcodec_is_open_(s);
 }
 
 const AVCodec *AvcModuleProvider::av_codec_iterate(void **opaque) {

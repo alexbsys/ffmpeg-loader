@@ -184,6 +184,37 @@ void AvcModuleProvider::LoadStatically() {
   avcodec_register_all_ = nullptr;
 #endif //AVC_STATIC_HAS_AVCODEC_REGISTER_ALL
 
+  avcodec_configuration_ = &::avcodec_configuration;
+  avcodec_license_ = &::avcodec_license;
+  avcodec_get_class_ = &::avcodec_get_class;
+  Assign(avsubtitle_free_, &::avsubtitle_free);
+  Assign(avcodec_align_dimensions_, &::avcodec_align_dimensions);
+  Assign(avcodec_align_dimensions2_, &::avcodec_align_dimensions2);
+  Assign(avcodec_enum_to_chroma_pos_, &::avcodec_enum_to_chroma_pos);
+  Assign(avcodec_chroma_pos_to_enum_, &::avcodec_chroma_pos_to_enum);
+  Assign(avcodec_decode_subtitle2_, &::avcodec_decode_subtitle2);
+  Assign(avcodec_get_hw_frames_parameters_, &::avcodec_get_hw_frames_parameters);
+  av_parser_init_ =
+    reinterpret_cast<AVCodecParserContext *(*)(int /*enum AVCodecID*/ codec_id)>(&::av_parser_init);
+  av_parser_iterate_ =
+    reinterpret_cast<const AVCodecParser *(*)(void **opaque)>(&::av_parser_iterate);
+  Assign(av_parser_parse2_, &::av_parser_parse2);
+  Assign(av_parser_close_, &::av_parser_close);
+  Assign(avcodec_encode_subtitle_, &::avcodec_encode_subtitle);
+  avcodec_pix_fmt_to_codec_tag_ =
+    reinterpret_cast<unsigned int (*)(const AVPixFmtDescriptor *pix_fmt)>(&::avcodec_pix_fmt_to_codec_tag);
+  avcodec_find_best_pix_fmt_of_list_ =
+    reinterpret_cast<int (*)(const int /*enum AVPixelFormat*/ *pix_fmt_list, int /*enum AVPixelFormat*/ src_pix_fmt, int has_alpha, int *loss_ptr)>(&::avcodec_find_best_pix_fmt_of_list);
+  avcodec_default_get_format_ =
+    reinterpret_cast<int (*)(struct AVCodecContext *s, const int /*enum AVPixelFormat*/ *fmt)>(&::avcodec_default_get_format);
+  Assign(avcodec_fill_audio_frame_, &::avcodec_fill_audio_frame);
+  Assign(av_get_audio_frame_duration_, &::av_get_audio_frame_duration);
+  av_fast_padded_malloc_ =
+    reinterpret_cast<void (*)(void *ptr, unsigned int *size, size_t min_size)>(&::av_fast_padded_malloc);
+  av_fast_padded_mallocz_ =
+    reinterpret_cast<void (*)(void *ptr, unsigned int *size, size_t min_size)>(&::av_fast_padded_mallocz);
+  Assign(avcodec_is_open_, &::avcodec_is_open);
+
   Assign(avformat_flush_, &::avformat_flush);
   Assign(av_seek_frame_, &::av_seek_frame);
   Assign(av_write_frame_, &::av_write_frame);
