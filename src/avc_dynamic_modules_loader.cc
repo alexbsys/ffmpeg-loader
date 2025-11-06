@@ -48,7 +48,7 @@ static std::string do_readlink(std::string const& path) {
   char buff[1024];
   memset(buff, 0, sizeof(buff));
   ssize_t len = ::readlink(path.c_str(), buff, sizeof(buff) - 1);
-  if (len != -1) {
+  if (len != -1 && len < static_cast<ssize_t>(sizeof(buff) - 1)) {
     buff[len] = '\0';
     return std::string(buff);
   }
@@ -67,9 +67,16 @@ static std::string get_path_separator() {
 static std::string get_process_file_path() {
 #ifdef _WIN32
   char file_name[MAX_PATH];
-  GetModuleFileNameA(NULL, file_name, sizeof(file_name));
+  DWORD result = GetModuleFileNameA(NULL, file_name, sizeof(file_name));
+  if (result == 0 || result >= sizeof(file_name)) {
+    // Failed to get module path or path too long
+    return std::string();
+  }
   std::string path(file_name);
   size_t last_delimiter = path.find_last_of(get_path_separator());
+  if (last_delimiter == std::string::npos) {
+    return std::string();
+  }
   return path.substr(0, last_delimiter);
 #else  // _WIN32
 
@@ -124,6 +131,9 @@ void* AvcDynamicModulesLoader::GetProcAddress(void* module_handle, const std::st
 }
 
 void AvcDynamicModulesLoader::UnloadModule(void* module_handle) {
+  if (!module_handle)
+    return;
+
 #ifdef _WIN32
     FreeLibrary(reinterpret_cast<HMODULE>(module_handle));
 #else //_WIN32
