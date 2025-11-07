@@ -34,6 +34,10 @@ struct AVCodecContext;
 struct AVPacket;
 struct AVCodec;
 struct AVCodecHWConfig;
+struct AVSubtitle;
+struct AVClass;
+struct AVCodecParserContext;
+struct AVCodecParser;
 
 // avformat structures definition
 struct AVRational { int num; int den; };
@@ -45,6 +49,7 @@ struct AVIOContext;
 struct AVIOInterruptCB;
 struct AVCPBProperties;
 struct AVChannelLayout;
+struct AVIndexEntry;
 
 // avutil structures definition
 struct AVHWFramesConstraints;
