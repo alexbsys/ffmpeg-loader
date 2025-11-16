@@ -29,7 +29,6 @@
 #endif //DEBUG_PRINT
 
 #include <iostream>
-#include <filesystem>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -38,10 +37,18 @@
 #include <cstdio>
 #endif //DEBUG_PRINT
 
+// Platform-specific includes for directory iteration (C++14 compatible)
+#ifdef _WIN32
+  #include <windows.h>
+#else
+  #include <dirent.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <unistd.h>
+#endif
+
 namespace avc {
 namespace detail {
-
-namespace fs = std::filesystem;
 
 class AvcDynamicLibraryFinder {
 public:
@@ -54,11 +61,62 @@ public:
     printf("AVCLOADER: Search module '%s' in directory '%s'\n", module_name.c_str(), directory_path.c_str());
 #endif //DEBUG_PRINT
 
-    try {
-      for (const auto& entry : fs::directory_iterator(directory_path)) {
-        if (entry.is_regular_file()) {
-          std::string filename = entry.path().filename().string();
+#ifdef _WIN32
+    // Windows implementation using FindFirstFile/FindNextFile
+    std::string search_path = directory_path;
+    if (!search_path.empty() && search_path.back() != '\\' && search_path.back() != '/') {
+      search_path += "\\";
+    }
+    search_path += "*";
 
+    WIN32_FIND_DATAA find_data;
+    HANDLE hFind = FindFirstFileA(search_path.c_str(), &find_data);
+
+    if (hFind != INVALID_HANDLE_VALUE) {
+      do {
+        // Skip directories
+        if (!(find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+          std::string filename = find_data.cFileName;
+          
+          if (MatchesPattern(filename, module_name)) {
+            results.push_back(filename);
+#if DEBUG_PRINT
+            printf("AVCLOADER: Found matched module '%s' in directory '%s'\n", filename.c_str(), directory_path.c_str());
+#endif //DEBUG_PRINT
+          }
+        }
+      } while (FindNextFileA(hFind, &find_data) != 0);
+      
+      FindClose(hFind);
+    }
+#if DEBUG_PRINT
+    else {
+      printf("AVCLOADER: Cannot find path '%s'\n", directory_path.c_str());
+    }
+#endif //DEBUG_PRINT
+
+#else
+    // Unix/Linux/macOS implementation using opendir/readdir
+    DIR* dir = opendir(directory_path.c_str());
+    if (dir != nullptr) {
+      struct dirent* entry;
+      while ((entry = readdir(dir)) != nullptr) {
+        // Skip "." and ".."
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+          continue;
+        }
+
+        // Check if it's a regular file
+        std::string full_path = directory_path;
+        if (!full_path.empty() && full_path.back() != '/') {
+          full_path += "/";
+        }
+        full_path += entry->d_name;
+
+        struct stat st;
+        if (stat(full_path.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+          std::string filename = entry->d_name;
+          
           if (MatchesPattern(filename, module_name)) {
             results.push_back(filename);
 #if DEBUG_PRINT
@@ -67,13 +125,14 @@ public:
           }
         }
       }
+      closedir(dir);
     }
-    catch (const fs::filesystem_error&) {
-      // no such directory
 #if DEBUG_PRINT
+    else {
       printf("AVCLOADER: Cannot find path '%s'\n", directory_path.c_str());
-#endif //DEBUG_PRINT
     }
+#endif //DEBUG_PRINT
+#endif
 
 #if DEBUG_PRINT
     printf("AVCLOADER: Found %d matched modules in directory '%s'\n", static_cast<int>(results.size()), directory_path.c_str());
