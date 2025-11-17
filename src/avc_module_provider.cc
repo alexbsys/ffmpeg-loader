@@ -665,6 +665,7 @@ void AvcModuleProvider::LoadAvCodecFunctions() {
   avcodec_loader
     .SetModuleHandle(avcodec_handle_)
     .LoadProc("avcodec_version", avcodec_version_)
+    .LoadProc("avcodec_close", avcodec_close_)
     .LoadProc("avcodec_encode_video2", avcodec_encode_video2_)
     .LoadProc("av_get_codec_tag_string", av_get_codec_tag_string_)
     .LoadProc("avcodec_parameters_copy", avcodec_parameters_copy_)
@@ -985,6 +986,12 @@ unsigned AvcModuleProvider::avcodec_version() {
   if (!avcodec_handle_) Load();
   AVC_CHECK_AND_CALL(avcodec_version_, "avcodec_version", kAvCodecModuleName);
   return avcodec_version_();
+}
+
+int AvcModuleProvider::avcodec_close(AVCodecContext* avctx) {
+  if (!avcodec_handle_) Load();
+  AVC_CHECK_AND_CALL(avcodec_close_, "avcodec_close", kAvCodecModuleName);
+  return avcodec_close_(avctx);
 }
 
 int AvcModuleProvider::avcodec_encode_video2(AVCodecContext *avctx, AVPacket *avpkt,

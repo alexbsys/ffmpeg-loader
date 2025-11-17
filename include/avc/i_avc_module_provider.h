@@ -86,6 +86,8 @@ struct IAvcModuleProvider {
   // avcodec
   virtual unsigned avcodec_version() = 0;
 
+  virtual int avcodec_close(AVCodecContext* avctx) = 0;
+
   virtual int avcodec_encode_video2(AVCodecContext *avctx, AVPacket *avpkt,
                                     const AVFrame *frame, int *got_packet_ptr) = 0;
 
