@@ -92,6 +92,8 @@ public:
   // avcodec
   unsigned avcodec_version() override;
 
+  int avcodec_close(AVCodecContext* avctx) override;
+
   int avcodec_encode_video2(AVCodecContext *avctx, AVPacket *avpkt, const AVFrame *frame,
                             int *got_packet_ptr) override;
 
@@ -478,6 +480,7 @@ public:
   // avcodec
   unsigned (*avcodec_version_)(void) = nullptr;
 
+  int (*avcodec_close_)(AVCodecContext* avctx) = nullptr;
   int (*avcodec_encode_video2_)(AVCodecContext *avctx, AVPacket *avpkt,
                                 const AVFrame *frame, int *got_packet_ptr) = nullptr;
 
