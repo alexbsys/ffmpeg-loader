@@ -895,6 +895,13 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("av_get_channel_name", av_get_channel_name_)
     .LoadProc("av_get_channel_description", av_get_channel_description_)
     .LoadProc("av_get_standard_channel_layout", av_get_standard_channel_layout_)
+    .LoadProc("av_channel_layout_from_mask", av_channel_layout_from_mask_)
+    .LoadProc("av_channel_layout_from_string", av_channel_layout_from_string_)
+    .LoadProc("av_channel_layout_default", av_channel_layout_default_)
+    .LoadProc("av_channel_layout_standard", av_channel_layout_standard_)
+    .LoadProc("av_channel_layout_uninit", av_channel_layout_uninit_)
+    .LoadProc("av_channel_layout_copy", av_channel_layout_copy_)
+    .LoadProc("av_channel_layout_describe", av_channel_layout_describe_)
     ;
 
   if (avutil_loader.HasErrors()) {
@@ -2257,6 +2264,70 @@ int AvcModuleProvider::av_get_standard_channel_layout(unsigned index, uint64_t *
   AVC_CHECK_AND_CALL(av_get_standard_channel_layout_, "av_get_standard_channel_layout", kAvUtilModuleName);
   return av_get_standard_channel_layout_(index, layout, name);
 }
+
+int AvcModuleProvider::av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_from_mask_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_from_mask_, "av_channel_layout_from_mask", kAvUtilModuleName);
+  return av_channel_layout_from_mask_(channel_layout, mask);
+}
+
+int AvcModuleProvider::av_channel_layout_from_string(AVChannelLayout* channel_layout, const char* str) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_from_string_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_from_string_, "av_channel_layout_from_string", kAvUtilModuleName);
+  return av_channel_layout_from_string_(channel_layout, str);
+}
+
+void AvcModuleProvider::av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_default_)
+    return;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_default_, "av_channel_layout_default_", kAvUtilModuleName);
+  return av_channel_layout_default_(ch_layout, nb_channels);
+}
+
+const AVChannelLayout* AvcModuleProvider::av_channel_layout_standard(void** opaque) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_standard_)
+    return nullptr;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_standard_, "av_channel_layout_standard", kAvUtilModuleName);
+  return av_channel_layout_standard_(opaque);
+}
+
+void AvcModuleProvider::av_channel_layout_uninit(AVChannelLayout* channel_layout) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_uninit_)
+    return;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_uninit_, "av_channel_layout_uninit", kAvUtilModuleName);
+  return av_channel_layout_uninit_(channel_layout);
+}
+
+int AvcModuleProvider::av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_copy_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_copy_, "av_channel_layout_copy", kAvUtilModuleName);
+  return av_channel_layout_copy_(dst, src);
+}
+
+int AvcModuleProvider::av_channel_layout_describe(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_describe_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_describe_, "av_channel_layout_describe", kAvUtilModuleName);
+  return av_channel_layout_describe_(channel_layout, buf, buf_size);
+}
+
 
 // swscale
 unsigned AvcModuleProvider::swscale_version() {

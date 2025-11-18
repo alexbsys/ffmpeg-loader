@@ -435,6 +435,17 @@ struct IAvcModuleProvider {
   virtual int av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                              const char **name) = 0;
 
+  // new api
+  virtual int av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) = 0;
+  virtual int av_channel_layout_from_string(AVChannelLayout* channel_layout,
+    const char* str) = 0;
+  virtual void av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) = 0;
+  virtual const AVChannelLayout* av_channel_layout_standard(void** opaque) = 0;
+  virtual void av_channel_layout_uninit(AVChannelLayout* channel_layout) = 0;
+  virtual int av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) = 0;
+  virtual int av_channel_layout_describe(const AVChannelLayout* channel_layout,
+    char* buf, size_t buf_size) = 0;
+
   // swscale
   virtual unsigned swscale_version() = 0;
 

@@ -432,6 +432,14 @@ public:
   int av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                      const char **name) override;
 
+  int av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) override;
+  int av_channel_layout_from_string(AVChannelLayout* channel_layout, const char* str) override;
+  void av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) override;
+  const AVChannelLayout* av_channel_layout_standard(void** opaque) override;
+  void av_channel_layout_uninit(AVChannelLayout* channel_layout) override;
+  int av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) override;
+  int av_channel_layout_describe(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) override;
+
   // swscale
   unsigned swscale_version() override;
 
@@ -797,6 +805,14 @@ public:
   const char *(*av_get_channel_description_)(uint64_t channel) = nullptr;
   int (*av_get_standard_channel_layout_)(unsigned index, uint64_t *layout,
                                          const char **name) = nullptr;
+
+  int (*av_channel_layout_from_mask_)(AVChannelLayout* channel_layout, uint64_t mask) = nullptr;
+  int (*av_channel_layout_from_string_)(AVChannelLayout* channel_layout, const char* str) = nullptr;
+  void (*av_channel_layout_default_)(AVChannelLayout* ch_layout, int nb_channels) = nullptr;
+  const AVChannelLayout* (*av_channel_layout_standard_)(void** opaque) = nullptr;
+  void (*av_channel_layout_uninit_)(AVChannelLayout* channel_layout) = nullptr;
+  int (*av_channel_layout_copy_)(AVChannelLayout* dst, const AVChannelLayout* src) = nullptr;
+  int (*av_channel_layout_describe_)(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) = nullptr;
 
   // swscale
   unsigned (*swscale_version_)(void) = nullptr;

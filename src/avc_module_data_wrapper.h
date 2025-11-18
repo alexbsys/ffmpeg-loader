@@ -353,6 +353,21 @@ public:
   int AVPixFmtDescriptorGetNbComponents(const AVPixFmtDescriptor* descr) const override;
   uint64_t AVPixFmtDescriptorGetFlags(const AVPixFmtDescriptor* descr) const override;
 
+
+  AVChannelLayout* AVChannelLayoutAllocate() const override;
+  void AVChannelLayoutFree(AVChannelLayout* layout) const override;
+
+  int AVChannelLayoutGetOrder(const AVChannelLayout* layout) const override;
+  int AVChannelLayoutGetNbChannels(const AVChannelLayout* layout) const override;
+  void* AVChannelLayoutGetOpaque(const AVChannelLayout* layout) const override;
+  uint64_t AVChannelLayoutGetMask(const AVChannelLayout* layout) const override;
+  const AVChannelCustom* AVChannelLayoutGetMap(const AVChannelLayout* layout) const override;
+
+  void AVChannelLayoutSetOrder(AVChannelLayout* layout, int order) const override;
+  void AVChannelLayoutSetNbChannels(AVChannelLayout* layout, int nb_channels) const override;
+  void AVChannelLayoutSetOpaque(AVChannelLayout* layout, void* opaque) const override;
+  void AVChannelLayoutSetMask(AVChannelLayout* layout, uint64_t mask) const override;
+
 private:
   std::weak_ptr<IAvcModuleProvider> module_provider_;
 };

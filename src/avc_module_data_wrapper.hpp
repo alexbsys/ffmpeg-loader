@@ -1694,6 +1694,99 @@ uint64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPixFmtDescriptorGetFlags(const AVP
   return pixdesc_d->flags;
 }
 
+
+AVChannelLayout* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutAllocate() const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto provider = module_provider_.lock();
+  if (provider) {
+    AVChannelLayout* layout = reinterpret_cast<AVChannelLayout*>(provider->av_malloc(sizeof(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout)));
+    return layout;
+  }
+#endif
+  return nullptr;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutFree(AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto provider = module_provider_.lock();
+  if (provider)
+    provider->av_free(layout);
+#endif
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutGetOrder(const AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  return layout_d->order;
+#else
+  return 0;
+#endif
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutGetNbChannels(const AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  return layout_d->nb_channels;
+#else
+  return 0;
+#endif
+}
+
+void* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutGetOpaque(const AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  return layout_d->opaque;
+#else
+  return nullptr;
+#endif
+}
+
+uint64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutGetMask(const AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  return layout_d->u.mask;
+#else
+  return 0;
+#endif
+}
+
+const AVChannelCustom* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutGetMap(const AVChannelLayout* layout) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  return (const avc::AVChannelCustom*)layout_d->u.map;
+#else
+  return nullptr;
+#endif
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutSetOrder(AVChannelLayout* layout, int order) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  layout_d->order = static_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelOrder>(order);
+#endif
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutSetNbChannels(AVChannelLayout* layout, int nb_channels) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  layout_d->nb_channels = nb_channels;
+#endif
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutSetOpaque(AVChannelLayout* layout, void* opaque) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  layout_d->opaque = opaque;
+#endif
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutSetMask(AVChannelLayout* layout, uint64_t mask) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto layout_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVChannelLayout*>(layout);
+  layout_d->u.mask = mask;
+#endif
+}
+
 ////
 // Factory implementation
 

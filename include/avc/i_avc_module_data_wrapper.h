@@ -49,6 +49,7 @@ struct AVIOContext;
 struct AVIOInterruptCB;
 struct AVCPBProperties;
 struct AVChannelLayout;
+struct AVChannelCustom;
 struct AVIndexEntry;
 
 // avutil structures definition
@@ -390,6 +391,21 @@ struct IAvcModuleDataWrapper {
   virtual const char* AVPixFmtDescriptorGetAlias(const AVPixFmtDescriptor* descr) const = 0;
   virtual int AVPixFmtDescriptorGetNbComponents(const AVPixFmtDescriptor* descr) const = 0;
   virtual uint64_t AVPixFmtDescriptorGetFlags(const AVPixFmtDescriptor* descr) const = 0;
+
+  //AVChannelLayout
+  virtual AVChannelLayout* AVChannelLayoutAllocate() const = 0;
+  virtual void AVChannelLayoutFree(AVChannelLayout* layout) const = 0;
+  virtual int AVChannelLayoutGetOrder(const AVChannelLayout* layout) const = 0;
+  virtual int AVChannelLayoutGetNbChannels(const AVChannelLayout* layout) const = 0;
+  virtual void* AVChannelLayoutGetOpaque(const AVChannelLayout* layout) const = 0;
+  virtual uint64_t AVChannelLayoutGetMask(const AVChannelLayout* layout) const = 0;
+  virtual const AVChannelCustom* AVChannelLayoutGetMap(const AVChannelLayout* layout) const = 0;
+
+  virtual void AVChannelLayoutSetOrder(AVChannelLayout* layout, int order) const = 0;
+  virtual void AVChannelLayoutSetNbChannels(AVChannelLayout* layout, int nb_channels) const = 0;
+  virtual void AVChannelLayoutSetOpaque(AVChannelLayout* layout, void* opaque) const = 0;
+  virtual void AVChannelLayoutSetMask(AVChannelLayout* layout, uint64_t mask) const = 0;
+
 };
 
 }//namespace avc
