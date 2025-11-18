@@ -774,6 +774,15 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetMeCmp(AVCodecContext* c
   codec_context_d->me_cmp = me_cmp;
 }
 
+avc::AVChannelLayout* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetChLayoutPtr(AVCodecContext* codec_context) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  return reinterpret_cast<avc::AVChannelLayout*>(&(codec_context_d->ch_layout));
+#else 
+  return nullptr;
+#endif
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetMeMethod(AVCodecContext* codec_context, int me_method) const {
 #if FF_API_MOTION_EST && ((LIBAVCODEC_VERSION_MAJOR < 57) || (LIBAVCODEC_VERSION_MAJOR == 57 && LIBAVCODEC_VERSION_MINOR <= 107))
   auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);

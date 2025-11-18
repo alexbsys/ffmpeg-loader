@@ -189,6 +189,7 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecContextGetSwPixFmt(const AVCodecContext* codec_context) const = 0;
   virtual float AVCodecContextGetQCompress(const AVCodecContext* codec_context) const = 0;
   virtual void* AVCodecContextGetPrivData(const AVCodecContext* codec_context) const = 0;
+  virtual avc::AVChannelLayout* AVCodecContextGetChLayoutPtr(AVCodecContext* codec_context) const = 0;
 
   virtual void AVCodecContextSetGopSize(AVCodecContext* codec_context, int gop_size) const = 0;
   virtual void AVCodecContextSetKeyintMin(AVCodecContext* codec_context, int keyint_min) const = 0;

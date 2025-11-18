@@ -159,6 +159,7 @@ public:
   void* AVCodecContextGetPrivData(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetDelay(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetStrictStdCompliance(const AVCodecContext* codec_context) const override;
+  avc::AVChannelLayout* AVCodecContextGetChLayoutPtr(AVCodecContext* codec_context) const override;
 
   void AVCodecContextSetGopSize(AVCodecContext* codec_context, int gop_size) const override;
   void AVCodecContextSetKeyintMin(AVCodecContext* codec_context, int keyint_min) const override;
