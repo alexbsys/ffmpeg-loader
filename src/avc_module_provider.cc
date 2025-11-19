@@ -895,6 +895,13 @@ void AvcModuleProvider::LoadAvUtilFunctions() {
     .LoadProc("av_get_channel_name", av_get_channel_name_)
     .LoadProc("av_get_channel_description", av_get_channel_description_)
     .LoadProc("av_get_standard_channel_layout", av_get_standard_channel_layout_)
+    .LoadProc("av_channel_layout_from_mask", av_channel_layout_from_mask_)
+    .LoadProc("av_channel_layout_from_string", av_channel_layout_from_string_)
+    .LoadProc("av_channel_layout_default", av_channel_layout_default_)
+    .LoadProc("av_channel_layout_standard", av_channel_layout_standard_)
+    .LoadProc("av_channel_layout_uninit", av_channel_layout_uninit_)
+    .LoadProc("av_channel_layout_copy", av_channel_layout_copy_)
+    .LoadProc("av_channel_layout_describe", av_channel_layout_describe_)
     ;
 
   if (avutil_loader.HasErrors()) {
@@ -945,6 +952,15 @@ void AvcModuleProvider::LoadSwResampleFuctions() {
     .LoadProc("swr_close", swr_close_)
     .LoadProc("swr_convert", swr_convert_)
     .LoadProc("swr_get_delay", swr_get_delay_)
+    .LoadProc("swr_alloc_set_opts", swr_alloc_set_opts_)
+    .LoadProc("swr_alloc_set_opts2", swr_alloc_set_opts2_)
+    .LoadProc("swr_next_pts", swr_next_pts_)
+    .LoadProc("swr_set_compensation", swr_set_compensation_)
+    .LoadProc("swr_set_channel_mapping", swr_set_channel_mapping_)
+    .LoadProc("swr_drop_output", swr_drop_output_)
+    .LoadProc("swr_inject_silence", swr_inject_silence_)
+    .LoadProc("swr_get_out_samples", swr_get_out_samples_)
+    .LoadProc("swr_convert_frame", swr_convert_frame_)
     ;
 
   if (swresample_loader.HasErrors()) {
@@ -2207,12 +2223,14 @@ int AvcModuleProvider::av_strerror(int errnum, char *errbuf, size_t errbuf_size)
 
 uint64_t AvcModuleProvider::av_get_channel_layout(const char *name) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_) return 0;
   AVC_CHECK_AND_CALL(av_get_channel_layout_, "av_get_channel_layout", kAvUtilModuleName);
   return av_get_channel_layout_(name);
 }
 
 int AvcModuleProvider::av_get_channel_layout_nb_channels(uint64_t channel_layout) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_nb_channels_) return -1;
   AVC_CHECK_AND_CALL(av_get_channel_layout_nb_channels_, "av_get_channel_layout_nb_channels", kAvUtilModuleName);
   return av_get_channel_layout_nb_channels_(channel_layout);
 }
@@ -2228,6 +2246,7 @@ int64_t AvcModuleProvider::av_get_default_channel_layout(int nb_channels) {
 int AvcModuleProvider::av_get_channel_layout_channel_index(uint64_t channel_layout,
                                                            uint64_t channel) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_channel_index_) return -1;
   AVC_CHECK_AND_CALL(av_get_channel_layout_channel_index_, "av_get_channel_layout_channel_index", kAvUtilModuleName);
   return av_get_channel_layout_channel_index_(channel_layout, channel);
 }
@@ -2235,6 +2254,7 @@ int AvcModuleProvider::av_get_channel_layout_channel_index(uint64_t channel_layo
 uint64_t AvcModuleProvider::av_channel_layout_extract_channel(uint64_t channel_layout,
                                                               int index) {
   if (!avutil_handle_) Load();
+  if (!av_channel_layout_extract_channel_) return 0;
   AVC_CHECK_AND_CALL(av_channel_layout_extract_channel_, "av_channel_layout_extract_channel", kAvUtilModuleName);
   return av_channel_layout_extract_channel_(channel_layout, index);
 }
@@ -2254,9 +2274,74 @@ const char *AvcModuleProvider::av_get_channel_description(uint64_t channel) {
 int AvcModuleProvider::av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                                       const char **name) {
   if (!avutil_handle_) Load();
+  if (!av_get_standard_channel_layout_) return -1;
   AVC_CHECK_AND_CALL(av_get_standard_channel_layout_, "av_get_standard_channel_layout", kAvUtilModuleName);
   return av_get_standard_channel_layout_(index, layout, name);
 }
+
+int AvcModuleProvider::av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_from_mask_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_from_mask_, "av_channel_layout_from_mask", kAvUtilModuleName);
+  return av_channel_layout_from_mask_(channel_layout, mask);
+}
+
+int AvcModuleProvider::av_channel_layout_from_string(AVChannelLayout* channel_layout, const char* str) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_from_string_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_from_string_, "av_channel_layout_from_string", kAvUtilModuleName);
+  return av_channel_layout_from_string_(channel_layout, str);
+}
+
+void AvcModuleProvider::av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_default_)
+    return;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_default_, "av_channel_layout_default_", kAvUtilModuleName);
+  return av_channel_layout_default_(ch_layout, nb_channels);
+}
+
+const AVChannelLayout* AvcModuleProvider::av_channel_layout_standard(void** opaque) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_standard_)
+    return nullptr;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_standard_, "av_channel_layout_standard", kAvUtilModuleName);
+  return av_channel_layout_standard_(opaque);
+}
+
+void AvcModuleProvider::av_channel_layout_uninit(AVChannelLayout* channel_layout) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_uninit_)
+    return;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_uninit_, "av_channel_layout_uninit", kAvUtilModuleName);
+  return av_channel_layout_uninit_(channel_layout);
+}
+
+int AvcModuleProvider::av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_copy_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_copy_, "av_channel_layout_copy", kAvUtilModuleName);
+  return av_channel_layout_copy_(dst, src);
+}
+
+int AvcModuleProvider::av_channel_layout_describe(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) {
+  if (!avutil_handle_) Load();
+  if (!av_channel_layout_describe_)
+    return -1;
+
+  AVC_CHECK_AND_CALL(av_channel_layout_describe_, "av_channel_layout_describe", kAvUtilModuleName);
+  return av_channel_layout_describe_(channel_layout, buf, buf_size);
+}
+
 
 // swscale
 unsigned AvcModuleProvider::swscale_version() {
@@ -2294,6 +2379,7 @@ int AvcModuleProvider::sws_scale(struct SwsContext *c, const uint8_t *const srcS
 // swresample
 unsigned AvcModuleProvider::swresample_version() {
   if (!swresample_handle_) Load();
+  if (!swresample_version_) return 0;
   AVC_CHECK_AND_CALL(swresample_version_, "swresample_version", kSwResampleModuleName);
   return swresample_version_();
 }
@@ -2331,10 +2417,82 @@ int AvcModuleProvider::swr_convert(SwrContext *s, uint8_t **out, int out_count,
   return swr_convert_(s, out, out_count, in, in_count);
 }
 
-int64_t AvcModuleProvider::swr_get_delay(struct SwrContext *s, int64_t base) {
+int64_t AvcModuleProvider::swr_get_delay(SwrContext *s, int64_t base) {
   if (!swresample_handle_) Load();
   AVC_CHECK_AND_CALL(swr_get_delay_, "swr_get_delay", kSwResampleModuleName);
   return swr_get_delay_(s, base);
+}
+
+SwrContext* AvcModuleProvider::swr_alloc_set_opts(SwrContext* s,
+  int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+  int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+  int log_offset, void* log_ctx) {
+  if (!swresample_handle_) Load();
+  if (!swr_alloc_set_opts_) return nullptr;
+  AVC_CHECK_AND_CALL(swr_alloc_set_opts_, "swr_alloc_set_opts", kSwResampleModuleName);
+  return swr_alloc_set_opts_(s, out_ch_layout, out_sample_fmt, out_sample_rate,
+    in_ch_layout, in_sample_fmt, in_sample_rate, log_offset, log_ctx);
+}
+
+int AvcModuleProvider::swr_alloc_set_opts2(SwrContext** ps,
+  AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+  AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+  int log_offset, void* log_ctx) {
+  if (!swresample_handle_) Load();
+  if (!swr_alloc_set_opts2_) return -1;
+  AVC_CHECK_AND_CALL(swr_alloc_set_opts2_, "swr_alloc_set_opts2", kSwResampleModuleName);
+  return swr_alloc_set_opts2_(ps, out_ch_layout, out_sample_fmt, out_sample_rate,
+    in_ch_layout, in_sample_fmt, in_sample_rate, log_offset, log_ctx);
+}
+
+int64_t AvcModuleProvider::swr_next_pts(SwrContext* s, int64_t pts) {
+  if (!swresample_handle_) Load();
+  if (!swr_next_pts_)
+    return -1;
+  AVC_CHECK_AND_CALL(swr_next_pts_, "swr_next_pts", kSwResampleModuleName);
+  return swr_next_pts_(s, pts);
+}
+
+int AvcModuleProvider::swr_set_compensation(SwrContext* s, int sample_delta, int compensation_distance) {
+  if (!swresample_handle_) Load();
+  if (!swr_set_compensation_) return -1;
+  AVC_CHECK_AND_CALL(swr_set_compensation_, "swr_set_compensation", kSwResampleModuleName);
+  return swr_set_compensation_(s, sample_delta, compensation_distance);
+}
+
+int AvcModuleProvider::swr_set_channel_mapping(SwrContext* s, const int* channel_map) {
+  if (!swresample_handle_) Load();
+  if (!swr_set_channel_mapping_) return -1;
+  AVC_CHECK_AND_CALL(swr_set_channel_mapping_, "swr_set_channel_mapping", kSwResampleModuleName);
+  return swr_set_channel_mapping_(s, channel_map);
+}
+
+int AvcModuleProvider::swr_drop_output(SwrContext* s, int count) {
+  if (!swresample_handle_) Load();
+  if (!swr_drop_output_) return -1;
+  AVC_CHECK_AND_CALL(swr_drop_output_, "swr_drop_output", kSwResampleModuleName);
+  return swr_drop_output_(s, count);
+}
+
+int AvcModuleProvider::swr_inject_silence(SwrContext* s, int count) {
+  if (!swresample_handle_) Load();
+  if (!swr_inject_silence_) return -1;
+  AVC_CHECK_AND_CALL(swr_inject_silence_, "swr_inject_silence", kSwResampleModuleName);
+  return swr_inject_silence_(s, count);
+}
+
+int AvcModuleProvider::swr_get_out_samples(SwrContext* s, int in_samples) {
+  if (!swresample_handle_) Load();
+  if (!swr_get_out_samples_) return -1;
+  AVC_CHECK_AND_CALL(swr_get_out_samples_, "swr_get_out_samples", kSwResampleModuleName);
+  return swr_get_out_samples_(s, in_samples);
+}
+
+int AvcModuleProvider::swr_convert_frame(SwrContext* swr, AVFrame* output, const AVFrame* input) {
+  if (!swresample_handle_) Load();
+  if (!swr_convert_frame_) return -1;
+  AVC_CHECK_AND_CALL(swr_convert_frame_, "swr_convert_frame", kSwResampleModuleName);
+  return swr_convert_frame_(swr, output, input);
 }
 
 // avdevice

@@ -435,6 +435,17 @@ struct IAvcModuleProvider {
   virtual int av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                              const char **name) = 0;
 
+  // new api
+  virtual int av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) = 0;
+  virtual int av_channel_layout_from_string(AVChannelLayout* channel_layout,
+    const char* str) = 0;
+  virtual void av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) = 0;
+  virtual const AVChannelLayout* av_channel_layout_standard(void** opaque) = 0;
+  virtual void av_channel_layout_uninit(AVChannelLayout* channel_layout) = 0;
+  virtual int av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) = 0;
+  virtual int av_channel_layout_describe(const AVChannelLayout* channel_layout,
+    char* buf, size_t buf_size) = 0;
+
   // swscale
   virtual unsigned swscale_version() = 0;
 
@@ -460,6 +471,24 @@ struct IAvcModuleProvider {
   virtual int swr_convert(struct SwrContext *s, uint8_t **out, int out_count,
                           const uint8_t **in, int in_count) = 0;
   virtual int64_t swr_get_delay(struct SwrContext *s, int64_t base) = 0;
+
+  virtual struct SwrContext* swr_alloc_set_opts(struct SwrContext* s,
+    int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = 0;
+
+  virtual int swr_alloc_set_opts2(struct SwrContext** ps,
+    AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = 0;
+  virtual int64_t swr_next_pts(struct SwrContext* s, int64_t pts) = 0;
+  virtual int swr_set_compensation(struct SwrContext* s, int sample_delta, int compensation_distance) = 0;
+  virtual int swr_set_channel_mapping(struct SwrContext* s, const int* channel_map) = 0;
+  virtual int swr_drop_output(struct SwrContext* s, int count) = 0;
+  virtual int swr_inject_silence(struct SwrContext* s, int count) = 0;
+  virtual int swr_get_out_samples(struct SwrContext* s, int in_samples) = 0;
+  virtual int swr_convert_frame(SwrContext* swr,
+    AVFrame* output, const AVFrame* input) = 0;
 
   // avdevice
   virtual unsigned avdevice_version() = 0;

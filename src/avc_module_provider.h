@@ -432,6 +432,14 @@ public:
   int av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                      const char **name) override;
 
+  int av_channel_layout_from_mask(AVChannelLayout* channel_layout, uint64_t mask) override;
+  int av_channel_layout_from_string(AVChannelLayout* channel_layout, const char* str) override;
+  void av_channel_layout_default(AVChannelLayout* ch_layout, int nb_channels) override;
+  const AVChannelLayout* av_channel_layout_standard(void** opaque) override;
+  void av_channel_layout_uninit(AVChannelLayout* channel_layout) override;
+  int av_channel_layout_copy(AVChannelLayout* dst, const AVChannelLayout* src) override;
+  int av_channel_layout_describe(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) override;
+
   // swscale
   unsigned swscale_version() override;
 
@@ -458,6 +466,23 @@ public:
   int swr_convert(struct SwrContext *s, uint8_t **out, int out_count, const uint8_t **in,
                   int in_count) override;
   int64_t swr_get_delay(struct SwrContext *s, int64_t base) override;
+
+  struct SwrContext* swr_alloc_set_opts(struct SwrContext* s,
+    int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) override;
+
+  int swr_alloc_set_opts2(struct SwrContext** ps,
+    AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) override;
+  int64_t swr_next_pts(struct SwrContext* s, int64_t pts) override;
+  int swr_set_compensation(struct SwrContext* s, int sample_delta, int compensation_distance) override;
+  int swr_set_channel_mapping(struct SwrContext* s, const int* channel_map) override;
+  int swr_drop_output(struct SwrContext* s, int count) override;
+  int swr_inject_silence(struct SwrContext* s, int count) override;
+  int swr_get_out_samples(struct SwrContext* s, int in_samples) override;
+  int swr_convert_frame(SwrContext* swr, AVFrame* output, const AVFrame* input) override;
 
   // avdevice
   unsigned avdevice_version() override;
@@ -798,6 +823,14 @@ public:
   int (*av_get_standard_channel_layout_)(unsigned index, uint64_t *layout,
                                          const char **name) = nullptr;
 
+  int (*av_channel_layout_from_mask_)(AVChannelLayout* channel_layout, uint64_t mask) = nullptr;
+  int (*av_channel_layout_from_string_)(AVChannelLayout* channel_layout, const char* str) = nullptr;
+  void (*av_channel_layout_default_)(AVChannelLayout* ch_layout, int nb_channels) = nullptr;
+  const AVChannelLayout* (*av_channel_layout_standard_)(void** opaque) = nullptr;
+  void (*av_channel_layout_uninit_)(AVChannelLayout* channel_layout) = nullptr;
+  int (*av_channel_layout_copy_)(AVChannelLayout* dst, const AVChannelLayout* src) = nullptr;
+  int (*av_channel_layout_describe_)(const AVChannelLayout* channel_layout, char* buf, size_t buf_size) = nullptr;
+
   // swscale
   unsigned (*swscale_version_)(void) = nullptr;
 
@@ -823,6 +856,23 @@ public:
   int (*swr_convert_)(struct SwrContext *s, uint8_t **out, int out_count,
                       const uint8_t **in, int in_count) = nullptr;
   int64_t (*swr_get_delay_)(struct SwrContext *s, int64_t base) = nullptr;
+
+  struct SwrContext* (*swr_alloc_set_opts_)(struct SwrContext* s,
+    int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = nullptr;
+
+  int (*swr_alloc_set_opts2_)(struct SwrContext** ps,
+    AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = nullptr;
+  int64_t (*swr_next_pts_)(struct SwrContext* s, int64_t pts) = nullptr;
+  int (*swr_set_compensation_)(struct SwrContext* s, int sample_delta, int compensation_distance) = nullptr;
+  int (*swr_set_channel_mapping_)(struct SwrContext* s, const int* channel_map) = nullptr;
+  int (*swr_drop_output_)(struct SwrContext* s, int count) = nullptr;
+  int (*swr_inject_silence_)(struct SwrContext* s, int count) = nullptr;
+  int (*swr_get_out_samples_)(struct SwrContext* s, int in_samples) = nullptr;
+  int (*swr_convert_frame_)(SwrContext* swr, AVFrame* output, const AVFrame* input) = nullptr;
 
   // avdevice
   unsigned (*avdevice_version_)(void) = nullptr;
