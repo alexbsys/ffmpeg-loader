@@ -275,6 +275,7 @@ struct IAvcModuleDataWrapper {
   virtual AVFrameSideData** AVFrameGetSideData(const AVFrame* avframe) const = 0;
   virtual AVBufferRef* AVFrameGetHwFramesCtx(const AVFrame* avframe) const = 0;
   virtual uint8_t** AVFrameGetExtendedData(const AVFrame* avframe) const = 0;
+  virtual AVChannelLayout* AVFrameGetChLayoutPtr(AVFrame* avframe) const = 0;
 
   virtual void AVFrameSetSampleRate(AVFrame* avframe, int sample_rate) const = 0;
   virtual void AVFrameSetWidth(AVFrame* avframe, int width) const = 0;

@@ -242,6 +242,7 @@ public:
   AVFrameSideData** AVFrameGetSideData(const AVFrame* avframe) const override;
   AVBufferRef* AVFrameGetHwFramesCtx(const AVFrame* avframe) const override;
   uint8_t** AVFrameGetExtendedData(const AVFrame* avframe) const override;
+  AVChannelLayout* AVFrameGetChLayoutPtr(AVFrame* avframe) const override;
 
   void AVFrameSetSampleRate(AVFrame* avframe, int sample_rate) const override;
   void AVFrameSetWidth(AVFrame* avframe, int width) const override;

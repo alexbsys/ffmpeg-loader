@@ -1128,6 +1128,15 @@ uint8_t** AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetExtendedData(const AVFram
   return reinterpret_cast<uint8_t**>(avframe_d->extended_data);
 }
 
+AVChannelLayout* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetChLayoutPtr(AVFrame* avframe) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto avframe_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
+  return reinterpret_cast<AVChannelLayout*>(&avframe_d->ch_layout);
+#else 
+  return nullptr;
+#endif
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameSetSampleRate(AVFrame* avframe, int sample_rate) const {
   auto avframe_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
   avframe_d->sample_rate = sample_rate;
