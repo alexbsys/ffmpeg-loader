@@ -2223,12 +2223,14 @@ int AvcModuleProvider::av_strerror(int errnum, char *errbuf, size_t errbuf_size)
 
 uint64_t AvcModuleProvider::av_get_channel_layout(const char *name) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_) return 0;
   AVC_CHECK_AND_CALL(av_get_channel_layout_, "av_get_channel_layout", kAvUtilModuleName);
   return av_get_channel_layout_(name);
 }
 
 int AvcModuleProvider::av_get_channel_layout_nb_channels(uint64_t channel_layout) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_nb_channels_) return -1;
   AVC_CHECK_AND_CALL(av_get_channel_layout_nb_channels_, "av_get_channel_layout_nb_channels", kAvUtilModuleName);
   return av_get_channel_layout_nb_channels_(channel_layout);
 }
@@ -2244,6 +2246,7 @@ int64_t AvcModuleProvider::av_get_default_channel_layout(int nb_channels) {
 int AvcModuleProvider::av_get_channel_layout_channel_index(uint64_t channel_layout,
                                                            uint64_t channel) {
   if (!avutil_handle_) Load();
+  if (!av_get_channel_layout_channel_index_) return -1;
   AVC_CHECK_AND_CALL(av_get_channel_layout_channel_index_, "av_get_channel_layout_channel_index", kAvUtilModuleName);
   return av_get_channel_layout_channel_index_(channel_layout, channel);
 }
@@ -2251,6 +2254,7 @@ int AvcModuleProvider::av_get_channel_layout_channel_index(uint64_t channel_layo
 uint64_t AvcModuleProvider::av_channel_layout_extract_channel(uint64_t channel_layout,
                                                               int index) {
   if (!avutil_handle_) Load();
+  if (!av_channel_layout_extract_channel_) return 0;
   AVC_CHECK_AND_CALL(av_channel_layout_extract_channel_, "av_channel_layout_extract_channel", kAvUtilModuleName);
   return av_channel_layout_extract_channel_(channel_layout, index);
 }
@@ -2270,6 +2274,7 @@ const char *AvcModuleProvider::av_get_channel_description(uint64_t channel) {
 int AvcModuleProvider::av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                                       const char **name) {
   if (!avutil_handle_) Load();
+  if (!av_get_standard_channel_layout_) return -1;
   AVC_CHECK_AND_CALL(av_get_standard_channel_layout_, "av_get_standard_channel_layout", kAvUtilModuleName);
   return av_get_standard_channel_layout_(index, layout, name);
 }
