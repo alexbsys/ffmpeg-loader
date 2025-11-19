@@ -1379,6 +1379,26 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetBitsPerRawSample(cons
   return codecpar_d->bits_per_raw_sample;
 }
 
+uint64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetChannelLayout(const AVCodecParameters* codecpar) const {
+  auto codecpar_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+#if (LIBAVCODEC_VERSION_MAJOR < 61) // last implemented in 6.x
+  DISABLE_DEPRECATION_WARNING
+    return codecpar_d->channel_layout;
+  RESTORE_DEPRECATION_WARNING
+#else 
+  return 0;
+#endif
+}
+
+AVChannelLayout* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersGetChLayout(AVCodecParameters* codecpar) const {
+#if (LIBAVUTIL_VERSION_MAJOR > 57) || (LIBAVUTIL_VERSION_MAJOR == 57 && LIBAVUTIL_VERSION_MINOR >= 28) // first implemented in 5.1
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  return reinterpret_cast<AVChannelLayout*>(&codecpar_d->ch_layout);
+#else 
+  return nullptr;
+#endif
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const {
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->codec_type = static_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVMediaType>(codec_type);
@@ -1461,6 +1481,15 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerCodedSample(A
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const {
   auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
   codecpar_d->bits_per_raw_sample = bits_per_raw_sample;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecParametersSetChannelLayout(AVCodecParameters* codecpar, uint64_t channel_layout) const {
+#if (LIBAVCODEC_VERSION_MAJOR < 61) // last implemented in 6.x
+  auto codecpar_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecParameters*>(codecpar);
+  DISABLE_DEPRECATION_WARNING
+  codecpar_d->channel_layout = channel_layout;
+  RESTORE_DEPRECATION_WARNING
+#endif
 }
 
 

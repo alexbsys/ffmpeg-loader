@@ -194,3 +194,53 @@ avc_loader->avio_open2(&ioctx, filename, AVIO_FLAG_WRITE, nullptr, nullptr);
 avc_loader->d()->AVFormatContextSetPb(fmt_ctx, ioctx);  // set modified AVIOContext to pb
 ```
 
+### How to work with unstable API (audio channels layout)
+
+*FFMpeg* changed channels layout API many times:
+
+1. `channels` variable can be used for audio channels in `AVFrame`, `AVCodecContext`, etc (FFMpeg versions <= 5.0). `channel_layout` variable can be used for audio channels layout.
+
+2. `channels` and `channels_layout` variables are deprecated, but still can be used. New type `AVChannelLayout` was implemented, variable `ch_layout` (FFMpeg versions >= 5.1 <= 6.1)
+
+3. `channels` and `channels_layout` variables are completely removed. Only `ch_layout` should be used for set or get audio channels (FFMpeg versions >= 7.0)
+
+We are supporting all versions, so all cases should be covered.
+
+How to set channels count for all *FFMpeg* versions:
+
+```cpp
+int channels_count = 2;
+std::shared_ptr<avc::IAvcModuleProvider> module_provier = ...; // initialize module provider
+auto data_wrapper = module_provider->d();
+
+// set audio channels count for FFMpeg <= 5.0. It still works for FFMpeg 5.1...6.1, but for FFMpeg 7.0 and newer it will not affect anything
+data_wrapper->AVFrameSetChannels(frame.get(), channels_count);
+
+avc::AVChannelLayout* ch_layout = data_wrapper->AVFrameGetChLayoutPtr(frame.get()); // returns pointer to ch_layout if it is exist for current version, or NULL if not
+if (ch_layout) {
+  // Set ch_layout. av_channel_layout_default may not be present in old version, but this call will not throw error
+  module_provider->av_channel_layout_default(ch_layout, channels_count);
+}
+
+```
+
+How to get audio channels for all *FFMpeg* versions:
+
+```cpp
+int channels_count = 0;
+std::shared_ptr<avc::IAvcModuleProvider> module_provier = ...; // initialize module provider
+auto data_wrapper = module_provider->d();
+
+channels_count = data_wrapper->AVFrameGetChannels(avframe_.get());
+
+auto ch_layout = data_wrapper->AVFrameGetChLayoutPtr(avframe_.get());
+if (ch_layout) {
+  int nb_channels = data_wrapper->AVChannelLayoutGetNbChannels(ch_layout);
+  if (!nb_channels) {
+    channels_count = nb_channels;
+  }
+}
+
+// now channels_count contains correct audio channels number value
+```
+

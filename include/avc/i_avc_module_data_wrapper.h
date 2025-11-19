@@ -319,6 +319,8 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecParametersGetFrameSize(const AVCodecParameters* codecpar) const = 0;
   virtual int AVCodecParametersGetBitsPerCodedSample(const AVCodecParameters* codecpar) const = 0;
   virtual int AVCodecParametersGetBitsPerRawSample(const AVCodecParameters* codecpar) const = 0;
+  virtual uint64_t AVCodecParametersGetChannelLayout(const AVCodecParameters* codecpar) const = 0;
+  virtual AVChannelLayout* AVCodecParametersGetChLayout(AVCodecParameters* codecpar) const = 0;
 
   virtual void AVCodecParametersSetCodecType(AVCodecParameters* codecpar, int codec_type) const = 0;
   virtual void AVCodecParametersSetWidth(AVCodecParameters* codecpar, int width) const = 0;
@@ -336,6 +338,7 @@ struct IAvcModuleDataWrapper {
   virtual void AVCodecParametersSetFrameSize(AVCodecParameters* codecpar, int frame_size) const = 0;
   virtual void AVCodecParametersSetBitsPerCodedSample(AVCodecParameters* codecpar, int bits_per_coded_sample) const = 0;
   virtual void AVCodecParametersSetBitsPerRawSample(AVCodecParameters* codecpar, int bits_per_raw_sample) const = 0;
+  virtual void AVCodecParametersSetChannelLayout(AVCodecParameters* codecpar, uint64_t channel_layout) const = 0;
 
 
   // AVBufferRef
