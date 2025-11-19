@@ -472,6 +472,24 @@ struct IAvcModuleProvider {
                           const uint8_t **in, int in_count) = 0;
   virtual int64_t swr_get_delay(struct SwrContext *s, int64_t base) = 0;
 
+  virtual struct SwrContext* swr_alloc_set_opts(struct SwrContext* s,
+    int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = 0;
+
+  virtual int swr_alloc_set_opts2(struct SwrContext** ps,
+    AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+    AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+    int log_offset, void* log_ctx) = 0;
+  virtual int64_t swr_next_pts(struct SwrContext* s, int64_t pts) = 0;
+  virtual int swr_set_compensation(struct SwrContext* s, int sample_delta, int compensation_distance) = 0;
+  virtual int swr_set_channel_mapping(struct SwrContext* s, const int* channel_map) = 0;
+  virtual int swr_drop_output(struct SwrContext* s, int count) = 0;
+  virtual int swr_inject_silence(struct SwrContext* s, int count) = 0;
+  virtual int swr_get_out_samples(struct SwrContext* s, int in_samples) = 0;
+  virtual int swr_convert_frame(SwrContext* swr,
+    AVFrame* output, const AVFrame* input) = 0;
+
   // avdevice
   virtual unsigned avdevice_version() = 0;
   virtual void avdevice_register_all() = 0;

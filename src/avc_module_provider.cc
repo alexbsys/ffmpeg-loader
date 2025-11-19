@@ -952,6 +952,15 @@ void AvcModuleProvider::LoadSwResampleFuctions() {
     .LoadProc("swr_close", swr_close_)
     .LoadProc("swr_convert", swr_convert_)
     .LoadProc("swr_get_delay", swr_get_delay_)
+    .LoadProc("swr_alloc_set_opts", swr_alloc_set_opts_)
+    .LoadProc("swr_alloc_set_opts2", swr_alloc_set_opts2_)
+    .LoadProc("swr_next_pts", swr_next_pts_)
+    .LoadProc("swr_set_compensation", swr_set_compensation_)
+    .LoadProc("swr_set_channel_mapping", swr_set_channel_mapping_)
+    .LoadProc("swr_drop_output", swr_drop_output_)
+    .LoadProc("swr_inject_silence", swr_inject_silence_)
+    .LoadProc("swr_get_out_samples", swr_get_out_samples_)
+    .LoadProc("swr_convert_frame", swr_convert_frame_)
     ;
 
   if (swresample_loader.HasErrors()) {
@@ -2365,6 +2374,7 @@ int AvcModuleProvider::sws_scale(struct SwsContext *c, const uint8_t *const srcS
 // swresample
 unsigned AvcModuleProvider::swresample_version() {
   if (!swresample_handle_) Load();
+  if (!swresample_version_) return 0;
   AVC_CHECK_AND_CALL(swresample_version_, "swresample_version", kSwResampleModuleName);
   return swresample_version_();
 }
@@ -2402,10 +2412,82 @@ int AvcModuleProvider::swr_convert(SwrContext *s, uint8_t **out, int out_count,
   return swr_convert_(s, out, out_count, in, in_count);
 }
 
-int64_t AvcModuleProvider::swr_get_delay(struct SwrContext *s, int64_t base) {
+int64_t AvcModuleProvider::swr_get_delay(SwrContext *s, int64_t base) {
   if (!swresample_handle_) Load();
   AVC_CHECK_AND_CALL(swr_get_delay_, "swr_get_delay", kSwResampleModuleName);
   return swr_get_delay_(s, base);
+}
+
+SwrContext* AvcModuleProvider::swr_alloc_set_opts(SwrContext* s,
+  int64_t out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+  int64_t  in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+  int log_offset, void* log_ctx) {
+  if (!swresample_handle_) Load();
+  if (!swr_alloc_set_opts_) return nullptr;
+  AVC_CHECK_AND_CALL(swr_alloc_set_opts_, "swr_alloc_set_opts", kSwResampleModuleName);
+  return swr_alloc_set_opts_(s, out_ch_layout, out_sample_fmt, out_sample_rate,
+    in_ch_layout, in_sample_fmt, in_sample_rate, log_offset, log_ctx);
+}
+
+int AvcModuleProvider::swr_alloc_set_opts2(SwrContext** ps,
+  AVChannelLayout* out_ch_layout, int /*enum AVSampleFormat*/ out_sample_fmt, int out_sample_rate,
+  AVChannelLayout* in_ch_layout, int /*enum AVSampleFormat*/  in_sample_fmt, int  in_sample_rate,
+  int log_offset, void* log_ctx) {
+  if (!swresample_handle_) Load();
+  if (!swr_alloc_set_opts2_) return -1;
+  AVC_CHECK_AND_CALL(swr_alloc_set_opts2_, "swr_alloc_set_opts2", kSwResampleModuleName);
+  return swr_alloc_set_opts2_(ps, out_ch_layout, out_sample_fmt, out_sample_rate,
+    in_ch_layout, in_sample_fmt, in_sample_rate, log_offset, log_ctx);
+}
+
+int64_t AvcModuleProvider::swr_next_pts(SwrContext* s, int64_t pts) {
+  if (!swresample_handle_) Load();
+  if (!swr_next_pts_)
+    return -1;
+  AVC_CHECK_AND_CALL(swr_next_pts_, "swr_next_pts", kSwResampleModuleName);
+  return swr_next_pts_(s, pts);
+}
+
+int AvcModuleProvider::swr_set_compensation(SwrContext* s, int sample_delta, int compensation_distance) {
+  if (!swresample_handle_) Load();
+  if (!swr_set_compensation_) return -1;
+  AVC_CHECK_AND_CALL(swr_set_compensation_, "swr_set_compensation", kSwResampleModuleName);
+  return swr_set_compensation_(s, sample_delta, compensation_distance);
+}
+
+int AvcModuleProvider::swr_set_channel_mapping(SwrContext* s, const int* channel_map) {
+  if (!swresample_handle_) Load();
+  if (!swr_set_channel_mapping_) return -1;
+  AVC_CHECK_AND_CALL(swr_set_channel_mapping_, "swr_set_channel_mapping", kSwResampleModuleName);
+  return swr_set_channel_mapping_(s, channel_map);
+}
+
+int AvcModuleProvider::swr_drop_output(SwrContext* s, int count) {
+  if (!swresample_handle_) Load();
+  if (!swr_drop_output_) return -1;
+  AVC_CHECK_AND_CALL(swr_drop_output_, "swr_drop_output", kSwResampleModuleName);
+  return swr_drop_output_(s, count);
+}
+
+int AvcModuleProvider::swr_inject_silence(SwrContext* s, int count) {
+  if (!swresample_handle_) Load();
+  if (!swr_inject_silence_) return -1;
+  AVC_CHECK_AND_CALL(swr_inject_silence_, "swr_inject_silence", kSwResampleModuleName);
+  return swr_inject_silence_(s, count);
+}
+
+int AvcModuleProvider::swr_get_out_samples(SwrContext* s, int in_samples) {
+  if (!swresample_handle_) Load();
+  if (!swr_get_out_samples_) return -1;
+  AVC_CHECK_AND_CALL(swr_get_out_samples_, "swr_get_out_samples", kSwResampleModuleName);
+  return swr_get_out_samples_(s, in_samples);
+}
+
+int AvcModuleProvider::swr_convert_frame(SwrContext* swr, AVFrame* output, const AVFrame* input) {
+  if (!swresample_handle_) Load();
+  if (!swr_convert_frame_) return -1;
+  AVC_CHECK_AND_CALL(swr_convert_frame_, "swr_convert_frame", kSwResampleModuleName);
+  return swr_convert_frame_(swr, output, input);
 }
 
 // avdevice
