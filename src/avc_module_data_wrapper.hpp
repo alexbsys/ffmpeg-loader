@@ -135,6 +135,21 @@ int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetStartTime(const AVStream* 
   return stream_d->start_time;
 }
 
+int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetDuration(const AVStream* stream) const {
+  auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
+  return stream_d->duration;
+}
+
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetRFrameRate(const AVStream* stream) const {
+  auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
+  return cmf::MediaTimeBase{stream_d->r_frame_rate.num, stream_d->r_frame_rate.den};
+}
+
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetSampleAspectRatio(const AVStream* stream) const {
+  auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
+  return cmf::MediaTimeBase{stream_d->sample_aspect_ratio.num, stream_d->sample_aspect_ratio.den};
+}
+
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVStreamGetIndex(const AVStream* stream) const {
   auto stream_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVStream*>(stream);
   return stream_d->index;
@@ -238,6 +253,14 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetMaxAnalyzeDuration(AVF
   ctx_d->max_analyze_duration = max_analyze_duration;
 }
 
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetInterruptCallback(const AVFormatContext* ctx, int (**callback)(void*), void** opaque) const {
+  auto ctx_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
+  if (callback)
+    *callback = ctx_d->interrupt_callback.callback;
+  if (opaque)
+    *opaque = ctx_d->interrupt_callback.opaque;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetInterruptCallback(AVFormatContext* ctx, int (*callback)(void*), void *opaque) const {
   auto ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
   ctx_d->interrupt_callback.callback = callback;
@@ -247,6 +270,16 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetInterruptCallback(AVFo
 const AVInputFormat* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetInputFormat(const AVFormatContext* ctx) const {
   auto ctx_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
   return reinterpret_cast<const AVInputFormat*>(ctx_d->iformat);
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetInputFormat(AVFormatContext* ctx, AVInputFormat* iformat) const {
+  auto ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
+  ctx_d->iformat = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(iformat);
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetOutputFormat(AVFormatContext* ctx, AVOutputFormat* oformat) const {
+  auto ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
+  ctx_d->oformat = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat*>(oformat);
 }
 
 const AVOutputFormat* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetOutputFormat(const AVFormatContext* ctx) const {
@@ -273,6 +306,19 @@ char* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetUrl(const AVFormatCon
 #endif
 }
 
+const char* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetIFormatName(const AVFormatContext* ctx) const {
+  auto ctx_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
+  if (ctx_d->iformat) {
+    return ctx_d->iformat->name;
+  }
+  return nullptr;
+}
+
+void* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextGetPrivData(AVFormatContext* ctx) const {
+  auto ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
+  return ctx_d->priv_data;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFormatContextSetStartTime(AVFormatContext* ctx, int64_t start_time) const {
   auto ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*>(ctx);
   ctx_d->start_time = start_time;
@@ -288,6 +334,23 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatGetFlags(const AVInputFormat
   return iformat_d->flags;
 }
 
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const {
+#if (LIBAVCODEC_VERSION_MAJOR < 61) // last implemented in 6.x
+  auto iformat_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(ifmt);
+  iformat_d->read_packet = reinterpret_cast<int(*)(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFormatContext*, AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*)>(read_packet);
+#endif
+}
+
+int(*AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatGetReadPacket(const AVInputFormat* ifmt) const)(AVFormatContext*, AVPacket* pkt) {
+#if (LIBAVCODEC_VERSION_MAJOR < 61) // last implemented in 6.x
+  auto iformat_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(ifmt);
+  return reinterpret_cast<int(*)(AVFormatContext*, AVPacket*)>(iformat_d->read_packet);
+#else 
+  return nullptr;
+#endif
+}
+
+
 ////
 // AVOutputFormat
 
@@ -299,6 +362,15 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVOutputFormatGetFlags(const AVOutputForm
 
 ////
 // AVPacket data structure interaction
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketCopy(AVPacket* to, const AVPacket* from) const {
+  auto to_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(to);
+  auto from_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(from);
+  
+  if (!to_d || !from_d) return;
+  *to_d = *from_d;
+}
+
 int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVPacketGetPts(const AVPacket* pkt) const {
   auto pkt_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVPacket*>(pkt);
   return pkt_d->pts;
@@ -432,6 +504,11 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetSampleRate(const AVCodec
   return codec_context_d->sample_rate;
 }
 
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetBitsPerCodedSample(const AVCodecContext* codec_context) const {
+  auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  return codec_context_d->bits_per_coded_sample;
+}
+
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetWidth(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   return codec_context_d->width;
@@ -466,6 +543,11 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetTimeBase(AVCodecContext
 int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetBitRate(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   return codec_context_d->bit_rate;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetBitRateTolerance(const AVCodecContext* codec_context) const {
+  auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  return codec_context_d->bit_rate_tolerance;
 }
 
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetBitRate(AVCodecContext* codec_context, int64_t bitrate) const {
@@ -1098,6 +1180,16 @@ int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetPktPts(const AVFrame* avfra
 #endif //LIBAVUTIL_VERSION_MAJOR
 }
 
+int64_t AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetBestEffortTimestamp(const AVFrame* avframe) const {
+  auto avframe_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
+  return avframe_d->best_effort_timestamp;
+}
+
+cmf::MediaTimeBase AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetSampleAspectRatio(const AVFrame* avframe) const {
+  auto avframe_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
+  return cmf::MediaTimeBase{ avframe_d->sample_aspect_ratio.num, avframe_d->sample_aspect_ratio.den };
+}
+
 AVBufferRef* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetBuf(const AVFrame* avframe, int idx) const {
   auto avframe_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
   return reinterpret_cast<AVBufferRef*>(avframe_d->buf[idx]);
@@ -1134,6 +1226,26 @@ AVChannelLayout* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetChLayoutPtr(AVFram
   return reinterpret_cast<AVChannelLayout*>(&avframe_d->ch_layout);
 #else 
   return nullptr;
+#endif
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameGetCodedPictureNumber(const AVFrame* avframe) const {
+#if (LIBAVUTIL_VERSION_MAJOR == 58 && LIBAVUTIL_VERSION_MINOR <= 2) || (LIBAVUTIL_VERSION_MAJOR < 58) // last implemented in 6.0
+  auto avframe_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
+  DISABLE_DEPRECATION_WARNING
+  return avframe_d->coded_picture_number;
+  RESTORE_DEPRECATION_WARNING
+#else 
+  return 0;
+#endif
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVFrameSetCodedPictureNumber(AVFrame* avframe, int pict_num) const {
+#if (LIBAVUTIL_VERSION_MAJOR == 58 && LIBAVUTIL_VERSION_MINOR <= 2) || (LIBAVUTIL_VERSION_MAJOR < 58) // last implemented in 6.0
+  auto avframe_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVFrame*>(avframe);
+  DISABLE_DEPRECATION_WARNING
+  avframe_d->coded_picture_number = pict_num;
+  RESTORE_DEPRECATION_WARNING
 #endif
 }
 
@@ -1656,6 +1768,17 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVHWFramesContextSetInitialPoolSize(AVHW
   hwframes_ctx_d->initial_pool_size = initial_pool_size;
 }
 
+void* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVHWFramesContextGetHwCtx(AVHWFramesContext* hwframes_ctx) const {
+  auto hwframes_ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVHWFramesContext*>(hwframes_ctx);
+  return hwframes_ctx_d->hwctx;
+}
+
+AVBufferRef* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVHWFramesContextGetDeviceRef(AVHWFramesContext* hwframes_ctx) const {
+    auto hwframes_ctx_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVHWFramesContext*>(hwframes_ctx);
+    return reinterpret_cast<AVBufferRef*>(hwframes_ctx_d->device_ref);
+}
+
+
 ///////////
 // AVHWAccel
 
@@ -1833,6 +1956,70 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVChannelLayoutSetMask(AVChannelLayout* 
   layout_d->u.mask = mask;
 #endif
 }
+
+
+AVInputFormat* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatAllocate() const {
+  auto module_provider = module_provider_.lock();
+  if (!module_provider)
+    return nullptr;
+
+  AVInputFormat* ifmt = reinterpret_cast<AVInputFormat*>(module_provider->av_malloc(sizeof(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat)));
+  if (!ifmt)
+    return nullptr;
+
+  memset(ifmt, 0, sizeof(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat));
+  return ifmt;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatCopy(AVInputFormat* to, const AVInputFormat* from) {
+  AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat* d_to = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(to);
+  const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat* d_from = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(from);
+
+  if (!d_to || !d_from)
+    return;
+
+  *d_to = *d_from;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatFree(AVInputFormat* ifmt) const {
+  auto module_provider = module_provider_.lock();
+  if (!module_provider)
+    return;
+
+  module_provider->av_free(reinterpret_cast<void*>(ifmt));
+}
+
+AVOutputFormat* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVOutputFormatAllocate() const {
+  auto module_provider = module_provider_.lock();
+  if (!module_provider)
+    return nullptr;
+
+  AVOutputFormat* ofmt = reinterpret_cast<AVOutputFormat*>(module_provider->av_malloc(sizeof(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat)));
+  if (!ofmt)
+    return nullptr;
+
+  memset(ofmt, 0, sizeof(AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat));
+  return ofmt;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVOutputFormatCopy(AVOutputFormat* to, const AVOutputFormat* from) {
+  AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat* d_to = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat*>(to);
+  const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat* d_from = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVOutputFormat*>(from);
+
+  if (!d_to || !d_from)
+    return;
+
+  *d_to = *d_from;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVOutputFormatFree(AVOutputFormat* ofmt) const {
+  auto module_provider = module_provider_.lock();
+  if (!module_provider)
+    return;
+
+  module_provider->av_free(reinterpret_cast<void*>(ofmt));
+}
+
 
 ////
 // Factory implementation

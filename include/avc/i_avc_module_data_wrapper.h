@@ -79,7 +79,10 @@ struct IAvcModuleDataWrapper {
   virtual cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const = 0;
   virtual cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const = 0;
+  virtual cmf::MediaTimeBase AVStreamGetRFrameRate(const AVStream* stream) const = 0;
+  virtual cmf::MediaTimeBase AVStreamGetSampleAspectRatio(const AVStream* stream) const = 0;
   virtual int64_t AVStreamGetStartTime(const AVStream* stream) const = 0;
+  virtual int64_t AVStreamGetDuration(const AVStream* stream) const = 0;
   virtual int AVStreamGetIndex(const AVStream* stream) const = 0;
   virtual int AVStreamGetId(const AVStream* stream) const = 0;
 
@@ -101,6 +104,9 @@ struct IAvcModuleDataWrapper {
   virtual const AVInputFormat* AVFormatContextGetInputFormat(const AVFormatContext* ctx) const = 0;
   virtual const AVOutputFormat* AVFormatContextGetOutputFormat(const AVFormatContext* ctx) const = 0;
   virtual char* AVFormatContextGetUrl(const AVFormatContext* ctx) const = 0;
+  virtual const char* AVFormatContextGetIFormatName(const AVFormatContext* ctx) const = 0;
+  virtual void* AVFormatContextGetPrivData(AVFormatContext* ctx) const = 0;
+  virtual void AVFormatContextGetInterruptCallback(const AVFormatContext* ctx, int (**callback)(void*), void** opaque) const = 0;
 
   virtual void AVFormatContextSetPb(AVFormatContext* ctx, AVIOContext* avio_ctx) const = 0;
   virtual void AVFormatContextSetFlags(AVFormatContext* ctx, int flags) const = 0;
@@ -110,18 +116,15 @@ struct IAvcModuleDataWrapper {
   virtual void AVFormatContextSetUrl(AVFormatContext* ctx, char* url) const = 0;
   virtual void AVFormatContextSetStartTime(AVFormatContext *ctx, int64_t start_time) const  = 0;
   virtual void AVFormatContextSetAvoidNegativeTs(AVFormatContext* ctx, int avoid_negative_ts) const = 0;
+  virtual void AVFormatContextSetInputFormat(AVFormatContext* ctx, AVInputFormat* iformat) const = 0;
+  virtual void AVFormatContextSetOutputFormat(AVFormatContext* ctx, AVOutputFormat* oformat) const = 0;
 
   // AVIOContext
   virtual unsigned char* AVIOContextGetBuffer(const AVIOContext* ctx) const = 0;
   virtual void AVIOContextSetBuffer(AVIOContext* ctx, unsigned char* buffer) const = 0;
 
-  // AVInputFormat
-  virtual int AVInputFormatGetFlags(const AVInputFormat* iformat) const  = 0;
-
-  // AVOutputFormat
-  virtual int AVOutputFormatGetFlags(const AVOutputFormat* oformat) const = 0;
-
   // AVPacket
+  virtual void AVPacketCopy(AVPacket* to, const AVPacket* from) const = 0;
   virtual int64_t AVPacketGetPts(const AVPacket* pkt) const = 0;
   virtual int64_t AVPacketGetDts(const AVPacket* pkt) const = 0;
   virtual void* AVPacketGetData(const AVPacket* pkt) const = 0;
@@ -148,6 +151,7 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecContextGetChannels(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetSampleFormat(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetSampleRate(const AVCodecContext* codec_context) const = 0;
+  virtual int AVCodecContextGetBitsPerCodedSample(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetWidth(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetHeight(const AVCodecContext* codec_context) const = 0;
   virtual const AVCodec* AVCodecContextGetCodec(const AVCodecContext* codec_context) const = 0;
@@ -156,6 +160,7 @@ struct IAvcModuleDataWrapper {
   virtual int AVCodecContextGetStrictStdCompliance(const AVCodecContext* codec_context) const = 0;
   virtual cmf::MediaTimeBase AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const = 0;
   virtual int64_t AVCodecContextGetBitRate(const AVCodecContext* codec_context) const = 0;
+  virtual int AVCodecContextGetBitRateTolerance(const AVCodecContext* codec_context) const = 0;
   virtual int64_t AVCodecContextGetRcMaxRate(const AVCodecContext* codec_context) const = 0;
   virtual cmf::MediaTimeBase AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetPixFmt(const AVCodecContext* codec_context) const = 0;
@@ -269,6 +274,8 @@ struct IAvcModuleDataWrapper {
   virtual int64_t AVFrameGetPktDuration(const AVFrame* avframe) const = 0;
   virtual int64_t AVFrameGetPktDts(const AVFrame* avframe) const = 0;
   virtual int64_t AVFrameGetPktPts(const AVFrame* avframe) const = 0;
+  virtual int64_t AVFrameGetBestEffortTimestamp(const AVFrame* avframe) const = 0;
+  virtual cmf::MediaTimeBase AVFrameGetSampleAspectRatio(const AVFrame* avframe) const = 0;
   virtual AVBufferRef* AVFrameGetBuf(const AVFrame* avframe, int idx) const = 0;
   virtual AVBufferRef** AVFrameGetExtendedBuf(const AVFrame* avframe) const = 0;
   virtual AVDictionary* AVFrameGetMetaData(const AVFrame* avframe) const = 0;
@@ -276,7 +283,9 @@ struct IAvcModuleDataWrapper {
   virtual AVBufferRef* AVFrameGetHwFramesCtx(const AVFrame* avframe) const = 0;
   virtual uint8_t** AVFrameGetExtendedData(const AVFrame* avframe) const = 0;
   virtual AVChannelLayout* AVFrameGetChLayoutPtr(AVFrame* avframe) const = 0;
+  virtual int AVFrameGetCodedPictureNumber(const AVFrame* avframe) const = 0;
 
+  virtual void AVFrameSetCodedPictureNumber(AVFrame* avframe, int pict_num) const = 0;
   virtual void AVFrameSetSampleRate(AVFrame* avframe, int sample_rate) const = 0;
   virtual void AVFrameSetWidth(AVFrame* avframe, int width) const = 0;
   virtual void AVFrameSetHeight(AVFrame* avframe, int height) const = 0;
@@ -369,6 +378,9 @@ struct IAvcModuleDataWrapper {
   virtual int AVHWFramesContextGetSwFormat(const AVHWFramesContext* hwframes_ctx) const = 0;
   virtual int AVHWFramesContextGetWidth(const AVHWFramesContext* hwframes_ctx) const = 0;
   virtual int AVHWFramesContextGetHeight(const AVHWFramesContext* hwframes_ctx) const = 0;
+  virtual void* AVHWFramesContextGetHwCtx(AVHWFramesContext* hwframes_ctx) const = 0;
+  virtual AVBufferRef* AVHWFramesContextGetDeviceRef(AVHWFramesContext* hwframes_ctx) const = 0;
+
 
   virtual void AVHWFramesContextSetFormat(AVHWFramesContext* hwframes_ctx, int format) const = 0;
   virtual void AVHWFramesContextSetSwFormat(AVHWFramesContext* hwframes_ctx, int sw_format) const = 0;
@@ -411,6 +423,23 @@ struct IAvcModuleDataWrapper {
   virtual void AVChannelLayoutSetOpaque(AVChannelLayout* layout, void* opaque) const = 0;
   virtual void AVChannelLayoutSetMask(AVChannelLayout* layout, uint64_t mask) const = 0;
 
+  //AVInputFormat
+  virtual int AVInputFormatGetFlags(const AVInputFormat* iformat) const = 0;
+  virtual void AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const = 0;
+  virtual int(*AVInputFormatGetReadPacket(const AVInputFormat* ifmt) const)(AVFormatContext*, AVPacket* pkt) = 0;
+
+
+
+  virtual AVInputFormat* AVInputFormatAllocate() const = 0;
+  virtual void AVInputFormatCopy(AVInputFormat* to, const AVInputFormat* from) = 0;
+  virtual void AVInputFormatFree(AVInputFormat* ifmt) const = 0;
+
+  //AVOutputFormat
+  virtual int AVOutputFormatGetFlags(const AVOutputFormat* oformat) const = 0;
+
+  virtual AVOutputFormat* AVOutputFormatAllocate() const = 0;
+  virtual void AVOutputFormatCopy(AVOutputFormat* to, const AVOutputFormat* from) = 0;
+  virtual void AVOutputFormatFree(AVOutputFormat* ifmt) const = 0;
 };
 
 }//namespace avc

@@ -53,7 +53,10 @@ public:
   cmf::MediaTimeBase AVStreamGetTimeBase(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetFrameRate(const AVStream* stream) const override;
   cmf::MediaTimeBase AVStreamGetAvgFrameRage(const AVStream* stream) const override;
+  cmf::MediaTimeBase AVStreamGetRFrameRate(const AVStream* stream) const override;
+  cmf::MediaTimeBase AVStreamGetSampleAspectRatio(const AVStream* stream) const override;
   int64_t AVStreamGetStartTime(const AVStream* stream) const override;
+  int64_t AVStreamGetDuration(const AVStream* stream) const override;
   int AVStreamGetIndex(const AVStream* stream) const override;
   int AVStreamGetId(const AVStream* stream) const override;
   AVCodecParameters* AVStreamGetCodecPar(const AVStream* stream) const override;
@@ -78,6 +81,9 @@ public:
   const AVInputFormat* AVFormatContextGetInputFormat(const AVFormatContext* ctx) const override;
   const AVOutputFormat* AVFormatContextGetOutputFormat(const AVFormatContext* ctx) const override;
   char* AVFormatContextGetUrl(const AVFormatContext* ctx) const override;
+  const char* AVFormatContextGetIFormatName(const AVFormatContext* ctx) const override;
+  void* AVFormatContextGetPrivData(AVFormatContext* ctx) const override;
+  void AVFormatContextGetInterruptCallback(const AVFormatContext* ctx, int (**callback)(void*), void** opaque) const override;
 
   void AVFormatContextSetFlags(AVFormatContext* ctx, int flags) const override;
   void AVFormatContextSetPb(AVFormatContext* ctx, AVIOContext* avio_ctx) const override;
@@ -87,11 +93,16 @@ public:
   void AVFormatContextSetUrl(AVFormatContext* ctx, char *url) const override;
   void AVFormatContextSetStartTime(AVFormatContext *ctx, int64_t start_time) const override;
   void AVFormatContextSetAvoidNegativeTs(AVFormatContext *ctx, int avoid_negative_ts) const override;
-
+  void AVFormatContextSetInputFormat(AVFormatContext* ctx, AVInputFormat* iformat) const override;
+  void AVFormatContextSetOutputFormat(AVFormatContext* ctx, AVOutputFormat* oformat) const override;
 
   int AVInputFormatGetFlags(const AVInputFormat* iformat) const override;
+  void AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const override;
+  int(*AVInputFormatGetReadPacket(const AVInputFormat* ifmt) const)(AVFormatContext*, AVPacket* pkt) override;
+
   int AVOutputFormatGetFlags(const AVOutputFormat* oformat) const override;
 
+  void AVPacketCopy(AVPacket* to, const AVPacket* from) const override;
   int64_t AVPacketGetPts(const AVPacket* pkt) const override;
   int64_t AVPacketGetDts(const AVPacket* pkt) const override;
   void* AVPacketGetData(const AVPacket* pkt) const override;
@@ -118,12 +129,14 @@ public:
   int AVCodecContextGetSampleFormat(const AVCodecContext* codec_context) const override;
 
   int AVCodecContextGetSampleRate(const AVCodecContext* codec_context) const override;
+  int AVCodecContextGetBitsPerCodedSample(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetWidth(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetHeight(const AVCodecContext* codec_context) const override;
   const AVCodec* AVCodecContextGetCodec(const AVCodecContext* codec_context) const override;
   cmf::MediaTimeBase AVCodecContextGetFramerate(const AVCodecContext* codec_context) const override;
   cmf::MediaTimeBase AVCodecContextGetTimeBase(const AVCodecContext* codec_context) const override;
   int64_t AVCodecContextGetBitRate(const AVCodecContext* codec_context) const override;
+  int AVCodecContextGetBitRateTolerance(const AVCodecContext* codec_context) const override;
   int64_t AVCodecContextGetRcMaxRate(const AVCodecContext* codec_context) const override;
   cmf::MediaTimeBase AVCodecContextGetPktTimeBase(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetPixFmt(const AVCodecContext* codec_context) const override;
@@ -236,6 +249,8 @@ public:
   int64_t AVFrameGetPktDuration(const AVFrame* avframe) const override;
   int64_t AVFrameGetPktDts(const AVFrame* avframe) const override;
   int64_t AVFrameGetPktPts(const AVFrame* avframe) const override;
+  int64_t AVFrameGetBestEffortTimestamp(const AVFrame* avframe) const override;
+  cmf::MediaTimeBase AVFrameGetSampleAspectRatio(const AVFrame* avframe) const override;
   AVBufferRef* AVFrameGetBuf(const AVFrame* avframe, int idx) const override;
   AVBufferRef** AVFrameGetExtendedBuf(const AVFrame* avframe) const override;
   AVDictionary* AVFrameGetMetaData(const AVFrame* avframe) const override;
@@ -243,7 +258,9 @@ public:
   AVBufferRef* AVFrameGetHwFramesCtx(const AVFrame* avframe) const override;
   uint8_t** AVFrameGetExtendedData(const AVFrame* avframe) const override;
   AVChannelLayout* AVFrameGetChLayoutPtr(AVFrame* avframe) const override;
+  int AVFrameGetCodedPictureNumber(const AVFrame* avframe) const override;
 
+  void AVFrameSetCodedPictureNumber(AVFrame* avframe, int pict_num) const override;
   void AVFrameSetSampleRate(AVFrame* avframe, int sample_rate) const override;
   void AVFrameSetWidth(AVFrame* avframe, int width) const override;
   void AVFrameSetHeight(AVFrame* avframe, int height) const override;
@@ -332,6 +349,8 @@ public:
   int AVHWFramesContextGetSwFormat(const AVHWFramesContext* hwframes_ctx) const override;
   int AVHWFramesContextGetWidth(const AVHWFramesContext* hwframes_ctx) const override;
   int AVHWFramesContextGetHeight(const AVHWFramesContext* hwframes_ctx) const override;
+  void* AVHWFramesContextGetHwCtx(AVHWFramesContext* hwframes_ctx) const override;
+  AVBufferRef* AVHWFramesContextGetDeviceRef(AVHWFramesContext* hwframes_ctx) const override;
 
   void AVHWFramesContextSetFormat(AVHWFramesContext* hwframes_ctx, int format) const override;
   void AVHWFramesContextSetSwFormat(AVHWFramesContext* hwframes_ctx, int sw_format) const override;
@@ -372,6 +391,14 @@ public:
   void AVChannelLayoutSetNbChannels(AVChannelLayout* layout, int nb_channels) const override;
   void AVChannelLayoutSetOpaque(AVChannelLayout* layout, void* opaque) const override;
   void AVChannelLayoutSetMask(AVChannelLayout* layout, uint64_t mask) const override;
+
+  AVInputFormat* AVInputFormatAllocate() const override;
+  void AVInputFormatCopy(AVInputFormat* to, const AVInputFormat* from) override;
+  void AVInputFormatFree(AVInputFormat* ifmt) const override;
+  
+  AVOutputFormat* AVOutputFormatAllocate() const override;
+  void AVOutputFormatCopy(AVOutputFormat* to, const AVOutputFormat* from) override;
+  void AVOutputFormatFree(AVOutputFormat* ifmt) const override;
 
 private:
   std::weak_ptr<IAvcModuleProvider> module_provider_;
