@@ -169,6 +169,8 @@ struct IAvcModuleDataWrapper {
   virtual AVBufferRef* AVCodecContextGetHwFramesCtx(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetFlags(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetFlags2(const AVCodecContext* codec_context) const = 0;
+  virtual int AVCodecContextGetErrRecognition(const AVCodecContext* codec_context) const = 0;
+  virtual int AVCodecContextGetErrorConcealment(const AVCodecContext* codec_context) const = 0;
 
   virtual int AVCodecContextGetGopSize(const AVCodecContext* codec_context) const = 0;
   virtual int AVCodecContextGetKeyintMin(const AVCodecContext* codec_context) const = 0;
@@ -234,6 +236,8 @@ struct IAvcModuleDataWrapper {
   virtual void AVCodecContextSetProfile(AVCodecContext* codec_context, int profile) const = 0;
   virtual void AVCodecContextSetFlags(AVCodecContext* codec_context, int flags) const = 0;
   virtual void AVCodecContextSetFlags2(AVCodecContext* codec_context, int flags2) const = 0;
+  virtual void AVCodecContextSetErrRecognition(AVCodecContext* codec_context, int err_recognition) const = 0;
+  virtual void AVCodecContextSetErrorConcealment(AVCodecContext* codec_context, int error_concealment) const = 0;  
   virtual void AVCodecContextSetSwPixFmt(AVCodecContext* codec_context, int sw_pix_fmt) const = 0;
   virtual void AVCodecContextSetQCompress(AVCodecContext* codec_context, float qcompress) const = 0;
   virtual void AVCodecContextSetFrameSize(AVCodecContext* codec_context, int frame_size) const = 0;

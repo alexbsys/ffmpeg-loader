@@ -622,6 +622,16 @@ void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetFlags2(AVCodecContext* 
   codec_context_d->flags2 = flags2;
 }
 
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetErrRecognition(AVCodecContext* codec_context, int err_recognition) const {
+  auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  codec_context_d->err_recognition = err_recognition;
+}
+
+void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetErrorConcealment(AVCodecContext* codec_context, int error_concealment) const {
+  auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  codec_context_d->error_concealment = error_concealment;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextSetOpaque(AVCodecContext* codec_context, void* opaque) const {
   auto codec_context_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   codec_context_d->opaque = opaque;
@@ -682,6 +692,16 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetFlags(const AVCodecConte
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetFlags2(const AVCodecContext* codec_context) const {
   auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
   return codec_context_d->flags2;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetErrRecognition(const AVCodecContext* codec_context) const {
+  auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  return codec_context_d->err_recognition;
+}
+
+int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetErrorConcealment(const AVCodecContext* codec_context) const {
+  auto codec_context_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVCodecContext*>(codec_context);
+  return codec_context_d->error_concealment;
 }
 
 int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVCodecContextGetGopSize(const AVCodecContext* codec_context) const {

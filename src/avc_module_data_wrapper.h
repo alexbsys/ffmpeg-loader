@@ -145,6 +145,8 @@ public:
   AVBufferRef* AVCodecContextGetHwFramesCtx(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetFlags(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetFlags2(const AVCodecContext* codec_context) const override;
+  int AVCodecContextGetErrRecognition(const AVCodecContext* codec_context) const override;
+  int AVCodecContextGetErrorConcealment(const AVCodecContext* codec_context) const override;
 
   int AVCodecContextGetGopSize(const AVCodecContext* codec_context) const override;
   int AVCodecContextGetKeyintMin(const AVCodecContext* codec_context) const override;
@@ -209,6 +211,8 @@ public:
   void AVCodecContextSetProfile(AVCodecContext* codec_context, int profile) const override;
   void AVCodecContextSetFlags(AVCodecContext* codec_context, int flags) const override;
   void AVCodecContextSetFlags2(AVCodecContext* codec_context, int flags2) const override;
+  void AVCodecContextSetErrRecognition(AVCodecContext* codec_context, int err_recognition) const override;
+  void AVCodecContextSetErrorConcealment(AVCodecContext* codec_context, int error_concealment) const override;  
   void AVCodecContextSetOpaque(AVCodecContext* codec_context, void* opaque) const override;
   void AVCodecContextSetHwFramesCtx(AVCodecContext* codec_context, AVBufferRef* hw_frames_ctx_buf) const override;
   void AVCodecContextSetHwDeviceCtx(AVCodecContext* codec_context, AVBufferRef* hw_device_ctx_buf) const override;

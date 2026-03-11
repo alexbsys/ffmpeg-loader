@@ -31,6 +31,32 @@
 #define AV_CODEC_FLAG2_FAST (1 << 0)
 #define AV_CODEC_FLAG2_LOCAL_HEADER   (1 <<  3)
 
+#ifndef AV_EF_CRCCHECK
+#define AV_EF_CRCCHECK  (1 << 0)
+#endif
+#ifndef AV_EF_BITSTREAM
+#define AV_EF_BITSTREAM (1 << 1)
+#endif
+#ifndef AV_EF_BUFFER
+#define AV_EF_BUFFER    (1 << 2)
+#endif
+#ifndef AV_EF_EXPLODE
+#define AV_EF_EXPLODE   (1 << 3)
+#endif
+#ifndef AV_EF_IGNORE_ERR
+#define AV_EF_IGNORE_ERR (1 << 15)
+#endif
+
+#ifndef FF_EC_GUESS_MVS
+#define FF_EC_GUESS_MVS   1
+#endif
+#ifndef FF_EC_DEBLOCK
+#define FF_EC_DEBLOCK     2
+#endif
+#ifndef FF_EC_FAVOR_INTER
+#define FF_EC_FAVOR_INTER 256
+#endif
+
 #define AV_NOPTS_VALUE          ((int64_t)UINT64_C(0x8000000000000000))
 
 #define MKTAG(a, b, c, d) (a | (b << 8) | (c << 16) | (d << 24))
