@@ -97,6 +97,7 @@ public:
   void AVFormatContextSetOutputFormat(AVFormatContext* ctx, AVOutputFormat* oformat) const override;
 
   int AVInputFormatGetFlags(const AVInputFormat* iformat) const override;
+  const char* AVInputFormatGetName(const AVInputFormat* iformat) const override;
   void AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const override;
   int(*AVInputFormatGetReadPacket(const AVInputFormat* ifmt) const)(AVFormatContext*, AVPacket* pkt) override;
 
