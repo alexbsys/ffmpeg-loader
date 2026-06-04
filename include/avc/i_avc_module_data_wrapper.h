@@ -429,6 +429,7 @@ struct IAvcModuleDataWrapper {
 
   //AVInputFormat
   virtual int AVInputFormatGetFlags(const AVInputFormat* iformat) const = 0;
+  virtual const char* AVInputFormatGetName(const AVInputFormat* iformat) const = 0;
   virtual void AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const = 0;
   virtual int(*AVInputFormatGetReadPacket(const AVInputFormat* ifmt) const)(AVFormatContext*, AVPacket* pkt) = 0;
 

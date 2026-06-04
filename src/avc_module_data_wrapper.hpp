@@ -334,6 +334,11 @@ int AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatGetFlags(const AVInputFormat
   return iformat_d->flags;
 }
 
+const char* AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatGetName(const AVInputFormat* iformat) const {
+  auto iformat_d = reinterpret_cast<const AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(iformat);
+  return iformat_d->name;
+}
+
 void AVC_MODULE_DATA_WRAPPER_CLASSNAME::AVInputFormatSetReadPacket(AVInputFormat* ifmt, int (*read_packet)(struct AVFormatContext*, AVPacket* pkt)) const {
 #if (LIBAVCODEC_VERSION_MAJOR < 61) // last implemented in 6.x
   auto iformat_d = reinterpret_cast<AVC_MODULE_DATA_WRAPPER_NAMESPACE::AVInputFormat*>(ifmt);
